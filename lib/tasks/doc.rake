@@ -3,13 +3,13 @@ require 'yard/rake/yardoc_task'
 
 # Use yard to build docs
 begin
-  project_root = File.expand_path(File.dirname(__FILE__))
-  doc_destination = File.join(project_root, 'doc')
+  project_root = File.expand_path(File.dirname(__FILE__) + "/../..")
+  doc_dest_dir = File.join(project_root, 'doc')
 
   YARD::Rake::YardocTask.new(:doc) do |yt|
     yt.files = Dir.glob(File.join(project_root, 'lib', '**', '*.rb')) +
                  [ File.join(project_root, 'README.textile') ]
-    yt.options = ['--output-dir', doc_destination, '--readme', 'README.textile']
+    yt.options = ['--output-dir', doc_dest_dir, '--readme', 'README.textile', '--title', 'crez-sw-ingest Documentation']
   end
 rescue LoadError
   desc "Generate YARD Documentation"
