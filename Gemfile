@@ -1,6 +1,7 @@
 source :rubygems
 
-gem 'yard'
+gem 'yard' 				# for javadoc-y documentation tags
+gem 'RedCloth' 		# for textile formatting used in Readme
 gem 'rake'
 
 group :test do
