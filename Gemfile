@@ -11,5 +11,5 @@ end
 
 group :development do
   gem 'ripl'
-#	gem 'ruby-debug19', :require => 'ruby-debug'
+#	gem 'ruby-debug19', :require => 'ruby-debug'  # doesn't play well with jruby
 end
