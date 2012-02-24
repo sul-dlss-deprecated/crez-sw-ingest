@@ -17,17 +17,23 @@ class ParseCrezData
   #   ckey =>  array of on-rez items
   #     each item has all the stuff from the line
   
-  attr :ckey_to_item_crez_info
+  attr_accessor :ckey_2_item_crez_info
+  
+  
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def initialize
+    @ckey_2_item_crez_info ||= {}
+  end
   
   
   # NAOMI_MUST_COMMENT_THIS_METHOD
   def read(csv_file_path)
     
     CSV.foreach(File.expand_path(csv_file_path, File.dirname(__FILE__)), {:col_sep => '|'}) do |row|
-#      puts row
-#      puts row[0]
+      puts row.inspect
       ckey = row[3]
       puts ckey
+      @ckey_2_item_crez_info[ckey] = "stuff"
 
 #    CSV.new(:headers => @csv_cols, :header_converters => :symbol)
       # row is an Array of fields
@@ -37,6 +43,9 @@ class ParseCrezData
       # otherwise, make a struct with all the relevant data and put it in the hash
       # use row here...
     end
+    
+    puts my_hash.inspect
+    puts @ckey_2_item_crez_info.inspect
   end
   
 end
