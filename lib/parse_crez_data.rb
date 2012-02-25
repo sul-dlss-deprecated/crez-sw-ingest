@@ -1,50 +1,33 @@
-# FIXME:  module?  class?
-
 require 'csv' 
-#require 'ostruct'
 
+# Read a CSV file containing Course Reserve data dumped from Sirsi, per spec here:
+#   https://consul.stanford.edu/display/NGDE/Symphony+Course+Reserves+Data+spec
+#  and create a Hash with all the information
 class ParseCrezData
   
-#  attr :sirsi_data
+  # ckey => array of on-reserve items, each a CSV::Row object
+  attr_accessor :ckey_2_crez_info
+
+  @@csv_cols = "rez_desk|resctl_exp_date|resctl_status|ckey|barcode|home_loc|curr_loc|item_rez_status|loan_period|rez_expire_date|rez_stage|course_id|course_name|term|instructor_lib_id|instructor_univ_id|instructor_name"
   
-#  @csv_cols = "rez_desk|resctl_exp_date|resctl_status|ckey|barcode|home_loc|curr_loc|item_rez_status|loan_period|rez_expire_date|rez_stage|course_id|course_name|term|instructor_lib_id|instructor_univ_id|instructor_name"
-  
-  
-#  MUSIC-RESV|20120109|CURRENT|555|36105041861316  |SCORES|MUSIC-RESV|ON_RESERVE|4H|20120109|ACTIVE|MUSIC-122C||FAL-WIN-SP|2000171265|09780727|Ferneyhough, Brian|
-  
-  
-  # from parsing, want:
-  #   ckey =>  array of on-rez items
-  #     each item has all the stuff from the line - it will be a Hash or struct or something
-  
-  attr_accessor :ckey_2_item_crez_info
-  
-  
-  # NAOMI_MUST_COMMENT_THIS_METHOD
   def initialize
-    @ckey_2_item_crez_info ||= {}
+    @ckey_2_crez_info ||= {}
   end
   
-  
-  # NAOMI_MUST_COMMENT_THIS_METHOD
+  # read the csv file and populate @ckey_2_crez_info
   def read(csv_file_path)
+    csv_options = {:col_sep => '|', :headers => @@csv_cols, :header_converters => :symbol}
     
-    CSV.foreach(File.expand_path(csv_file_path, File.dirname(__FILE__)), {:col_sep => '|'}) do |row|
-#      puts row.inspect
-      item_rez_status = row[7]
-      if item_rez_status == "ON_RESERVE"
-        ckey = row[3]
-        @ckey_2_item_crez_info[ckey] = "stuff"
+    CSV.foreach(File.expand_path(csv_file_path, File.dirname(__FILE__)), csv_options) do |row|
+      if row[:item_rez_status] == "ON_RESERVE"
+        ckey = row[:ckey]
+        crez_value = @ckey_2_crez_info[ckey] || []
+        @ckey_2_crez_info[ckey] = crez_value << row
       end
 
-#    CSV.new(:headers => @csv_cols, :header_converters => :symbol)
-      # row is an Array of fields
-      
-      # ignore if item reserve status isn't ON_RESERVE
-      # 
-      # otherwise, make a struct with all the relevant data and put it in the hash
+      # struct with all the relevant data and put it in the hash
       # use row here...
     end
   end
   
-end
+end # ParseCrezData class
