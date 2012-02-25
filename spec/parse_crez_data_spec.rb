@@ -14,15 +14,19 @@ describe ParseCrezData do
     p.ckey_2_crez_info.keys.size.should == 2
   end
     
-  it "should have the correct field values for item crez info (i.e. correct header info)" do
+  it "should result in a Hash where key is ckey and value is an array of item crez info as field=>value hashes" do
     p = ParseCrezData.new
     p.read(File.expand_path('test_data/crez1line.csv', File.dirname(__FILE__)))
     p.ckey_2_crez_info.should be_a_kind_of(Hash)
-
     crez_info = p.ckey_2_crez_info["444"]
     crez_info.should be_an_instance_of(Array)
+    crez_info.first.should be_an_instance_of(CSV::Row)
+  end
 
-    crez_item_info = crez_info.first
+  it "should have the correct field values for item crez info (i.e. correct header info)" do
+    p = ParseCrezData.new
+    p.read(File.expand_path('test_data/crez1line.csv', File.dirname(__FILE__)))
+    crez_item_info = p.ckey_2_crez_info["444"].first
     crez_item_info[:rez_desk].should == "GREEN-RESV"
     crez_item_info[:resctl_exp_date].should == "20111216"
     crez_item_info[:resctl_status].should == "CURRENT"
@@ -42,9 +46,6 @@ describe ParseCrezData do
     crez_item_info[:instructor_name].should == "Kreiner, Jamie K"
   end
   
-  it "should result in a Hash where key is ckey and value is an array of item crez info as field=>value hashes" do
-    pending "not implemented yet"
-  end
   
   it "should handle multiple entries with same ckey" do
     pending "not implemented yet"
