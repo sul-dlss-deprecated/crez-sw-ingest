@@ -46,9 +46,26 @@ describe ParseCrezData do
     crez_item_info[:instructor_name].should == "Kreiner, Jamie K"
   end
   
-  
-  it "should handle multiple entries with same ckey" do
-    pending "not implemented yet"
+  it "should create an array value for each line of data with the same ckey" do
+    p = ParseCrezData.new
+    p.read(File.expand_path('test_data/multfirst.csv', File.dirname(__FILE__)))
+    p.ckey_2_crez_info.keys.size.should == 3
+    p.ckey_2_crez_info["111"].size.should == 2
+    p = ParseCrezData.new
+    p.read(File.expand_path('test_data/multmid.csv', File.dirname(__FILE__)))
+    p.ckey_2_crez_info.keys.size.should == 3
+    p.ckey_2_crez_info["222"].size.should == 2
+    p = ParseCrezData.new
+    p.read(File.expand_path('test_data/multlast.csv', File.dirname(__FILE__)))
+    p.ckey_2_crez_info.keys.size.should == 3
+    p.ckey_2_crez_info["333"].size.should == 2
+    p = ParseCrezData.new
+    p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
+    p.ckey_2_crez_info.keys.size.should == 6
+    p.ckey_2_crez_info["111"].size.should == 2
+    p.ckey_2_crez_info["333"].size.should == 2
+    p.ckey_2_crez_info["555"].size.should == 2
+    p.ckey_2_crez_info["666"].size.should == 3
   end
   
 end
