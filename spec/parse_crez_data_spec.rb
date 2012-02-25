@@ -46,9 +46,45 @@ describe ParseCrezData do
     crez_item_info[:instructor_name].should == "Kreiner, Jamie K"
   end
   
+  it "should create an array value for each line of data with the same ckey" do
+    p = ParseCrezData.new
+    p.read(File.expand_path('test_data/multfirst.csv', File.dirname(__FILE__)))
+    result_hash = p.ckey_2_crez_info
+    result_hash.keys.size.should == 3
+    result_hash["111"].size.should == 2
+    result_hash["111"].first[:resctl_exp_date].should == "20111216"
+    result_hash["111"].last[:resctl_exp_date].should == "20111217"
+    p = ParseCrezData.new
+    p.read(File.expand_path('test_data/multmid.csv', File.dirname(__FILE__)))
+    result_hash = p.ckey_2_crez_info
+    result_hash.keys.size.should == 3
+    result_hash["222"].size.should == 2
+    result_hash["222"].first[:term].should == "FALL"
+    result_hash["222"].last[:term].should == "SPRING"
+    p = ParseCrezData.new
+    p.read(File.expand_path('test_data/multlast.csv', File.dirname(__FILE__)))
+    result_hash = p.ckey_2_crez_info
+    result_hash.keys.size.should == 3
+    result_hash["333"].size.should == 2
+    result_hash["333"].first[:rez_desk].should == "GREEN-RESV"
+    result_hash["333"].last[:rez_desk].should == "ART-RESV"
+    p = ParseCrezData.new
+    p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
+    result_hash = p.ckey_2_crez_info
+    result_hash.keys.size.should == 6
+    result_hash["111"].size.should == 2
+    result_hash["333"].size.should == 2
+    result_hash["555"].size.should == 2
+    result_hash["666"].size.should == 3
+  end
   
-  it "should handle multiple entries with same ckey" do
-    pending "not implemented yet"
+  it "should set nil value to missing fields" do
+    p = ParseCrezData.new
+    p.read(File.expand_path('test_data/multlast.csv', File.dirname(__FILE__)))
+    result_hash = p.ckey_2_crez_info
+    result_hash.keys.size.should == 3
+    result_hash["333"].size.should == 2
+    p.ckey_2_crez_info["111"].first[:course_name].should be_nil
   end
   
 end

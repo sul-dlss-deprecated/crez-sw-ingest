@@ -24,10 +24,7 @@ class ParseCrezData
         crez_value = @ckey_2_crez_info[ckey] || []
         @ckey_2_crez_info[ckey] = crez_value << row
       end
-
-      # struct with all the relevant data and put it in the hash
-      # use row here...
     end
   end
   
-end # ParseCrezData class
+end 
