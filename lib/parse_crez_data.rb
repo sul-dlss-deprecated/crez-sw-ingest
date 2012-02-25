@@ -44,7 +44,6 @@ class ParseCrezData
       # use row here...
     end
     
-    puts my_hash.inspect
     puts @ckey_2_item_crez_info.inspect
   end
   
