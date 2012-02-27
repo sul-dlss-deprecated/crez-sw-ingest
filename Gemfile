@@ -3,6 +3,7 @@ source :rubygems
 gem 'yard' 				# for javadoc-y documentation tags
 gem 'RedCloth' 		# for textile formatting used in Readme
 gem 'rake'
+gem 'rsolr'
 
 group :test do
 	gem 'rspec'
