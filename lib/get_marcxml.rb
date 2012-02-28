@@ -12,7 +12,7 @@ class GetMarcxml
   def initialize
     # parameters to retrieve marcxml with a solr request
     # solr_params should be in solr.yml config file
-    @solr_params = {:qt => "document", :fl => "id,marcxml", :echoParams => "none", :wt => 'ruby'}
+    @solr_params = {:qt => "document", :fl => "id,marcxml", :echoParams => "none"}
 
     # the full path for the config/solr.yml file
     @solr_config_file = File.expand_path('../config/solr.yml', File.dirname(__FILE__))
@@ -37,12 +37,17 @@ class GetMarcxml
   # send solr a query and return the response
   def get_solr_document(doc_id)
     @solr_params[:id] = doc_id
-    @response = @solr.get 'select', :params => @solr_params
-    raise "Solr retrieved more than one document for id #{doc_id}" unless @response.total == 1
-    @solr_doc = @response.docs[0]
-    raise "Solr retrieved document with 'id' #{@solr_doc[:id]} but expected #{doc_id}" unless doc_id == @solr_doc[:id]
+    @response = solr.get 'select', :params => @solr_params, :wt => "ruby"
+    raise "Solr retrieved more than one document for id #{doc_id}" unless @response["response"]["numFound"] == 1
+    @solr_doc = @response["response"]["docs"].first
+    raise "Solr retrieved document with 'id' #{@solr_doc["id"]} but expected #{doc_id}" unless doc_id == @solr_doc["id"]
     @solr_doc
   end
   
+  # @return the marcxml as a string
+  def get_marcxml(doc_id)
+    @solr_doc ||= get_solr_document(doc_id)
+    @solr_doc["marcxml"]
+  end
   
 end
