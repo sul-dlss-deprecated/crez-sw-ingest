@@ -24,6 +24,8 @@ describe GetMarcxml do
     pending "to be implemented"
   end
 
+# should probably mock the solr response
+
   it "should get a response from valid solr url" do
     g = GetMarcxml.new
     solr_doc = g.get_solr_document('666')
