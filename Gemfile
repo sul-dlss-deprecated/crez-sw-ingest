@@ -8,6 +8,7 @@ gem 'rsolr'
 group :test do
 	gem 'rspec'
 	gem 'simplecov', :require => false
+	gem 'marc'  # test that marcxml returned is parseable
 end
 
 group :development do
