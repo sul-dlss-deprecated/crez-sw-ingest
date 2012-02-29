@@ -10,7 +10,6 @@ class GetSolrdocFromSolrmarc
     # the full path for the config/solr.yml file
     @solr_config_file = File.expand_path('../config/solr.yml', File.dirname(__FILE__))
     set_up_solr_reindexer(solr_url, config_props_fname)
-    
   end
   
   # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument
