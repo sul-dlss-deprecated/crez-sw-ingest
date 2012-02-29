@@ -11,9 +11,13 @@ class AddCrezToSolrDoc
   end
 
   # NAOMI_MUST_COMMENT_THIS_METHOD
-  def get_solr_input_doc(ckey)
+  def solr_input_doc(ckey)
      @solr_input_doc = @get_solr_doc_from_solrmarc.get_solr_input_doc(ckey)
   end
 
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def crez_info(ckey)
+   @crez_info = @ckey_2_crez_info[ckey]
+  end
   
 end
