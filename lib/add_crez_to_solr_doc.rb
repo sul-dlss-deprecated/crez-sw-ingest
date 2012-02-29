@@ -34,7 +34,6 @@ class AddCrezToSolrDoc
       new_flds_hash[:crez_desk] = add_vals_from_row(new_flds_hash[:crez_desk], row, :rez_desk)
 # instructor facet is a copy field
       # compound value fields
-#      new_flds_hash[:crez_instructor_facet] = add_vals_from_row(new_flds_hash[:instructor_facet], row, :instructor_name)
 =begin       
       :course_id_facet(number + section + term)
       :course_facet (number + term + section + title)
@@ -54,6 +53,7 @@ class AddCrezToSolrDoc
   
   # given an array of existing values (can be nil), add the value from the indicated crez_info column to the array
   def add_compound_val_from_row(vals, csv_row, crez_col_syms)
+    
     vals ||= []
     vals << csv_row[crez_col_sym] unless csv_row[crez_col_sym].nil?
     vals.uniq
