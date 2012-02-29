@@ -1,4 +1,4 @@
-require 'get_marcxml.rb'
+require 'get_marcxml'
 require 'rsolr'
 require 'marc'
 
@@ -23,6 +23,8 @@ describe GetMarcxml do
   it "should handle an invalid solr url nicely" do
     pending "to be implemented"
   end
+
+# should probably mock the solr response
 
   it "should get a response from valid solr url" do
     g = GetMarcxml.new

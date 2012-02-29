@@ -1,13 +1,10 @@
 require 'rsolr'
 require 'yaml'
 
-# require 'marc'  # only if want to check validity of marc before calling SolrMarc
-
-# NAOMI_MUST_COMMENT_THIS_CLASS
+# Given a Solr baseurl from config/solr.yml and a Solr document id, send a request to Solr to retrieve marcxml for that record.
 class GetMarcxml
   
   # FIMXE:  method definitions or instance variables?
-  
   
   def initialize
     # parameters to retrieve marcxml with a solr request
