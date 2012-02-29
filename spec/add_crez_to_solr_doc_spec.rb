@@ -34,6 +34,24 @@ describe AddCrezToSolrDoc do
     crez_info.should be_an_instance_of(Array)
     crez_info[0].should be_an_instance_of(CSV::Row)
   end
+  
+  it "add_val_from_row should cope with the first value (create the Array) and repeated values (de-dupped)" do
+    crez_info = @@a.crez_info("666")
+    v = @@a.add_val_from_row(nil, crez_info[0], :ckey)
+    v.should be_an_instance_of(Array)
+    v.size.should == 1
+    v[0].should == "666"
+    v = @@a.add_val_from_row(v, crez_info[0], :ckey)
+    v.size.should == 1
+    v = @@a.add_val_from_row(v, crez_info[0], :rez_desk)
+    v.size.should == 2
+  end
+  
+  it "add_val_from_row should create empty array for single missing value" do
+    crez_info = @@a.crez_info("666")
+    v = @@a.add_val_from_row(nil, crez_info[0], :fake)
+    v.empty?.should == true
+  end
 
   it "should add all the correct lines from the sirsi data for a given ckey" do
     pending "to be implemented"
