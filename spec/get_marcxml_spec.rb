@@ -1,4 +1,4 @@
-require 'get_marcxml.rb'
+require 'get_marcxml'
 require 'rsolr'
 require 'marc'
 
