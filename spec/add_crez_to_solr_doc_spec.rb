@@ -121,9 +121,22 @@ describe AddCrezToSolrDoc do
       fld_hash[:crez_course_id_search].should == ["COMPLIT-101"]
       fld_hash[:crez_term_facet].should == ["FALL"]
       fld_hash[:crez_desk_facet].should == ["GREEN-RESV"]
+      fld_hash[:dept_facet].should == ["COMPLIT"]
       fld_hash[:crez_course_facet].should == ["COMPLIT-101 FALL"]
       fld_hash[:crez_course_w_name_facet].should == ["COMPLIT-101 FALL What is Literature?"]
       fld_hash[:crez_display].should == ["COMPLIT-101 -|- What is Literature? -|- Saldivar, Jose David -|- FALL"]
+
+      @@a.create_new_solr_flds_hash("555")
+      fld_hash = @@a.new_solr_flds
+      fld_hash[:crez_instructor_search].should == ["Harris, Bradford Cole", "Kreiner, Jamie K"]
+      fld_hash[:crez_course_name_search].should == ["Saints in the Middle Ages"]
+      fld_hash[:crez_course_id_search].should == ["HISTORY-41S", "HISTORY-211C"]
+      fld_hash[:crez_term_facet].should == ["FALL"]
+      fld_hash[:crez_desk_facet].should == ["GREEN-RESV"]
+      fld_hash[:dept_facet].should == ["HISTORY"]
+      fld_hash[:crez_course_facet].should == ["HISTORY-41S FALL", "HISTORY-211C FALL"]
+      fld_hash[:crez_course_w_name_facet].should == ["HISTORY-41S FALL ", "HISTORY-211C FALL Saints in the Middle Ages"]
+      fld_hash[:crez_display].should == ["HISTORY-41S -|-  -|- Harris, Bradford Cole -|- FALL", "HISTORY-211C -|- Saints in the Middle Ages -|- Kreiner, Jamie K -|- FALL"]
     end
   end
   

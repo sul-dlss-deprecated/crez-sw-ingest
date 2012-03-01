@@ -23,19 +23,18 @@ class AddCrezToSolrDoc
   
   # NAOMI_MUST_COMMENT_THIS_METHOD
   def create_new_solr_flds_hash(ckey)
+    @new_solr_flds = {}
     crez_info(ckey).each { |row|
-      # simple fields
       add_to_new_flds_hash(:crez_instructor_search, row[:instructor_name])
       add_to_new_flds_hash(:crez_course_name_search, row[:course_name])
       add_to_new_flds_hash(:crez_course_id_search, row[:course_id])
 # instructor facet is a copy field
       add_to_new_flds_hash(:crez_term_facet, row[:term])
       add_to_new_flds_hash(:crez_desk_facet, row[:rez_desk])
-      # compound fields
+      add_to_new_flds_hash(:dept_facet, get_dept(row[:course_id]))
       add_to_new_flds_hash(:crez_course_facet, get_compound_value_from_row(row, [:course_id, :term], " ")) # section info unavail
       add_to_new_flds_hash(:crez_course_w_name_facet, get_compound_value_from_row(row, [:course_id, :term, :course_name], " ")) # for record view
       add_to_new_flds_hash(:crez_display, get_compound_value_from_row(row, [:course_id, :course_name, :instructor_name, :term], " -|- "))
-# dept_facet - derive from course id
     }
   end
   
