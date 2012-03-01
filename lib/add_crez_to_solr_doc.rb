@@ -61,11 +61,10 @@ class AddCrezToSolrDoc
   # given an array of existing values (can be nil), add the value from the indicated crez_info column to the array
   # @crez_col_syms an Array of header symbols for the csv_row, in the order desired
   # @sep the separator between the values
-  def get_compound_value_from_row(csv_row_in, crez_col_syms, sep)
-    csv_row = csv_row_in.dup
+  def get_compound_value_from_row(csv_row, crez_col_syms, sep)
     compound_val = nil
     crez_col_syms.each { |col|
-      col_val = csv_row[col].to_s.dup
+      col_val = csv_row[col].to_s.dup # CSV::Row is adding a space for multiple lookups - odd
       if compound_val.nil?
         compound_val = col_val
       else
