@@ -16,7 +16,12 @@ class GetSolrdocFromSolrmarc
   #  note that it identifies Solr documents by the "id" field, and expects the marc to be stored in a Solr field "marcxml"
   # @doc_id  the value of the "id" Solr field for the record to be retrieved
   def get_solr_input_doc(doc_id)
-    @solrmarc_reindexer.getSolrInputDoc("id", doc_id, "marcxml")
+    @solr_input_doc = @solrmarc_reindexer.getSolrInputDoc("id", doc_id, "marcxml")
+  end
+  
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def add_value_to_field(name, value)
+    "to be implemented"
   end
   
   
