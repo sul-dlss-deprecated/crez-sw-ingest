@@ -4,8 +4,8 @@ require 'parse_crez_data'
 describe AddCrezToSolrDoc do
   
   before(:all) do
-    @@solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
-#    @@solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
+#    @@solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
+    @@solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
     p = ParseCrezData.new
     p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
     @@ckey_2_crez_info = p.ckey_2_crez_info
@@ -87,16 +87,22 @@ describe AddCrezToSolrDoc do
   context "get_compound_value_from_row" do
     it "should add the fields in order, with the indicated separator" do
       row = @@a.crez_info("666")[0]
+      val = @@a.get_compound_value_from_row(row, [:course_id, :term, :ckey], "|")
+      val.should == "COMPLIT-101|FALL|666"
+      val = @@a.get_compound_value_from_row(row, [:course_id, :term, :ckey], " ")
+      val.should == "COMPLIT-101 FALL 666"
+      val = @@a.get_compound_value_from_row(row, [:course_id, :ckey, :term], " -!- ")
+      val.should == "COMPLIT-101 -!- 666 -!- FALL"
+    end
+    
+    it "should use an empty string for a missing column" do
+      row = @@a.crez_info("666")[0]
       val = @@a.get_compound_value_from_row(row, [:fake, :term], " ")
       val.should == " FALL"
       val = @@a.get_compound_value_from_row(row, [:term, :fake], " ")
       val.should == "FALL "
       val = @@a.get_compound_value_from_row(row, [:course_id, :fake, :term], " -!- ")
       val.should == "COMPLIT-101 -!-  -!- FALL"
-    end
-    
-    it "should use an empty string for a missing column separator" do
-      
     end
   end
   
