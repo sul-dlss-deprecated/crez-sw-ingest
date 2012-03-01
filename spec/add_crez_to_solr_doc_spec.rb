@@ -4,8 +4,8 @@ require 'parse_crez_data'
 describe AddCrezToSolrDoc do
   
   before(:all) do
-    @@solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
-#    @@solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
+#    @@solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
+    @@solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
     p = ParseCrezData.new
     p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
     @@ckey_2_crez_info = p.ckey_2_crez_info
@@ -101,6 +101,13 @@ describe AddCrezToSolrDoc do
     end
   end
 
+  it "should set dept to the course id(s) before the slash" do
+    @@a.get_dept("COMPLIT-101").should == "COMPLIT"
+    @@a.get_dept("MUSIC-2C-001").should == "MUSIC"
+    @@a.get_dept("GEOPHYS 251").should == "GEOPHYS"
+    @@a.get_dept("BIOHOPK-182H/323H").should == "BIOHOPK"
+  end
+
   context "create_new_solr_flds_hash" do
     before(:each) do
       @@a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
@@ -109,14 +116,14 @@ describe AddCrezToSolrDoc do
     it "should add all expected non-nil fields to the hash" do
       @@a.create_new_solr_flds_hash("666")
       fld_hash = @@a.new_solr_flds
-      fld_hash[:crez_instructor_search].should_not be_nil
-      fld_hash[:crez_course_name_search].should_not be_nil
-      fld_hash[:crez_course_id_search].should_not be_nil
-      fld_hash[:crez_term_facet].should_not be_nil
-      fld_hash[:crez_desk_facet].should_not be_nil
-      fld_hash[:crez_course_facet].should_not be_nil
-      fld_hash[:crez_course_w_name_facet].should_not be_nil
-      fld_hash[:crez_display].should_not be_nil
+      fld_hash[:crez_instructor_search].should == ["Saldivar, Jose David"]
+      fld_hash[:crez_course_name_search].should == ["What is Literature?"]
+      fld_hash[:crez_course_id_search].should == ["COMPLIT-101"]
+      fld_hash[:crez_term_facet].should == ["FALL"]
+      fld_hash[:crez_desk_facet].should == ["GREEN-RESV"]
+      fld_hash[:crez_course_facet].should == ["COMPLIT-101 FALL"]
+      fld_hash[:crez_course_w_name_facet].should == ["COMPLIT-101 FALL What is Literature?"]
+      fld_hash[:crez_display].should == ["COMPLIT-101 -|- What is Literature? -|- Saldivar, Jose David -|- FALL"]
     end
   end
   

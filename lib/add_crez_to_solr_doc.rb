@@ -64,6 +64,12 @@ class AddCrezToSolrDoc
     }
     compound_val
   end
+  
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def get_dept(course_id)
+    dept = course_id.split("-")[0]
+    dept = dept.split(" ")[0]
+  end
 
   # NAOMI_MUST_COMMENT_THIS_METHOD
   def modify_existing_fields
