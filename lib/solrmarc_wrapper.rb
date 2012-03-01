@@ -1,6 +1,7 @@
 include Java
 
-# use SolrMarc's SolrReIndexer to get a SolrInputDocument from the marc record stored in the Solr index.
+# a way to use SolrMarc objects, 
+#  such as using SolrReIndexer to get a SolrInputDocument from a marc record stored in the Solr index.
 class SolrmarcWrapper
   
   # @solr_marc_dir the "dist" directory from a solrmarc ant build
