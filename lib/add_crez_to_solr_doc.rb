@@ -1,4 +1,4 @@
-require 'get_solrdoc_from_solrmarc'
+require 'solrmarc_wrapper'
 
 # NAOMI_MUST_COMMENT_THIS_CLASS
 class AddCrezToSolrDoc
@@ -6,14 +6,14 @@ class AddCrezToSolrDoc
   attr_reader :ckey_2_crez_info, :new_solr_flds
   
   def initialize(solrmarc_dir, ckey_2_crez_info)
-    @get_solr_doc_from_solrmarc = GetSolrdocFromSolrmarc.new(solrmarc_dir, "sw_config.properties")
+    @solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dir, "sw_config.properties")
     @ckey_2_crez_info = ckey_2_crez_info
     @new_solr_flds = {}
   end
 
   # NAOMI_MUST_COMMENT_THIS_METHOD
   def solr_input_doc(ckey)
-     @solr_input_doc = @get_solr_doc_from_solrmarc.get_solr_input_doc(ckey)
+     @solr_input_doc = @solrmarc_wrapper.get_solr_input_doc(ckey)
   end
 
   # NAOMI_MUST_COMMENT_THIS_METHOD
@@ -68,6 +68,11 @@ class AddCrezToSolrDoc
   def get_dept(course_id)
     dept = course_id.split("-")[0]
     dept = dept.split(" ")[0]
+  end
+
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def add_crez_val_to_access_facet
+    
   end
 
   # NAOMI_MUST_COMMENT_THIS_METHOD
