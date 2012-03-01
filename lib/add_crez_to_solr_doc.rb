@@ -3,11 +3,12 @@ require 'get_solrdoc_from_solrmarc'
 # NAOMI_MUST_COMMENT_THIS_CLASS
 class AddCrezToSolrDoc
   
-  attr_reader :ckey_2_crez_info
+  attr_reader :ckey_2_crez_info, :new_solr_flds
   
   def initialize(solrmarc_dir, ckey_2_crez_info)
     @get_solr_doc_from_solrmarc = GetSolrdocFromSolrmarc.new(solrmarc_dir, "sw_config.properties")
     @ckey_2_crez_info = ckey_2_crez_info
+    @new_solr_flds = {}
   end
 
   # NAOMI_MUST_COMMENT_THIS_METHOD
@@ -21,17 +22,25 @@ class AddCrezToSolrDoc
   end
   
   # NAOMI_MUST_COMMENT_THIS_METHOD
-  def new_solr_flds_hash
-    new_flds_hash = {}
+  def create_new_solr_flds_hash
     
     @crez_info.each { |row|
       # simple fields
-      new_flds_hash[:crez_instructor_search] = add_vals_from_row(new_flds_hash[:instructor_search], row, :instructor_name)
-      new_flds_hash[:crez_term_search] = add_vals_from_row(new_flds_hash[:term_search], row, :term)
-      new_flds_hash[:crez_course_name_search] = add_vals_from_row(new_flds_hash[:crez_course_name_search], row, :course_name)
-      new_flds_hash[:crez_course_id_search] = add_vals_from_row(new_flds_hash[:crez_course_id_search], row, :course_id)
-      new_flds_hash[:crez_course_facet] = add_vals_from_row(new_flds_hash[:crez_course_id_search], row, :course_id)
-      new_flds_hash[:crez_desk] = add_vals_from_row(new_flds_hash[:crez_desk], row, :rez_desk)
+      add_to_new_flds_hash(:crez_instructor_search, row[:instructor_name])
+      add_to_new_flds_hash(:crez_term_search, row[:term])
+      add_to_new_flds_hash(:crez_course_name_search, row[:course_name])
+      add_to_new_flds_hash(:crez_course_id_search, row[:course_id])
+      add_to_new_flds_hash(:crez_desk, row[:rez_desk])
+      # compound fields
+      add_to_new_flds_hash(:crez_course_facet, get_compound_value(row, [:course_id, :term], " "))
+      
+
+#      new_flds_hash[:crez_instructor_search] = add_val_from_row(new_flds_hash[:instructor_search], row, :instructor_name)
+#      new_flds_hash[:crez_term_search] = add_val_from_row(new_flds_hash[:term_search], row, :term)
+#      new_flds_hash[:crez_course_name_search] = add_val_from_row(new_flds_hash[:crez_course_name_search], row, :course_name)
+#      new_flds_hash[:crez_course_id_search] = add_val_from_row(new_flds_hash[:crez_course_id_search], row, :course_id)
+#      new_flds_hash[:crez_desk] = add_val_from_row(new_flds_hash[:crez_desk], row, :rez_desk)
+#      new_flds_hash[:crez_course_facet] = add_compound_val_from_row(new_flds_hash[:crez_course_facet], row, [:course_id, :term], " ")
 # instructor facet is a copy field
       # compound value fields
 =begin       
@@ -43,6 +52,31 @@ class AddCrezToSolrDoc
     
     # department - derive from course id
   end
+  
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def add_to_new_flds_hash(solr_fldname_sym, new_val)
+    unless new_val.nil?
+      @new_solr_flds[solr_fldname_sym] ||= []
+      @new_solr_flds[solr_fldname_sym] << new_val
+      @new_solr_flds[solr_fldname_sym].uniq!
+    end
+  end
+
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def get_compound_value(csv_row, crez_col_syms, sep)
+    compound_val = nil
+    crez_col_syms.each { |col|
+      col_val = csv_row[col]
+      if col_val.nil? then col_val = "" end
+      if compound_val.nil?
+        compound_val = col_val
+      else
+        compound_val << sep << col_val
+      end
+    }
+    compound_val
+  end
+
   
   # given an array of existing values (can be nil), add the value from the indicated crez_info column to the array
   def add_val_from_row(vals, csv_row, crez_col_sym)

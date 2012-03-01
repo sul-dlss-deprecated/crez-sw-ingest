@@ -35,6 +35,47 @@ describe AddCrezToSolrDoc do
     crez_info[0].should be_an_instance_of(CSV::Row)
   end
   
+  it "new_solr_flds object should start out as an empty Hash" do
+    @@a.new_solr_flds.should be_an_instance_of(Hash)
+    @@a.new_solr_flds.should be_empty
+  end
+  
+  context "add_to_new_flds_hash" do
+    before(:each) do
+      @@a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
+    end
+    
+    it "should not create a field key if the only value to be added is nil" do
+      @@a.add_to_new_flds_hash(:fname, nil)
+      @@a.new_solr_flds.should be_empty
+    end
+    
+    it "should not add a nil value to new_solr_flds" do
+      @@a.add_to_new_flds_hash(:fname, "val1")
+      @@a.new_solr_flds[:fname].size.should == 1
+      @@a.new_solr_flds[:fname].should == ["val1"]
+      @@a.add_to_new_flds_hash(:fname, nil)
+      @@a.new_solr_flds[:fname].size.should == 1
+      @@a.new_solr_flds[:fname].should == ["val1"]
+    end
+    
+    it "should not add a duplicate value to new_solr_flds" do
+      @@a.add_to_new_flds_hash(:fname, "val1")
+      @@a.new_solr_flds[:fname].size.should == 1
+      @@a.new_solr_flds[:fname].should == ["val1"]
+      @@a.add_to_new_flds_hash(:fname, "val1")
+      @@a.new_solr_flds[:fname].size.should == 1
+      @@a.new_solr_flds[:fname].should == ["val1"]
+    end
+    
+  end # add_to_new_flds_hash context
+  
+  it "does something" do
+    #    crez_info = @@a.crez_info("666")
+    #    crez_row = crez_info[0]
+  end
+  
+  
   it "add_val_from_row should cope with the first value (create the Array) and repeated values (de-dupped)" do
     crez_info = @@a.crez_info("666")
     v = @@a.add_val_from_row(nil, crez_info[0], :ckey)
@@ -50,7 +91,7 @@ describe AddCrezToSolrDoc do
   it "add_val_from_row should create empty array for single missing value" do
     crez_info = @@a.crez_info("666")
     v = @@a.add_val_from_row(nil, crez_info[0], :fake)
-    v.empty?.should == true
+    v.should be_empty
   end
   
   it "add_compound_val_from_row should add the fields in order, with the indicated separator" do
