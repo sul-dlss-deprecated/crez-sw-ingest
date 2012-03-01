@@ -19,7 +19,7 @@ class SolrjWrapper
   
   # NAOMI_MUST_COMMENT_THIS_METHOD
   def add_value_to_field(solr_input_doc, fldname, value)
-    "to be implemented"
+    solr_input_doc.addField(fldname, value, 1.0) unless (fldname.nil? or fldname.size == 0 or value.nil? or value.size == 0)
   end
   
   
