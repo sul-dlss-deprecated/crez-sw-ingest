@@ -6,10 +6,10 @@ class SolrmarcWrapper
   # @solr_marc_dir the "dist" directory from a solrmarc ant build
   # @config_props_fname  the name of the xx_config.properties file relative to the solr_marc_directory
   def initialize(solr_marc_dir, config_props_fname)
-    load_solr_marc(solr_marc_dir)
+    load_solrmarc(solr_marc_dir)
     # the full path for the config/solr.yml file
     @solr_config_file = File.expand_path('../config/solr.yml', File.dirname(__FILE__))
-    set_up_solr_reindexer(solr_url, config_props_fname)
+    setup_solr_reindexer(solr_url, config_props_fname)
   end
   
   # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument
@@ -19,16 +19,11 @@ class SolrmarcWrapper
     @solr_input_doc = @solrmarc_reindexer.getSolrInputDoc("id", doc_id, "marcxml")
   end
   
-  # NAOMI_MUST_COMMENT_THIS_METHOD
-  def add_value_to_field(name, value)
-    "to be implemented"
-  end
-  
   
   protected
   
   # require all the necessary jars to use SolrMarc classes
-  def load_solr_marc(solr_marc_dir)
+  def load_solrmarc(solr_marc_dir)
     require "#{solr_marc_dir}/StanfordSearchWorksSolrMarc.jar"
     require "#{solr_marc_dir}/SolrMarc.jar"
     Dir["#{solr_marc_dir}/lib/*.jar"].each {|jar_file| require jar_file }
@@ -47,7 +42,7 @@ class SolrmarcWrapper
   # initialize the @solrmarc_reindexer object
   # @solr_url the url of the Solr server
   # @config_props_fname  the name of the xx_config.properties file relative to the solr_marc_dir used in initialize method
-  def set_up_solr_reindexer(solr_url, config_props_fname)
+  def setup_solr_reindexer(solr_url, config_props_fname)
     solr_core_loader = org.solrmarc.solr.SolrCoreLoader.loadRemoteSolrServer(solr_url, false, true)
     @solrmarc_reindexer = org.solrmarc.marc.SolrReIndexer.new(solr_core_loader)
     @solrmarc_reindexer.init([config_props_fname])

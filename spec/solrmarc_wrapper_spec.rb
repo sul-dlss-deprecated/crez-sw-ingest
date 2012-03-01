@@ -5,9 +5,9 @@ describe SolrmarcWrapper do
 # FIXME:  need a way to avoid hardcoding the solrmarc directory  
   
   before(:all) do
-    @@solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
-#    @@solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
-    @@solrmarc_wrapper = SolrmarcWrapper.new(@@solrmarc_dist_dir, "sw_config.properties")
+    solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
+#    solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
+    @@solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dist_dir, "sw_config.properties")
   end
   
   it "should retrieve the SolrInputDoc generated from the marc record" do
@@ -20,10 +20,6 @@ describe SolrmarcWrapper do
   it "should have a SolrInputDoc with the non-stored fields present" do
     sid = @@solrmarc_wrapper.get_solr_input_doc("666")
     sid["title_245a_search"].getValue.should_not be_nil
-  end
-
-  it "should keep the existing values when it adds a value to a field" do
-    pending "to be implement"
   end
   
 end
