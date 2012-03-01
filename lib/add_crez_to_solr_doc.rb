@@ -22,30 +22,21 @@ class AddCrezToSolrDoc
   end
   
   # NAOMI_MUST_COMMENT_THIS_METHOD
-  def create_new_solr_flds_hash
-    
-    @crez_info.each { |row|
+  def create_new_solr_flds_hash(ckey)
+    crez_info(ckey).each { |row|
       # simple fields
       add_to_new_flds_hash(:crez_instructor_search, row[:instructor_name])
-      add_to_new_flds_hash(:crez_term_search, row[:term])
       add_to_new_flds_hash(:crez_course_name_search, row[:course_name])
       add_to_new_flds_hash(:crez_course_id_search, row[:course_id])
-      add_to_new_flds_hash(:crez_desk, row[:rez_desk])
-      # compound fields
-      add_to_new_flds_hash(:crez_course_facet, get_compound_value_from_row(row, [:course_id, :term], " "))
-      
-
-#      new_flds_hash[:crez_course_facet] = add_compound_val_from_row(new_flds_hash[:crez_course_facet], row, [:course_id, :term], " ")
 # instructor facet is a copy field
-      # compound value fields
-=begin       
-      :course_id_facet(number + section + term)
-      :course_facet (number + term + section + title)
-      :crez_display  (course_id, course_title, instructor, (term?))
-=end
+      add_to_new_flds_hash(:crez_term_facet, row[:term])
+      add_to_new_flds_hash(:crez_desk_facet, row[:rez_desk])
+      # compound fields
+      add_to_new_flds_hash(:crez_course_facet, get_compound_value_from_row(row, [:course_id, :term], " ")) # section info unavail
+      add_to_new_flds_hash(:crez_course_w_name_facet, get_compound_value_from_row(row, [:course_id, :term, :course_name], " ")) # for record view
+      add_to_new_flds_hash(:crez_display, get_compound_value_from_row(row, [:course_id, :course_name, :instructor_name, :term], " -|- "))
+# dept_facet - derive from course id
     }
-    
-    # department - derive from course id
   end
   
   # NAOMI_MUST_COMMENT_THIS_METHOD

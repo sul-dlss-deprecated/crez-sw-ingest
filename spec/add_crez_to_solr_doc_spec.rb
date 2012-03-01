@@ -79,11 +79,6 @@ describe AddCrezToSolrDoc do
     
   end # add_to_new_flds_hash context
   
-  it "does something" do
-    #    crez_info = @@a.crez_info("666")
-    #    crez_row = crez_info[0]
-  end
-  
   context "get_compound_value_from_row" do
     it "should add the fields in order, with the indicated separator" do
       row = @@a.crez_info("666")[0]
@@ -103,6 +98,25 @@ describe AddCrezToSolrDoc do
       val.should == "FALL "
       val = @@a.get_compound_value_from_row(row, [:course_id, :fake, :term], " -!- ")
       val.should == "COMPLIT-101 -!-  -!- FALL"
+    end
+  end
+
+  context "create_new_solr_flds_hash" do
+    before(:each) do
+      @@a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
+    end
+    
+    it "should add all expected non-nil fields to the hash" do
+      @@a.create_new_solr_flds_hash("666")
+      fld_hash = @@a.new_solr_flds
+      fld_hash[:crez_instructor_search].should_not be_nil
+      fld_hash[:crez_course_name_search].should_not be_nil
+      fld_hash[:crez_course_id_search].should_not be_nil
+      fld_hash[:crez_term_facet].should_not be_nil
+      fld_hash[:crez_desk_facet].should_not be_nil
+      fld_hash[:crez_course_facet].should_not be_nil
+      fld_hash[:crez_course_w_name_facet].should_not be_nil
+      fld_hash[:crez_display].should_not be_nil
     end
   end
   
