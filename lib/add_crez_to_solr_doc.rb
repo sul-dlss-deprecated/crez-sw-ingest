@@ -32,14 +32,9 @@ class AddCrezToSolrDoc
       add_to_new_flds_hash(:crez_course_id_search, row[:course_id])
       add_to_new_flds_hash(:crez_desk, row[:rez_desk])
       # compound fields
-      add_to_new_flds_hash(:crez_course_facet, get_compound_value(row, [:course_id, :term], " "))
+      add_to_new_flds_hash(:crez_course_facet, get_compound_value_from_row(row, [:course_id, :term], " "))
       
 
-#      new_flds_hash[:crez_instructor_search] = add_val_from_row(new_flds_hash[:instructor_search], row, :instructor_name)
-#      new_flds_hash[:crez_term_search] = add_val_from_row(new_flds_hash[:term_search], row, :term)
-#      new_flds_hash[:crez_course_name_search] = add_val_from_row(new_flds_hash[:crez_course_name_search], row, :course_name)
-#      new_flds_hash[:crez_course_id_search] = add_val_from_row(new_flds_hash[:crez_course_id_search], row, :course_id)
-#      new_flds_hash[:crez_desk] = add_val_from_row(new_flds_hash[:crez_desk], row, :rez_desk)
 #      new_flds_hash[:crez_course_facet] = add_compound_val_from_row(new_flds_hash[:crez_course_facet], row, [:course_id, :term], " ")
 # instructor facet is a copy field
       # compound value fields
@@ -63,11 +58,14 @@ class AddCrezToSolrDoc
   end
 
   # NAOMI_MUST_COMMENT_THIS_METHOD
-  def get_compound_value(csv_row, crez_col_syms, sep)
+  # given an array of existing values (can be nil), add the value from the indicated crez_info column to the array
+  # @crez_col_syms an Array of header symbols for the csv_row, in the order desired
+  # @sep the separator between the values
+  def get_compound_value_from_row(csv_row_in, crez_col_syms, sep)
+    csv_row = csv_row_in.dup
     compound_val = nil
     crez_col_syms.each { |col|
-      col_val = csv_row[col]
-      if col_val.nil? then col_val = "" end
+      col_val = csv_row[col].to_s.dup
       if compound_val.nil?
         compound_val = col_val
       else
@@ -75,33 +73,6 @@ class AddCrezToSolrDoc
       end
     }
     compound_val
-  end
-
-  
-  # given an array of existing values (can be nil), add the value from the indicated crez_info column to the array
-  def add_val_from_row(vals, csv_row, crez_col_sym)
-    vals ||= []
-    vals << csv_row[crez_col_sym] unless csv_row[crez_col_sym].nil?
-    vals.uniq
-  end
-  
-  # given an array of existing values (can be nil), add the value from the indicated crez_info column to the array
-  # @crez_col_syms an Array of header symbols for the csv_row, in the order desired
-  # @sep the separator between the values
-  def add_compound_val_from_row(vals, csv_row, crez_col_syms, sep)
-    compound_val = nil
-    crez_col_syms.each { |col|
-      col_val = csv_row[col]
-      if col_val.nil? then col_val = "" end
-      if compound_val.nil?
-        compound_val = col_val
-      else
-        compound_val << sep << col_val
-      end
-    }
-    vals ||= []
-    vals << compound_val unless compound_val.nil?
-    vals.uniq
   end
 
   # NAOMI_MUST_COMMENT_THIS_METHOD

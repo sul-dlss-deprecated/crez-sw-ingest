@@ -45,8 +45,14 @@ describe AddCrezToSolrDoc do
       @@a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
     end
     
-    it "should not create a field key if the only value to be added is nil" do
+    it "should not create a field if the only value to be added is nil" do
       @@a.add_to_new_flds_hash(:fname, nil)
+      @@a.new_solr_flds.should be_empty
+    end
+    
+    it "should not add a value when the CSV Row is missing the value" do
+      crez_info = @@a.crez_info("666")
+      @@a.add_to_new_flds_hash(:fname, crez_info[0][:fake])
       @@a.new_solr_flds.should be_empty
     end
     
@@ -63,9 +69,12 @@ describe AddCrezToSolrDoc do
       @@a.add_to_new_flds_hash(:fname, "val1")
       @@a.new_solr_flds[:fname].size.should == 1
       @@a.new_solr_flds[:fname].should == ["val1"]
+      @@a.add_to_new_flds_hash(:fname, "val2")
+      @@a.new_solr_flds[:fname].size.should == 2
+      @@a.new_solr_flds[:fname].should == ["val1", "val2"]
       @@a.add_to_new_flds_hash(:fname, "val1")
-      @@a.new_solr_flds[:fname].size.should == 1
-      @@a.new_solr_flds[:fname].should == ["val1"]
+      @@a.new_solr_flds[:fname].size.should == 2
+      @@a.new_solr_flds[:fname].should == ["val1", "val2"]
     end
     
   end # add_to_new_flds_hash context
@@ -75,37 +84,22 @@ describe AddCrezToSolrDoc do
     #    crez_row = crez_info[0]
   end
   
-  
-  it "add_val_from_row should cope with the first value (create the Array) and repeated values (de-dupped)" do
-    crez_info = @@a.crez_info("666")
-    v = @@a.add_val_from_row(nil, crez_info[0], :ckey)
-    v.should be_an_instance_of(Array)
-    v.size.should == 1
-    v[0].should == "666"
-    v = @@a.add_val_from_row(v, crez_info[0], :ckey)
-    v.size.should == 1
-    v = @@a.add_val_from_row(v, crez_info[0], :rez_desk)
-    v.size.should == 2
+  context "get_compound_value_from_row" do
+    it "should add the fields in order, with the indicated separator" do
+      row = @@a.crez_info("666")[0]
+      val = @@a.get_compound_value_from_row(row, [:fake, :term], " ")
+      val.should == " FALL"
+      val = @@a.get_compound_value_from_row(row, [:term, :fake], " ")
+      val.should == "FALL "
+      val = @@a.get_compound_value_from_row(row, [:course_id, :fake, :term], " -!- ")
+      val.should == "COMPLIT-101 -!-  -!- FALL"
+    end
+    
+    it "should use an empty string for a missing column separator" do
+      
+    end
   end
   
-  it "add_val_from_row should create empty array for single missing value" do
-    crez_info = @@a.crez_info("666")
-    v = @@a.add_val_from_row(nil, crez_info[0], :fake)
-    v.should be_empty
-  end
-  
-  it "add_compound_val_from_row should add the fields in order, with the indicated separator" do
-    crez_info = @@a.crez_info("666")
-    v = @@a.add_compound_val_from_row(nil, crez_info[0], [:fake, :term], " ")
-    v.should be_an_instance_of(Array)
-    v.size.should == 1
-    v[0].should == " FALL"
-    v = @@a.add_compound_val_from_row(v, crez_info[1], [:course_id, :term], " -!- ")
-    v.size.should == 2
-    v[1].should == "COMPLIT-101 -!- FALL"
-  end
-  
-
   it "should add all the correct lines from the sirsi data for a given ckey" do
     pending "to be implemented"
   end
