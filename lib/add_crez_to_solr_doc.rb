@@ -52,17 +52,29 @@ class AddCrezToSolrDoc
   end
   
   # given an array of existing values (can be nil), add the value from the indicated crez_info column to the array
-  def add_compound_val_from_row(vals, csv_row, crez_col_syms)
-    
+  # @crez_col_syms an Array of header symbols for the csv_row, in the order desired
+  # @sep the separator between the values
+  def add_compound_val_from_row(vals, csv_row, crez_col_syms, sep)
+    compound_val = nil
+    crez_col_syms.each { |col|
+      col_val = csv_row[col]
+      if col_val.nil? then col_val = "" end
+      if compound_val.nil?
+        compound_val = col_val
+      else
+        compound_val << sep << col_val
+      end
+    }
     vals ||= []
-    vals << csv_row[crez_col_sym] unless csv_row[crez_col_sym].nil?
+    vals << compound_val unless compound_val.nil?
     vals.uniq
   end
 
   # NAOMI_MUST_COMMENT_THIS_METHOD
-  def modify_item_display
+  def modify_existing_fields
 #    :item_display for the specific barcode modified   add  :rez_desk, :crez_callnum, :crez_loan_period, :crez_id
 # :access facet gets additional value of "Course Reserve"
+# :location facet changes per crez desk ... ewwwww
     
   end
   

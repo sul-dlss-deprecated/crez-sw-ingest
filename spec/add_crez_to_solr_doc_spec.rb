@@ -52,6 +52,18 @@ describe AddCrezToSolrDoc do
     v = @@a.add_val_from_row(nil, crez_info[0], :fake)
     v.empty?.should == true
   end
+  
+  it "add_compound_val_from_row should add the fields in order, with the indicated separator" do
+    crez_info = @@a.crez_info("666")
+    v = @@a.add_compound_val_from_row(nil, crez_info[0], [:fake, :term], " ")
+    v.should be_an_instance_of(Array)
+    v.size.should == 1
+    v[0].should == " FALL"
+    v = @@a.add_compound_val_from_row(v, crez_info[1], [:course_id, :term], " -!- ")
+    v.size.should == 2
+    v[1].should == "COMPLIT-101 -!- FALL"
+  end
+  
 
   it "should add all the correct lines from the sirsi data for a given ckey" do
     pending "to be implemented"
