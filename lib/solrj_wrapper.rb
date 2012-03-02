@@ -1,6 +1,6 @@
 include Java
 
-# NAOMI_MUST_COMMENT_THIS_CLASS
+# Methods required to interact with SolrJ objects
 class SolrjWrapper
   
   attr_reader :streaming_update_server
@@ -12,12 +12,12 @@ class SolrjWrapper
     @streaming_update_server = streaming_update_server
   end
   
-  # NAOMI_MUST_COMMENT_THIS_METHOD
+  # returns a SolrJ StreamingUpdateSolrServer object 
   def streaming_update_server
     @streaming_update_server ||= org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer.new(solr_url, 100, 2)
   end
   
-  # NAOMI_MUST_COMMENT_THIS_METHOD
+  # given a SolrInputDocument, add the field and/or the values.  This will not add empty values, and it will not add duplicate values
   def add_vals_to_fld(solr_input_doc, fldname, val_array)
     if !fldname.nil? && fldname.size > 0 && !val_array.nil? && val_array.size > 0
       if !solr_input_doc[fldname].nil?
@@ -33,7 +33,7 @@ class SolrjWrapper
   
   protected 
 
-#   # require all the necessary jars to use Solrj classes
+  # require all the necessary jars to use Solrj classes
   def load_solrj(solrj_jar_dir)
     Dir["#{solrj_jar_dir}/*.jar"].each {|jar_file| require jar_file }
   end
@@ -48,6 +48,5 @@ class SolrjWrapper
       @solr_config["url"]
     end
   end
-  
   
 end

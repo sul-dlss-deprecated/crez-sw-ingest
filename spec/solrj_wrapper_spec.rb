@@ -73,6 +73,4 @@ describe SolrjWrapper do
     end
   end # context add_vals_to_fld
 
-  
-
 end
