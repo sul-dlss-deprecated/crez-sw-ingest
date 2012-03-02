@@ -11,18 +11,16 @@ describe AddCrezToSolrDoc do
     @@ckey_2_crez_info = p.ckey_2_crez_info
     @@a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
   end
-  
-  it "should do stuff" do
-    @@a.should_not be_nil
-    @@a.should be_an_instance_of(AddCrezToSolrDoc)
-    @@a.ckey_2_crez_info.should be_an_instance_of(Hash)
-  end
 
   it "should retrieve the solr_input_doc for a ckey" do
     sid = @@a.solr_input_doc("666")
     sid.should_not be_nil
     sid.should be_an_instance_of(Java::OrgApacheSolrCommon::SolrInputDocument)
     sid["id"].getValue.should == "666"
+  end
+  
+  it "should raise an exception when there is no document in the Solr index for the ckey" do
+    expect {@@a.solr_input_doc("aaa")}.to raise_error("Can't find document for ckey aaa")
   end
   
   it "should retrieve the array of crez_info csv rows for a ckey" do
@@ -138,8 +136,11 @@ describe AddCrezToSolrDoc do
   
   context "updating existing solr doc fields" do
 
-    it "should add a Course Reserve value to the Access facet" do
-      pending "to be implemented"
+    it "should add the Course Reserve value to the Access facet" do
+      sid = @@a.solr_input_doc("666")
+      sid["access_facet"].getValues.contains("Course Reserve").should be_false
+      @@a.add_crez_val_to_access_facet
+      sid["access_facet"].getValues.contains("Course Reserve").should be_true
     end
 
     it "should add stuff to the item_display field" do

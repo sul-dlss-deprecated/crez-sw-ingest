@@ -1,4 +1,5 @@
 require 'solrmarc_wrapper'
+require 'solrj_wrapper'
 
 # NAOMI_MUST_COMMENT_THIS_CLASS
 class AddCrezToSolrDoc
@@ -7,21 +8,34 @@ class AddCrezToSolrDoc
   
   def initialize(solrmarc_dir, ckey_2_crez_info)
     @solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dir, "sw_config.properties")
+    @solrj_wrapper = SolrjWrapper.new(solrmarc_dir + "lib")
     @ckey_2_crez_info = ckey_2_crez_info
     @new_solr_flds = {}
   end
 
-  # NAOMI_MUST_COMMENT_THIS_METHOD
-  def solr_input_doc(ckey)
-     @solr_input_doc = @solrmarc_wrapper.get_solr_input_doc(ckey)
+  # given a ckey, 
+  #  1. calls solrmarc_wrapper to retrieve a SolrInputDoc derived from the marcxml in the Solr index
+  #  2. gets the relevant course reserve data from the reserves-dump .csv file
+  #  3. adds the course reserve info to teh SolrInputDoc
+  # @ckey the id of the existing Document in the Solr index
+  def add_crez_info_to_solr_doc(ckey)
+    "to be implemented"
   end
 
-  # NAOMI_MUST_COMMENT_THIS_METHOD
+  # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument
+  #  note that it identifies Solr documents by the "id" field, and expects the marc to be stored in a Solr field "marcxml"
+  # @ckey  the value of the "id" Solr field for the record to be retrieved
+  def solr_input_doc(ckey)
+     @solr_input_doc = @solrmarc_wrapper.get_solr_input_doc(ckey)
+     # note:  @solrmarc_wrapper raises an exception if the ckey doesn't find a doc in the Solr index
+  end
+
+  # populates (and returns) crez_info with the Array of CSV::Row objects from the reserves data that pertain to the ckey
   def crez_info(ckey)
     @crez_info = @ckey_2_crez_info[ckey]
   end
   
-  # NAOMI_MUST_COMMENT_THIS_METHOD
+  # given a ckey, create a hash of new fields to add to the existing Solr doc.  keys are Solr field names, values are an array of values for the Solr field.
   def create_new_solr_flds_hash(ckey)
     @new_solr_flds = {}
     crez_info(ckey).each { |row|
@@ -38,7 +52,9 @@ class AddCrezToSolrDoc
     }
   end
   
-  # NAOMI_MUST_COMMENT_THIS_METHOD
+  # add a value to the @new_solr_flds hash for the Solr field name.
+  # @solr_fldname_sym - the name of the new Solr field, as a symbol
+  # @new_val - the single value to add to the Solr field value array, if it isn't already there.
   def add_to_new_flds_hash(solr_fldname_sym, new_val)
     unless new_val.nil?
       @new_solr_flds[solr_fldname_sym] ||= []
@@ -47,7 +63,6 @@ class AddCrezToSolrDoc
     end
   end
 
-  # NAOMI_MUST_COMMENT_THIS_METHOD
   # given an array of existing values (can be nil), add the value from the indicated crez_info column to the array
   # @crez_col_syms an Array of header symbols for the csv_row, in the order desired
   # @sep the separator between the values
@@ -64,15 +79,15 @@ class AddCrezToSolrDoc
     compound_val
   end
   
-  # NAOMI_MUST_COMMENT_THIS_METHOD
+  # derive the department from the course_id
   def get_dept(course_id)
     dept = course_id.split("-")[0]
     dept = dept.split(" ")[0]
   end
 
-  # NAOMI_MUST_COMMENT_THIS_METHOD
+  # add a value "Course Reserve" to the access_facet field of the @solr_input_doc
   def add_crez_val_to_access_facet
-    
+    @solrj_wrapper.add_vals_to_fld(@solr_input_doc, "access_facet", ["Course Reserve"])
   end
 
   # NAOMI_MUST_COMMENT_THIS_METHOD
@@ -82,27 +97,5 @@ class AddCrezToSolrDoc
 # :location facet changes per crez desk ... ewwwww
     
   end
-  
-=begin  
-  crez_item_info[:rez_desk].should == "GREEN-RESV"
-  crez_item_info[:resctl_exp_date].should == "20111216"
-  crez_item_info[:resctl_status].should == "CURRENT"
-  crez_item_info[:ckey].should == "444"
-  crez_item_info[:barcode].should == "36105005411207  "   # note that trimming whitespace will happen when the structure is used
-  crez_item_info[:home_loc].should == "STACKS"
-  crez_item_info[:curr_loc].should == "GREEN-RESV"
-  crez_item_info[:item_rez_status].should == "ON_RESERVE"
-  crez_item_info[:loan_period].should == "1DND-RES"
-  crez_item_info[:rez_expire_date].should == "20111216"
-  crez_item_info[:rez_stage].should == "ACTIVE"
-  crez_item_info[:course_id].should == "HISTORY-211C"
-  crez_item_info[:course_name].should == "Saints in the Middle Ages"
-  crez_item_info[:term].should == "FALL"
-  crez_item_info[:instructor_lib_id].should == "2556820237"
-  crez_item_info[:instructor_univ_id].should == "05173979"
-  crez_item_info[:instructor_name].should == "Kreiner, Jamie K"
-=end  
-  
-  
   
 end
