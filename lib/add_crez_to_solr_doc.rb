@@ -98,18 +98,44 @@ class AddCrezToSolrDoc
     new_building_facet_vals ||= begin
       new_building_facet_vals = {}
       crez_info.each { |crez_row|  
-        rez_desk = crez_row[]
-            # for each item in crez with a rez-desk that doesn't map to nil
-            #   if the rez-desk is different from the existing building
-        # only do this once for all crez data
-            #      recompute the whole building_facet, and use rez_desk instead of originating library
+        rez_desk = crez_row[:rez_desk]
+        unless rez_desk.nil? 
+          crez_barcode = crez_row[:barcode]
+              # for each item in crez with a rez-desk that doesn't map to nil
+              #   if the rez-desk is different from the existing building
+          # only do this once for all crez data
+              #      recompute the whole building_facet, and use rez_desk instead of originating library
+        end
       }
-
     end
-    
-    
   end
+
+=begin
+holdings_hash[item_id] = {
+  :barcode=>item_array[0],
+  :library=>item_array[1],
+  :home_location=>item_array[2],
+  :current_location=>item_array[3],
+  :type=>item_array[4],
+  :truncated_callnumber=>item_array[5],
+  :shelfkey=>item_array[6],
+  :reverse_shelfkey=>item_array[7],
+  :callnumber=>item_array[8],
+  :full_shelfkey=>item_array[9]
+}
+=end
   
+  # @param desired_barcode the barcode of the desired item_display field
+  # @param solr_input_doc the SolrInputDocument with item_display fields to be matched
+  # @return the single item display field matching the barcode, or nil if none match
+  def get_item_display_val(desired_barcode, solr_input_doc)
+    item_display_vals = solr_input_doc["item_display"].getValues
+    array_result = item_display_vals.find { |idv|
+      idv_array = idv.split("-|-").map{|w| w.strip }
+      idv_barcode = idv_array[0]
+      desired_barcode == idv_barcode
+    }
+  end
 
   # NAOMI_MUST_COMMENT_THIS_METHOD
   def modify_existing_fields

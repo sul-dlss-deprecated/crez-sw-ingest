@@ -10,13 +10,14 @@ describe AddCrezToSolrDoc do
     p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
     @@ckey_2_crez_info = p.ckey_2_crez_info
     @@a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
+    @@sid555 = @@a.solr_input_doc("555")
+    @@sid666 = @@a.solr_input_doc("666")
   end
 
   it "should retrieve the solr_input_doc for a ckey" do
-    sid = @@a.solr_input_doc("666")
-    sid.should_not be_nil
-    sid.should be_an_instance_of(Java::OrgApacheSolrCommon::SolrInputDocument)
-    sid["id"].getValue.should == "666"
+    @@sid666.should_not be_nil
+    @@sid666.should be_an_instance_of(Java::OrgApacheSolrCommon::SolrInputDocument)
+    @@sid666["id"].getValue.should == "666"
   end
   
   it "should raise an exception when there is no document in the Solr index for the ckey" do
@@ -131,6 +132,26 @@ describe AddCrezToSolrDoc do
       fld_hash[:crez_course_facet].should == ["HISTORY-41S FALL", "HISTORY-211C FALL"]
       fld_hash[:crez_course_w_name_facet].should == ["HISTORY-41S FALL ", "HISTORY-211C FALL Saints in the Middle Ages"]
       fld_hash[:crez_display].should == ["HISTORY-41S -|-  -|- Harris, Bradford Cole -|- FALL", "HISTORY-211C -|- Saints in the Middle Ages -|- Kreiner, Jamie K -|- FALL"]
+    end
+  end
+  
+  context "get_item_display_val" do
+
+    it "should return nil if there is no matching barcode" do
+      @@a.get_item_display_val("fake", @@sid666).should be_nil
+    end
+
+    it "should find an item_display field with matching barcode" do
+      matching_val = @@a.get_item_display_val("36105041846424", @@sid666)
+      matching_val.split("-|-").size.should == 10
+      matching_val.split("-|-")[0].strip.should == "36105041846424"
+      sid = @@a.solr_input_doc("9340596")
+      matching_val = @@a.get_item_display_val("36105217077085", sid)
+      matching_val.split("-|-").size.should == 10
+      matching_val.split("-|-")[0].strip.should == "36105217077085"
+      matching_val = @@a.get_item_display_val("36105217629935", sid)
+      matching_val.split("-|-").size.should == 10
+      matching_val.split("-|-")[0].strip.should == "36105217629935"
     end
   end
   
