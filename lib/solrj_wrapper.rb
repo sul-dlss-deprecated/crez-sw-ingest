@@ -18,10 +18,18 @@ class SolrjWrapper
   end
   
   # NAOMI_MUST_COMMENT_THIS_METHOD
-  def add_value_to_field(solr_input_doc, fldname, value)
-    solr_input_doc.addField(fldname, value, 1.0) unless (fldname.nil? or fldname.size == 0 or value.nil? or value.size == 0)
+  def add_vals_to_fld(solr_input_doc, fldname, val_array)
+    if !fldname.nil? && fldname.size > 0 && !val_array.nil? && val_array.size > 0
+      if !solr_input_doc[fldname].nil?
+        existing_vals = solr_input_doc[fldname].getValues
+      end
+      val_array.each { |val|  
+        if existing_vals.nil? || !existing_vals.contains(val)
+          solr_input_doc.addField(fldname, val, 1.0)
+        end
+      }
+    end
   end
-  
   
   protected 
 

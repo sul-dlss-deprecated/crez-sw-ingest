@@ -18,50 +18,60 @@ describe SolrjWrapper do
     sus.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::StreamingUpdateSolrServer)
   end
   
-=begin
-    sid["id"].getValue.should == "666"
-    sid["title_full_display"].getValue.should_not be_nil
-    sid["title_245a_search"].getValue.should_not be_nil
-=end
-
-  context "add_value_to_field" do
-    before(:each) do
-      @@sid = @@solrmarc_wrapper.get_solr_input_doc("666")
-    end
-    
-    it "should do nothing if the field name or value is nil or the empty string" do
-      @@sid_dup = @@sid.dup
-      num_flds = @@sid.keys.size
-      @@solrj_wrapper.add_value_to_field(@@sid_dup, nil, "val")
-      @@sid_dup.keys.size.should == num_flds
-      @@solrj_wrapper.add_value_to_field(@@sid_dup, "", "val")
-      @@sid_dup.keys.size.should == num_flds
-      @@solrj_wrapper.add_value_to_field(@@sid_dup, "fldname", nil)
-      @@sid_dup.keys.size.should == num_flds
-      @@solrj_wrapper.add_value_to_field(@@sid_dup, "fldname", "")
-      @@sid_dup.keys.size.should == num_flds
+  context "add_vals_to_fld" do
+    it "should do nothing if the field name or value is nil or of size 0" do
+      sid = Java::OrgApacheSolrCommon::SolrInputDocument.new
+      @@solrj_wrapper.add_vals_to_fld(sid, nil, ["val"])
+      sid.isEmpty.should be_true
+      @@solrj_wrapper.add_vals_to_fld(sid, "", ["val"])
+      sid.isEmpty.should be_true
+      @@solrj_wrapper.add_vals_to_fld(sid, "fldname", nil)
+      sid.isEmpty.should be_true
+      @@solrj_wrapper.add_vals_to_fld(sid, "fldname", [])
+      sid.isEmpty.should be_true
     end
     
     it "should create a new field when none exists" do
-      
+      sid = Java::OrgApacheSolrCommon::SolrInputDocument.new
+      @@solrj_wrapper.add_vals_to_fld(sid, "single", ["val"])
+      vals = sid["single"].getValues
+      vals.size.should == 1
+      vals[0].should == "val"
+      @@solrj_wrapper.add_vals_to_fld(sid, "mult", ["val1", "val2"])
+      vals = sid["mult"].getValues
+      vals.size.should == 2
+      vals[0].should == "val1"
+      vals[1].should == "val2"
     end
-
-    it "should create a new field " do
-
-    end
-
+    
     it "should keep the existing values when it adds a value to a field" do
-      sid = @@solrmarc_wrapper.get_solr_input_doc("666")
-      # single valued field
-
-      # multivalued field
+      sid = Java::OrgApacheSolrCommon::SolrInputDocument.new
+      @@solrj_wrapper.add_vals_to_fld(sid, "fld", ["val"])
+      vals = sid["fld"].getValues
+      vals.size.should == 1
+      vals[0].should == "val"
+      @@solrj_wrapper.add_vals_to_fld(sid, "fld", ["val1", "val2"])
+      vals = sid["fld"].getValues
+      vals.size.should == 3
+      vals.contains("val").should_not be_nil
+      vals.contains("val1").should_not be_nil
+      vals.contains("val2").should_not be_nil
     end
     
-    it "should add multiple values to the field" do
-      
+    it "should add all values, except those already present" do
+      sid = Java::OrgApacheSolrCommon::SolrInputDocument.new
+      @@solrj_wrapper.add_vals_to_fld(sid, "fld", ["val"])
+      vals = sid["fld"].getValues
+      vals.size.should == 1
+      vals[0].should == "val"
+      @@solrj_wrapper.add_vals_to_fld(sid, "fld", ["val1", "val2", "val"])
+      vals = sid["fld"].getValues
+      vals.size.should == 3
+      vals.contains("val").should_not be_nil
+      vals.contains("val1").should_not be_nil
+      vals.contains("val2").should_not be_nil
     end
-    
-  end
+  end # context add_vals_to_fld
 
   
 
