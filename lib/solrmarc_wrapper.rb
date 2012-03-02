@@ -18,6 +18,9 @@ class SolrmarcWrapper
   # @doc_id  the value of the "id" Solr field for the record to be retrieved
   def get_solr_input_doc(doc_id)
     @solr_input_doc = @solrmarc_reindexer.getSolrInputDoc("id", doc_id, "marcxml")
+   rescue java.lang.NullPointerException
+     puts "Can't find document for ckey #{doc_id}"
+     raise "Can't find document for ckey #{doc_id}"
   end
   
   

@@ -22,4 +22,8 @@ describe SolrmarcWrapper do
     sid["title_245a_search"].getValue.should_not be_nil
   end
   
+  it "should raise an exception when there is no document in the Solr index for the ckey" do
+    expect {@@solrmarc_wrapper.get_solr_input_doc("aaa")}.to raise_error("Can't find document for ckey aaa")
+  end
+  
 end
