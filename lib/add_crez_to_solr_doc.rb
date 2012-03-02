@@ -26,19 +26,20 @@ class AddCrezToSolrDoc
   #  note that it identifies Solr documents by the "id" field, and expects the marc to be stored in a Solr field "marcxml"
   # @param ckey  the value of the "id" Solr field for the record to be retrieved
   def solr_input_doc(ckey)
-     @solr_input_doc = @solrmarc_wrapper.get_solr_input_doc(ckey)
+     @solrmarc_wrapper.get_solr_input_doc(ckey)
      # note:  @solrmarc_wrapper raises an exception if the ckey doesn't find a doc in the Solr index
   end
 
   # populates (and returns) crez_info with the Array of CSV::Row objects from the reserves data that pertain to the ckey
   def crez_info(ckey)
-    @crez_info = @ckey_2_crez_info[ckey]
+    @ckey_2_crez_info[ckey]
   end
   
-  # given a ckey, create a hash of new fields to add to the existing Solr doc.  keys are Solr field names, values are an array of values for the Solr field.
-  def create_new_solr_flds_hash(ckey)
+  # given the csv rows to use, create a hash of new fields to add to the existing Solr doc.  keys are Solr field names, values are an array of values for the Solr field.
+  # @param crez_rows the relevant rows from the course reserve csv file
+  def create_new_solr_flds_hash(crez_rows)
     @new_solr_flds = {}
-    crez_info(ckey).each { |row|
+    crez_rows.each { |row|
       add_to_new_flds_hash(:crez_instructor_search, row[:instructor_name])
       add_to_new_flds_hash(:crez_course_name_search, row[:course_name])
       add_to_new_flds_hash(:crez_course_id_search, row[:course_id])
@@ -85,10 +86,30 @@ class AddCrezToSolrDoc
     dept = dept.split(" ")[0]
   end
 
-  # add a value "Course Reserve" to the access_facet field of the @solr_input_doc
-  def add_crez_val_to_access_facet
-    @solrj_wrapper.add_vals_to_fld(@solr_input_doc, "access_facet", ["Course Reserve"])
+  # add a value "Course Reserve" to the access_facet field of the solr_input_doc
+  # @param solr_input_doc - the SolrInputDocument to be changed
+  def add_crez_val_to_access_facet(solr_input_doc)
+    @solrj_wrapper.add_vals_to_fld(solr_input_doc, "access_facet", ["Course Reserve"])
   end
+  
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def adjust_building_facet(solr_input_doc, crez_info)
+    orig_build_facet_vals = solr_input_doc["building_facet"].getValues
+    new_building_facet_vals ||= begin
+      new_building_facet_vals = {}
+      crez_info.each { |crez_row|  
+        rez_desk = crez_row[]
+            # for each item in crez with a rez-desk that doesn't map to nil
+            #   if the rez-desk is different from the existing building
+        # only do this once for all crez data
+            #      recompute the whole building_facet, and use rez_desk instead of originating library
+      }
+
+    end
+    
+    
+  end
+  
 
   # NAOMI_MUST_COMMENT_THIS_METHOD
   def modify_existing_fields

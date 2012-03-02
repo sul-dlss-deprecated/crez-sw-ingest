@@ -108,7 +108,7 @@ describe AddCrezToSolrDoc do
     end
     
     it "should add all expected non-nil fields to the hash" do
-      @@a.create_new_solr_flds_hash("666")
+      @@a.create_new_solr_flds_hash(@@a.crez_info("666"))
       fld_hash = @@a.new_solr_flds
       fld_hash[:crez_instructor_search].should == ["Saldivar, Jose David"]
       fld_hash[:crez_course_name_search].should == ["What is Literature?"]
@@ -120,7 +120,7 @@ describe AddCrezToSolrDoc do
       fld_hash[:crez_course_w_name_facet].should == ["COMPLIT-101 FALL What is Literature?"]
       fld_hash[:crez_display].should == ["COMPLIT-101 -|- What is Literature? -|- Saldivar, Jose David -|- FALL"]
 
-      @@a.create_new_solr_flds_hash("555")
+      @@a.create_new_solr_flds_hash(@@a.crez_info("555"))
       fld_hash = @@a.new_solr_flds
       fld_hash[:crez_instructor_search].should == ["Harris, Bradford Cole", "Kreiner, Jamie K"]
       fld_hash[:crez_course_name_search].should == ["Saints in the Middle Ages"]
@@ -139,7 +139,7 @@ describe AddCrezToSolrDoc do
     it "should add the Course Reserve value to the Access facet" do
       sid = @@a.solr_input_doc("666")
       sid["access_facet"].getValues.contains("Course Reserve").should be_false
-      @@a.add_crez_val_to_access_facet
+      @@a.add_crez_val_to_access_facet(sid)
       sid["access_facet"].getValues.contains("Course Reserve").should be_true
     end
 
@@ -147,9 +147,18 @@ describe AddCrezToSolrDoc do
       pending "to be implemented"
     end
 
-    it "should do stuff for the library (location) facet values" do
+    it "should use the reserve desk the library (location) facet values" do
       pending "to be implemented"
     end
+    
+    it "should add the building if there are other non-reserve items at the orig building" do
+      pending "to be implemented"
+    end
+    
+    it "should remove the old building value if there are no more items there" do
+      pending "to be implemented"
+    end
+    
   end
   
 end
