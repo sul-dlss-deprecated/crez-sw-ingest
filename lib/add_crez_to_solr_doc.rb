@@ -17,14 +17,14 @@ class AddCrezToSolrDoc
   #  1. calls solrmarc_wrapper to retrieve a SolrInputDoc derived from the marcxml in the Solr index
   #  2. gets the relevant course reserve data from the reserves-dump .csv file
   #  3. adds the course reserve info to teh SolrInputDoc
-  # @ckey the id of the existing Document in the Solr index
+  # @param ckey the id of the existing Document in the Solr index
   def add_crez_info_to_solr_doc(ckey)
     "to be implemented"
   end
 
   # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument
   #  note that it identifies Solr documents by the "id" field, and expects the marc to be stored in a Solr field "marcxml"
-  # @ckey  the value of the "id" Solr field for the record to be retrieved
+  # @param ckey  the value of the "id" Solr field for the record to be retrieved
   def solr_input_doc(ckey)
      @solr_input_doc = @solrmarc_wrapper.get_solr_input_doc(ckey)
      # note:  @solrmarc_wrapper raises an exception if the ckey doesn't find a doc in the Solr index
@@ -53,8 +53,8 @@ class AddCrezToSolrDoc
   end
   
   # add a value to the @new_solr_flds hash for the Solr field name.
-  # @solr_fldname_sym - the name of the new Solr field, as a symbol
-  # @new_val - the single value to add to the Solr field value array, if it isn't already there.
+  # @param solr_fldname_sym - the name of the new Solr field, as a symbol
+  # @param new_val - the single value to add to the Solr field value array, if it isn't already there.
   def add_to_new_flds_hash(solr_fldname_sym, new_val)
     unless new_val.nil?
       @new_solr_flds[solr_fldname_sym] ||= []
@@ -64,8 +64,8 @@ class AddCrezToSolrDoc
   end
 
   # given an array of existing values (can be nil), add the value from the indicated crez_info column to the array
-  # @crez_col_syms an Array of header symbols for the csv_row, in the order desired
-  # @sep the separator between the values
+  # @param crez_col_syms an Array of header symbols for the csv_row, in the order desired
+  # @param sep the separator between the values
   def get_compound_value_from_row(csv_row, crez_col_syms, sep)
     compound_val = nil
     crez_col_syms.each { |col|
