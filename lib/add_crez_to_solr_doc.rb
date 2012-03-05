@@ -1,8 +1,10 @@
 require 'solrmarc_wrapper'
 require 'solrj_wrapper'
+require 'rez_desk_translations'
 
 # NAOMI_MUST_COMMENT_THIS_CLASS
 class AddCrezToSolrDoc
+  include RezDeskTranslations
   
   attr_reader :ckey_2_crez_info, :new_solr_flds
   
@@ -44,12 +46,10 @@ class AddCrezToSolrDoc
       add_to_new_flds_hash(:crez_course_name_search, row[:course_name])
       add_to_new_flds_hash(:crez_course_id_search, row[:course_id])
 # instructor facet is a copy field
-      add_to_new_flds_hash(:crez_term_facet, row[:term])
-      add_to_new_flds_hash(:crez_desk_facet, row[:rez_desk])
+      add_to_new_flds_hash(:crez_desk_facet, rez_desk_2_rez_loc_facet[row[:rez_desk]])
       add_to_new_flds_hash(:dept_facet, get_dept(row[:course_id]))
-      add_to_new_flds_hash(:crez_course_facet, get_compound_value_from_row(row, [:course_id, :term], " ")) # section info unavail
-      add_to_new_flds_hash(:crez_course_w_name_facet, get_compound_value_from_row(row, [:course_id, :term, :course_name], " ")) # for record view
-      add_to_new_flds_hash(:crez_display, get_compound_value_from_row(row, [:course_id, :course_name, :instructor_name, :term], " -|- "))
+      add_to_new_flds_hash(:crez_course_facet, get_compound_value_from_row(row, [:course_id, :course_name], " ")) # for record view
+      add_to_new_flds_hash(:crez_display, get_compound_value_from_row(row, [:course_id, :course_name, :instructor_name], " -|- "))
     }
   end
   
@@ -97,10 +97,11 @@ class AddCrezToSolrDoc
     orig_build_facet_vals = solr_input_doc["building_facet"].getValues
     new_building_facet_vals ||= begin
       new_building_facet_vals = {}
-      crez_info.each { |crez_row|  
-        rez_desk = crez_row[:rez_desk]
-        unless rez_desk.nil? 
+      crez_info.each { |crez_row|
+        rez_building = rez_desk_2_bldg_facet[crez_row[:rez_desk]]
+        unless rez_building.nil? 
           crez_barcode = crez_row[:barcode]
+          item_disp_val = get_item_display_val(crez_barcode, solr_input_doc)
               # for each item in crez with a rez-desk that doesn't map to nil
               #   if the rez-desk is different from the existing building
           # only do this once for all crez data
@@ -144,5 +145,28 @@ holdings_hash[item_id] = {
 # :location facet changes per crez desk ... ewwwww
     
   end
+  
+  rez_desk_2_bldg_facet = {
+    "ART-RESV" => "Art & Architecture",
+    "BIO-RESV" => "Falconer (Biology)",
+    "CHEM-RESV" => "Swain (Chemistry & Chem. Engineering)",
+    "E-RESV" => nil,   # no change?
+    "EARTH-RESV" => "Branner (Earth Sciences & Maps)",
+    "EAS-RESV" => "East Asia",
+    "EDU-RESV" => "Cubberley (Education)",
+    "ENG-RESV" => "Engineering",
+    "GREEN-RESV" => "Green (Humanities & Social Sciences)",
+    "HOOV-RESV" => "Hoover Library",
+    "HOP-RESV" => "Miller (Hopkins Marine Station)",
+    "LANG-RESV" => nil,  # Sarah Seestone says this is obsolete
+    "LAW-RESV" => "Crown (Law)",
+    "MATH-RESV" => "Mathematics & Statistics",
+    "MEDIA-RESV" => "Green (Humanities & Social Sciences)",
+    "MEYER-RESV" => "Meyer",
+    "MUSIC-RESV" => "Music",
+    "PHYS-RESV" => "Physics",
+    "TANN-RESV" => "Tanner (Philosophy Dept.)"
+  }
+  
   
 end

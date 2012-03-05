@@ -4,8 +4,8 @@ require 'parse_crez_data'
 describe AddCrezToSolrDoc do
   
   before(:all) do
-    @@solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
-#    @@solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
+#    @@solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
+    @@solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
     p = ParseCrezData.new
     p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
     @@ckey_2_crez_info = p.ckey_2_crez_info
@@ -114,24 +114,22 @@ describe AddCrezToSolrDoc do
       fld_hash[:crez_instructor_search].should == ["Saldivar, Jose David"]
       fld_hash[:crez_course_name_search].should == ["What is Literature?"]
       fld_hash[:crez_course_id_search].should == ["COMPLIT-101"]
-      fld_hash[:crez_term_facet].should == ["FALL"]
-      fld_hash[:crez_desk_facet].should == ["GREEN-RESV"]
+      fld_hash[:crez_term_facet].should be_nil
+      fld_hash[:crez_desk_facet].should == ["Green Reserves"]
       fld_hash[:dept_facet].should == ["COMPLIT"]
-      fld_hash[:crez_course_facet].should == ["COMPLIT-101 FALL"]
-      fld_hash[:crez_course_w_name_facet].should == ["COMPLIT-101 FALL What is Literature?"]
-      fld_hash[:crez_display].should == ["COMPLIT-101 -|- What is Literature? -|- Saldivar, Jose David -|- FALL"]
+      fld_hash[:crez_course_facet].should == ["COMPLIT-101 What is Literature?"]
+      fld_hash[:crez_display].should == ["COMPLIT-101 -|- What is Literature? -|- Saldivar, Jose David"]
 
       @@a.create_new_solr_flds_hash(@@a.crez_info("555"))
       fld_hash = @@a.new_solr_flds
       fld_hash[:crez_instructor_search].should == ["Harris, Bradford Cole", "Kreiner, Jamie K"]
       fld_hash[:crez_course_name_search].should == ["Saints in the Middle Ages"]
       fld_hash[:crez_course_id_search].should == ["HISTORY-41S", "HISTORY-211C"]
-      fld_hash[:crez_term_facet].should == ["FALL"]
-      fld_hash[:crez_desk_facet].should == ["GREEN-RESV"]
+      fld_hash[:crez_term_facet].should be_nil
+      fld_hash[:crez_desk_facet].should == ["Green Reserves"]
       fld_hash[:dept_facet].should == ["HISTORY"]
-      fld_hash[:crez_course_facet].should == ["HISTORY-41S FALL", "HISTORY-211C FALL"]
-      fld_hash[:crez_course_w_name_facet].should == ["HISTORY-41S FALL ", "HISTORY-211C FALL Saints in the Middle Ages"]
-      fld_hash[:crez_display].should == ["HISTORY-41S -|-  -|- Harris, Bradford Cole -|- FALL", "HISTORY-211C -|- Saints in the Middle Ages -|- Kreiner, Jamie K -|- FALL"]
+      fld_hash[:crez_course_facet].should == ["HISTORY-41S ", "HISTORY-211C Saints in the Middle Ages"]
+      fld_hash[:crez_display].should == ["HISTORY-41S -|-  -|- Harris, Bradford Cole", "HISTORY-211C -|- Saints in the Middle Ages -|- Kreiner, Jamie K"]
     end
   end
   
