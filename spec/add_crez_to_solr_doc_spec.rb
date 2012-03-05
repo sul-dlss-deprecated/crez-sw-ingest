@@ -154,48 +154,56 @@ describe AddCrezToSolrDoc do
     end
   end
   
-  it "should raise an exception when there is no matching item for the barcode per Course Reserve" do
+  it "should raise an exception when no item matches the barcode from Course Reserve" do
     pending "to be implemented"
     expect {@@a.solr_input_doc("666")}.to raise_error("Can't find item for barcode aaa")
   end
   
   context "redo_building_facet" do
-
-    it "should use the Course Reserve value over the item_display value" do
+    before(:all) do
       p = ParseCrezData.new
       p.read(File.expand_path('test_data/multrezdesk.csv', File.dirname(__FILE__)))
-      a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, p.ckey_2_crez_info)
-      sid9262146 = a.solr_input_doc("9262146")
+      @@ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, p.ckey_2_crez_info)
+    end
+
+    it "should use the Course Reserve value over the item_display value" do
+      sid9262146 = @@ac2sd.solr_input_doc("9262146")
       orig_vals = sid9262146["building_facet"].getValues
       orig_vals.size.should == 2
       orig_vals.contains("Green (Humanities & Social Sciences)").should be_true
       orig_vals.contains("Art & Architecture").should be_true
-      a.redo_building_facet(sid9262146, a.crez_info("9262146"))
+      @@ac2sd.redo_building_facet(sid9262146, @@ac2sd.crez_info("9262146"))
       new_vals = sid9262146["building_facet"].getValues
       new_vals.size.should == 2
       new_vals.contains("Physics").should be_true
       new_vals.contains("Art & Architecture").should be_true
       
-      sid8707706 = a.solr_input_doc("8707706")
+      sid8707706 = @@ac2sd.solr_input_doc("8707706")
       orig_vals = sid8707706["building_facet"].getValues
       orig_vals.size.should == 3
       orig_vals.contains("Green (Humanities & Social Sciences)").should be_true
       orig_vals.contains("Art & Architecture").should be_true
       orig_vals.contains("Cubberley (Education)").should be_true
-      a.redo_building_facet(sid8707706, a.crez_info("8707706"))
+      @@ac2sd.redo_building_facet(sid8707706, @@ac2sd.crez_info("8707706"))
       new_vals = sid8707706["building_facet"].getValues
       new_vals.size.should == 2
       new_vals.contains("Green (Humanities & Social Sciences)").should be_true
       new_vals.contains("Physics").should be_true
     end
 
-    it "should raise an exception when there is no document in the Solr index for the ckey" do
-      expect {@@a.solr_input_doc("aaa")}.to raise_error("Can't find document for ckey aaa")
-    end
-
-    
     it "should ignore a (un-overridden) library value missing from the library translation table" do
       pending "to be implemented"
+    end
+    
+    it "should ignore a crez loc with no translation" do
+      sid888 = @@ac2sd.solr_input_doc("888")
+      orig_vals = sid888["building_facet"].getValues
+      orig_vals.size.should == 1
+      orig_vals[0].should == "Music"
+      @@ac2sd.redo_building_facet(sid888, @@ac2sd.crez_info("888"))
+      new_vals = sid888["building_facet"].getValues
+      new_vals.size.should == 1
+      new_vals[0].should == "Music"
     end
     
     it "should use the crez loc for library loc without translation" do
@@ -205,8 +213,8 @@ describe AddCrezToSolrDoc do
     it "should retain the library loc if only some items with that loc are overridden" do
       pending "to be implemented"
     end
-
   end
+
   
   context "updating existing solr doc fields" do
 

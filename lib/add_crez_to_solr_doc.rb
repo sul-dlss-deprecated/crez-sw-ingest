@@ -128,11 +128,18 @@ class AddCrezToSolrDoc
       idv_hash = item_disp_val_hash(idv)
       matching_rows = []
       matching_rows = crez_info.select { |crez_row|  
-        crez_row[:barcode].strip == idv_hash[:barcode] }
+        crez_row[:barcode].strip == idv_hash[:barcode] 
+      }
+      home_bldg = LIB_2_BLDG_FACET[idv_hash[:building]]
       if matching_rows.size == 1
-        new_building_facet_vals << REZ_DESK_2_BLDG_FACET[matching_rows[0][:rez_desk]]
+        rez_building = REZ_DESK_2_BLDG_FACET[matching_rows[0][:rez_desk]]
+        if !rez_building.nil?
+          new_building_facet_vals << rez_building
+        else
+          new_building_facet_vals << home_bldg
+        end
       else
-        new_building_facet_vals << LIB_2_BLDG_FACET[idv_hash[:building]]
+        new_building_facet_vals << home_bldg
       end
     }
     solr_input_doc.removeField("building_facet")
