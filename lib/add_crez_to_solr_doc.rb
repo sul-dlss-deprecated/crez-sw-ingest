@@ -110,21 +110,6 @@ class AddCrezToSolrDoc
       }
     end
   end
-
-=begin
-holdings_hash[item_id] = {
-  :barcode=>item_array[0],
-  :library=>item_array[1],
-  :home_location=>item_array[2],
-  :current_location=>item_array[3],
-  :type=>item_array[4],
-  :truncated_callnumber=>item_array[5],
-  :shelfkey=>item_array[6],
-  :reverse_shelfkey=>item_array[7],
-  :callnumber=>item_array[8],
-  :full_shelfkey=>item_array[9]
-}
-=end
   
   # @param desired_barcode the barcode of the desired item_display field
   # @param solr_input_doc the SolrInputDocument with item_display fields to be matched
@@ -132,11 +117,30 @@ holdings_hash[item_id] = {
   def get_item_display_val(desired_barcode, solr_input_doc)
     item_display_vals = solr_input_doc["item_display"].getValues
     array_result = item_display_vals.find { |idv|
-      idv_array = idv.split("-|-").map{|w| w.strip }
-      idv_barcode = idv_array[0]
-      desired_barcode == idv_barcode
+#      idv_array = idv.split("-|-").map{|w| w.strip }
+#      idv_barcode = idv_array[0]
+#      desired_barcode == idv_barcode
+      desired_barcode == item_disp_val_hash(idv)[:barcode]
     }
   end
+  
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def item_disp_val_hash(item_display_val)
+    idv_array = item_display_val.split("-|-").map{|w| w.strip }
+    { 
+      :barcode => idv_array[0],
+      :library => idv_array[1]
+#      :home_location => idv_array[2],
+#      :current_location => idv_array[3],
+#      :callnum_type => idv_array[4],
+#      :trunc_callnum => idv_array[5],
+#      :trunc_shelfkey => idv_array[6],
+#      :reverse_shelfkey => idv_array[7],
+#      :full_callnum => idv_array[8],
+#      :full_shelfkey => idv_array[9]
+    }
+  end
+  
 
   # NAOMI_MUST_COMMENT_THIS_METHOD
   def modify_existing_fields
@@ -145,28 +149,5 @@ holdings_hash[item_id] = {
 # :location facet changes per crez desk ... ewwwww
     
   end
-  
-  rez_desk_2_bldg_facet = {
-    "ART-RESV" => "Art & Architecture",
-    "BIO-RESV" => "Falconer (Biology)",
-    "CHEM-RESV" => "Swain (Chemistry & Chem. Engineering)",
-    "E-RESV" => nil,   # no change?
-    "EARTH-RESV" => "Branner (Earth Sciences & Maps)",
-    "EAS-RESV" => "East Asia",
-    "EDU-RESV" => "Cubberley (Education)",
-    "ENG-RESV" => "Engineering",
-    "GREEN-RESV" => "Green (Humanities & Social Sciences)",
-    "HOOV-RESV" => "Hoover Library",
-    "HOP-RESV" => "Miller (Hopkins Marine Station)",
-    "LANG-RESV" => nil,  # Sarah Seestone says this is obsolete
-    "LAW-RESV" => "Crown (Law)",
-    "MATH-RESV" => "Mathematics & Statistics",
-    "MEDIA-RESV" => "Green (Humanities & Social Sciences)",
-    "MEYER-RESV" => "Meyer",
-    "MUSIC-RESV" => "Music",
-    "PHYS-RESV" => "Physics",
-    "TANN-RESV" => "Tanner (Philosophy Dept.)"
-  }
-  
   
 end

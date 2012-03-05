@@ -166,7 +166,7 @@ describe AddCrezToSolrDoc do
       pending "to be implemented"
     end
 
-    it "should use the reserve desk the library (location) facet values" do
+    it "should use the reserve desk for the library (location) facet value" do
       pending "to be implemented"
     end
     
