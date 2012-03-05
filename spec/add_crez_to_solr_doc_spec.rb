@@ -4,8 +4,8 @@ require 'parse_crez_data'
 describe AddCrezToSolrDoc do
   
   before(:all) do
-#    @@solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
-    @@solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
+    @@solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
+#    @@solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
     p = ParseCrezData.new
     p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
     @@ckey_2_crez_info = p.ckey_2_crez_info
@@ -179,5 +179,7 @@ describe AddCrezToSolrDoc do
     end
     
   end
+  
+  
   
 end
