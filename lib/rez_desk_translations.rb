@@ -1,11 +1,8 @@
 # contains translation hashes for rez_desk to building_facet value, and rez_desk to rez_location_facet
 module RezDeskTranslations
 
-#  attr_reader :bldg_facet, :rez_loc_facet
-
   # from reserve desk value to building_facet value
-  def rez_desk_2_bldg_facet 
-  {
+  REZ_DESK_2_BLDG_FACET = {
     "ART-RESV" => "Art & Architecture",
     "BIO-RESV" => "Falconer (Biology)",
     "CHEM-RESV" => "Swain (Chemistry & Chem. Engineering)",
@@ -26,11 +23,9 @@ module RezDeskTranslations
     "PHYS-RESV" => "Physics",
     "TANN-RESV" => "Tanner (Philosophy Dept.)"
   }
-  end
 
   # from reserve desk value to rez_location_facet value
-  def rez_desk_2_rez_loc_facet
-  {
+  REZ_DESK_2_REZ_LOC_FACET = {
     "ART-RESV" => "Art Reserves",
     "BIO-RESV" => "Falconer Reserves",
     "CHEM-RESV" => "Swain Reserves",
@@ -51,6 +46,5 @@ module RezDeskTranslations
     "PHYS-RESV" => "Physics Reserves",
     "TANN-RESV" => "Tanner Reserves"
   }
-  end
 
 end

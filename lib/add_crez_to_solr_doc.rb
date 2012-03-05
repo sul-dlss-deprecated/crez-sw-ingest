@@ -1,10 +1,12 @@
 require 'solrmarc_wrapper'
 require 'solrj_wrapper'
 require 'rez_desk_translations'
+require 'library_code_translations'
 
 # NAOMI_MUST_COMMENT_THIS_CLASS
 class AddCrezToSolrDoc
   include RezDeskTranslations
+  include LibraryCodeTranslations
   
   attr_reader :ckey_2_crez_info, :new_solr_flds
   
@@ -18,7 +20,7 @@ class AddCrezToSolrDoc
   # given a ckey, 
   #  1. calls solrmarc_wrapper to retrieve a SolrInputDoc derived from the marcxml in the Solr index
   #  2. gets the relevant course reserve data from the reserves-dump .csv file
-  #  3. adds the course reserve info to teh SolrInputDoc
+  #  3. adds the course reserve info to the SolrInputDoc
   # @param ckey the id of the existing Document in the Solr index
   def add_crez_info_to_solr_doc(ckey)
     "to be implemented"
@@ -46,7 +48,7 @@ class AddCrezToSolrDoc
       add_to_new_flds_hash(:crez_course_name_search, row[:course_name])
       add_to_new_flds_hash(:crez_course_id_search, row[:course_id])
 # instructor facet is a copy field
-      add_to_new_flds_hash(:crez_desk_facet, rez_desk_2_rez_loc_facet[row[:rez_desk]])
+      add_to_new_flds_hash(:crez_desk_facet, REZ_DESK_2_REZ_LOC_FACET[row[:rez_desk]])
       add_to_new_flds_hash(:dept_facet, get_dept(row[:course_id]))
       add_to_new_flds_hash(:crez_course_facet, get_compound_value_from_row(row, [:course_id, :course_name], " ")) # for record view
       add_to_new_flds_hash(:crez_display, get_compound_value_from_row(row, [:course_id, :course_name, :instructor_name], " -|- "))
@@ -96,19 +98,45 @@ class AddCrezToSolrDoc
   def adjust_building_facet(solr_input_doc, crez_info)
     orig_build_facet_vals = solr_input_doc["building_facet"].getValues
     new_building_facet_vals ||= begin
-      new_building_facet_vals = {}
+      new_building_facet_vals = []
       crez_info.each { |crez_row|
-        rez_building = rez_desk_2_bldg_facet[crez_row[:rez_desk]]
+        #  do we need to recompute the building facet?
+        rez_building = REZ_DESK_2_BLDG_FACET[crez_row[:rez_desk]]
         unless rez_building.nil? 
           crez_barcode = crez_row[:barcode]
           item_disp_val = get_item_display_val(crez_barcode, solr_input_doc)
-              # for each item in crez with a rez-desk that doesn't map to nil
-              #   if the rez-desk is different from the existing building
+          item_disp_hash = item_disp_val_hash(item_disp_val)
+          if rez_building != item_disp_hash[:building]
+              # if the rez-desk is different from the existing building
+              need_to_redo_bldg_facet = true
           # only do this once for all crez data
               #      recompute the whole building_facet, and use rez_desk instead of originating library
+          end
         end
       }
+      if need_to_redo_bldg_facet
+        redo_building_facet(solr_input_doc, creaz_info)
+      end
     end
+  end
+  
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def redo_building_facet(solr_input_doc, crez_info)
+    new_building_facet_vals = []
+    item_display_vals = solr_input_doc["item_display"].getValues
+    item_display_vals.each { |idv|
+      idv_hash = item_disp_val_hash(idv)
+      matching_rows = []
+      matching_rows = crez_info.select { |crez_row|  
+        crez_row[:barcode].strip == idv_hash[:barcode] }
+      if matching_rows.size == 1
+        new_building_facet_vals << REZ_DESK_2_BLDG_FACET[matching_rows[0][:rez_desk]]
+      else
+        new_building_facet_vals << LIB_2_BLDG_FACET[idv_hash[:building]]
+      end
+    }
+    solr_input_doc.removeField("building_facet")
+    @solrj_wrapper.add_vals_to_fld(solr_input_doc, "building_facet", new_building_facet_vals.uniq)
   end
   
   # @param desired_barcode the barcode of the desired item_display field
@@ -117,9 +145,6 @@ class AddCrezToSolrDoc
   def get_item_display_val(desired_barcode, solr_input_doc)
     item_display_vals = solr_input_doc["item_display"].getValues
     array_result = item_display_vals.find { |idv|
-#      idv_array = idv.split("-|-").map{|w| w.strip }
-#      idv_barcode = idv_array[0]
-#      desired_barcode == idv_barcode
       desired_barcode == item_disp_val_hash(idv)[:barcode]
     }
   end
@@ -129,7 +154,7 @@ class AddCrezToSolrDoc
     idv_array = item_display_val.split("-|-").map{|w| w.strip }
     { 
       :barcode => idv_array[0],
-      :library => idv_array[1]
+      :building => idv_array[1]
 #      :home_location => idv_array[2],
 #      :current_location => idv_array[3],
 #      :callnum_type => idv_array[4],
