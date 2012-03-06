@@ -2,11 +2,13 @@ require 'solrmarc_wrapper'
 require 'solrj_wrapper'
 require 'rez_desk_translations'
 require 'library_code_translations'
+require 'loan_period_translations'
 
 # NAOMI_MUST_COMMENT_THIS_CLASS
 class AddCrezToSolrDoc
   include RezDeskTranslations
   include LibraryCodeTranslations
+  include LoanPeriodTranslations
   
   attr_reader :ckey_2_crez_info, :new_solr_flds
   
@@ -29,9 +31,15 @@ class AddCrezToSolrDoc
     
 # createNew_solr_flds_hash(crez_rows)
 #  write hash to doc    
+
+    crez_rows.each { |crez_row|
+      orig_item_disp_val = get_matching_item_from_doc(crez_row[:barcode], solr_input_doc)
+      new_item_disp_val = append_crez_info_to_item_disp(orig_item_disp_val, crez_row)
+      # write new item disp val
+    }
+
     add_crez_val_to_access_facet(sid)
     update_building_facet(sid, crez_rows)
-    update_item_display_fields(sid, crez_rows)
     "to be implemented"
   end
 
@@ -91,34 +99,20 @@ class AddCrezToSolrDoc
   end
   
   # NAOMI_MUST_COMMENT_THIS_METHOD
-  def update_item_display_field(solr_input_doc, crez_row, orig_item_display_vals)
-    orig_item_disp_val = get_matching_item_from_doc(crez_row[:barcode], solr_input_doc)
-    ix = item_display_array.index(orig_item_disp_val)
-    if ix >= 0
-      item_display_array[ix] = crez_item_disp_val(orig_item_disp_val, crez_row)
-    else
-      # FIXME: this should print an error message??  or someplace else doing this matching ...
-      item_display_array << crez_item_disp_val(orig_item_disp_val, crez_row)
-    end
-    
-    # code to replace field value
-    
-  end
-  
-  # NAOMI_MUST_COMMENT_THIS_METHOD
   def update_item_display_fields(solr_input_doc, crez_info)
     # for each crez row that matches an item display value
     #   update that item_display value
     #   leave all the other ones alone.
     item_display_vals = solr_input_doc["item_display"].getValues
     crez_info.each { |crez_row|  
+      update_item_display_field(solr_input_doc, crez_row)
       orig_item_disp_val = get_matching_item_from_vals(crez_row[:barcode], item_display_vals)
       ix = item_display_vals.index(orig_item_disp_val)
       if ix >= 0
-        item_display_vals[ix] = crez_item_disp_val(orig_item_disp_val, crez_row)
+        item_display_vals[ix] = add_crez_info_to_item_disp_val(orig_item_disp_val, crez_row)
       else
         # FIXME: this should print an error message??  or someplace else doing this matching ...
-        item_display_vals << crez_item_disp_val(orig_item_disp_val, crez_row)
+        item_display_vals << add_crez_info_to_item_disp_val(orig_item_disp_val, crez_row)
       end
     }
 
@@ -132,9 +126,12 @@ class AddCrezToSolrDoc
   
   
   # NAOMI_MUST_COMMENT_THIS_METHOD
-  def crez_item_disp_val(orig_item_display_val, crez_row)
-    #  FIXME: would like to add the course reserve call number, but don't have it.
-    suffix = get_compound_value_from_row(crez_row, [:course_id, :rez_desk, :loan_period], " -|- ")
+  # Note: there is no checking here to ensure the crez_row barcode matches the item_display barcode
+  def append_crez_info_to_item_disp(orig_item_display_val, crez_row)
+    sep = " -|- "
+    rez_building = REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]]
+    loan_period = LOAN_CODE_2_USER_STR[crez_row[:loan_period]]
+    suffix = crez_row[:course_id] + sep + rez_building + sep + loan_period
     orig_item_display_val + " -|- " + suffix
   end
 
@@ -216,7 +213,7 @@ class AddCrezToSolrDoc
     compound_val
   end
   
-  protected
+  protected  #-------------------------- protected -------------------------------
   
   # NAOMI_MUST_COMMENT_THIS_METHOD
   def get_matching_item_from_values(desired_barcode, item_display_values)

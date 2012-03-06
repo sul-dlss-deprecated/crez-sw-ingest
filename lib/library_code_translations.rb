@@ -1,5 +1,4 @@
 # Map Library Codes to User Friendly Description - Long Version for Facet Values
-# NAOMI_MUST_COMMENT_THIS_MODULE
 module LibraryCodeTranslations
   
   LIB_2_BLDG_FACET = {  

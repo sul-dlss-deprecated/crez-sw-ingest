@@ -24,6 +24,10 @@ describe AddCrezToSolrDoc do
     expect {@@a.solr_input_doc("aaa")}.to raise_error("Can't find document for ckey aaa")
   end
   
+  it "should write an error message when there is no document in the Solr index for the ckey in the crez data" do
+    pending "to be implemented"
+  end
+  
   it "should retrieve the array of crez_info csv rows for a ckey" do
     crez_info = @@a.crez_info("666")
     crez_info.should be_an_instance_of(Array)
@@ -154,7 +158,7 @@ describe AddCrezToSolrDoc do
     end
   end
   
-  it "should raise an exception when no item matches the barcode from Course Reserve" do
+  it "should write an error message when no item matches the barcode from Course Reserve" do
     pending "to be implemented"
     expect {@@a.solr_input_doc("666")}.to raise_error("Can't find item for barcode aaa")
   end
@@ -291,36 +295,31 @@ describe AddCrezToSolrDoc do
     sid["access_facet"].getValues.contains("Course Reserve").should be_true
   end
   
-  context "update_item_display_fields" do
-    it "should only add the suffix to matching items" do
-      
-      pending "to be implemented"
+  context "append_crez_info_to_item_disp" do
+    before(:each) do
+      p = ParseCrezData.new
+      p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
+      @@crez8834492_row0 = p.ckey_2_crez_info["8834492"][0]
+      @@item_display_val = @@sid666["item_display"].getValues.first
+      @@new_val = @@a.append_crez_info_to_item_disp(@@item_display_val, @@crez8834492_row0)
     end
     
-    it "should add an item display value??  if none exsits?  Or throw an error?" do
-      
-      pending "to be implemented"
+    it "should add the right number of separators to the item_display value" do
+      @@item_display_val.split("-|-").size.should == 10
+      @@new_val.split("-|-").size.should == 13
     end
     
-    it "should have the same number of item_display values after update" do
-      
-      pending "to be implemented"
-    end
-    
-    
-    it "should add information even if the rez_desk doesn't change" do
-      
-      pending "to be implemented"
-    end
-    
-    it "should add information even if some of the info to add is null" do
-      
-      pending "to be implemented"
+    it "should append course id, rez_desk and loan period to the item_display value" do
+      @@new_val.should == @@item_display_val + " -|- COMPLIT-101 -|- Physics Reserves -|- 2 Hours"
     end
 
-
+    it "should translate the rez desk to a user friendly string" do
+      @@new_val.split("-|-")[11].strip.should == "Physics Reserves"
+    end
+    
+    it "should translate the loan period to a user friendly string" do
+      @@new_val.split("-|-")[12].strip.should == "2 Hours"
+    end
   end
-  
-  
   
 end
