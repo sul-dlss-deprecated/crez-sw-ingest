@@ -16,7 +16,6 @@ class AddCrezToSolrDoc
     @solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dir, "sw_config.properties")
     @solrj_wrapper = SolrjWrapper.new(solrmarc_dir + "lib")
     @ckey_2_crez_info = ckey_2_crez_info
-    @new_solr_flds = {}
   end
 
   # given a ckey, 
@@ -25,47 +24,31 @@ class AddCrezToSolrDoc
   #  3. adds the course reserve info to the SolrInputDoc
   # @param ckey the id of the existing Document in the Solr index
   def add_crez_info_to_solr_doc(ckey)
-    sid = solr_input_doc(ckey)
+    solr_input_doc = solr_input_doc(ckey)
     crez_rows = crez_info(ckey)
-# FIXME:  it would be more efficient to loop through crez rows here and do what needs doing for each row in other methods    
-    
-# createNew_solr_flds_hash(crez_rows)
-#  write hash to doc    
-
-    crez_rows.each { |crez_row|
-      # add new fields
-      add_to_new_flds_hash(:crez_instructor_search, row[:instructor_name])
-      add_to_new_flds_hash(:crez_course_name_search, row[:course_name])
-      add_to_new_flds_hash(:crez_course_id_search, row[:course_id])
-# instructor facet is a copy field
-      add_to_new_flds_hash(:crez_desk_facet, REZ_DESK_2_REZ_LOC_FACET[row[:rez_desk]])
-      add_to_new_flds_hash(:dept_facet, get_dept(row[:course_id]))
-      add_to_new_flds_hash(:crez_course_facet, get_compound_value_from_row(row, [:course_id, :course_name], " ")) # for record view
-      add_to_new_flds_hash(:crez_display, get_compound_value_from_row(row, [:course_id, :course_name, :instructor_name], " -|- "))
-
-      orig_item_disp_val = get_matching_item_from_doc(crez_row[:barcode], solr_input_doc)
-      new_item_disp_val = append_crez_info_to_item_disp(orig_item_disp_val, crez_row)
-      # write new item disp val
-    }
-
-    add_crez_val_to_access_facet(sid)
-    update_building_facet(sid, crez_rows)
-    "to be implemented"
-  end
-
-
-  # add a value to the @new_solr_flds hash for the Solr field name.
-  # @param solr_fldname_sym - the name of the new Solr field, as a symbol
-  # @param new_val - the single value to add to the Solr field value array, if it isn't already there.
-  # @param sid - the SolrInputDocument object receiving a new field value
-  def add_fld_val_to_solr_input_doc(solr_fldname_sym, new_val, sid)
-    unless new_val.nil?
-      @new_solr_flds[solr_fldname_sym] ||= []
-      @new_solr_flds[solr_fldname_sym] << new_val
-      @new_solr_flds[solr_fldname_sym].uniq!
+    unless crez_rows.nil?
+      crez_rows.each { |crez_row|
+        # add new fields
+        @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_instructor_search", crez_row[:instructor_name])
+        @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_name_search", crez_row[:course_name])
+        @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_id_search", crez_row[:course_id])
+        # note that instructor facet is a copy field
+        @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_desk_facet", REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]])
+        @solrj_wrapper.add_val_to_fld(solr_input_doc, "dept_facet", get_dept(crez_row[:course_id]))
+        @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_facet", get_compound_value_from_row(crez_row, [:course_id, :course_name], " ")) # for record view
+        @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_display", get_compound_value_from_row(crez_row, [:course_id, :course_name, :instructor_name], " -|- "))
+        # update item_display value with crez data
+        orig_item_disp_val = get_matching_item_from_doc(crez_row[:barcode], solr_input_doc)
+        unless orig_item_disp_val.nil?
+          new_item_disp_val = append_crez_info_to_item_disp(orig_item_disp_val, crez_row)
+          @solrj_wrapper.add_val_to_fld(solr_input_doc, "item_display", new_item_disp_val)
+        end
+      }
+      update_building_facet(solr_input_doc, crez_rows) # could work this logic in here if performance is an issue
     end
+    add_crez_val_to_access_facet(solr_input_doc)
+    solr_input_doc
   end
-
 
   # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument
   #  note that it identifies Solr documents by the "id" field, and expects the marc to be stored in a Solr field "marcxml"
@@ -80,28 +63,13 @@ class AddCrezToSolrDoc
     @ckey_2_crez_info[ckey]
   end
   
-  # given the csv rows to use, create a hash of new fields to add to the existing Solr doc.  keys are Solr field names, values are an array of values for the Solr field.
-  # @param crez_rows the relevant rows from the course reserve csv file
-  def create_new_solr_flds_hash(crez_rows)
-    @new_solr_flds = {}
-    crez_rows.each { |row|
-      add_to_new_flds_hash(:crez_instructor_search, row[:instructor_name])
-      add_to_new_flds_hash(:crez_course_name_search, row[:course_name])
-      add_to_new_flds_hash(:crez_course_id_search, row[:course_id])
-# instructor facet is a copy field
-      add_to_new_flds_hash(:crez_desk_facet, REZ_DESK_2_REZ_LOC_FACET[row[:rez_desk]])
-      add_to_new_flds_hash(:dept_facet, get_dept(row[:course_id]))
-      add_to_new_flds_hash(:crez_course_facet, get_compound_value_from_row(row, [:course_id, :course_name], " ")) # for record view
-      add_to_new_flds_hash(:crez_display, get_compound_value_from_row(row, [:course_id, :course_name, :instructor_name], " -|- "))
-    }
-  end
-  
   # add a value "Course Reserve" to the access_facet field of the solr_input_doc
   # @param solr_input_doc - the SolrInputDocument to be changed
   def add_crez_val_to_access_facet(solr_input_doc)
-    @solrj_wrapper.add_vals_to_fld(solr_input_doc, "access_facet", ["Course Reserve"])
+    @solrj_wrapper.add_val_to_fld(solr_input_doc, "access_facet", "Course Reserve")
   end
-  
+
+# FIXME:  maybe move this into add_crez_info_to_solr_doc method?
   # Recompute the building_facet values but ONLY *if needed* -- when there is a rez_desk value
   #  that warrants it (by differing from the home library of an item)
   # @param solr_input_doc the SolrInputDocument object that will get new building_facet values
@@ -122,35 +90,10 @@ class AddCrezToSolrDoc
     }
   end
   
-  # NAOMI_MUST_COMMENT_THIS_METHOD
-  def update_item_display_fields(solr_input_doc, crez_info)
-    # for each crez row that matches an item display value
-    #   update that item_display value
-    #   leave all the other ones alone.
-    item_display_vals = solr_input_doc["item_display"].getValues
-    crez_info.each { |crez_row|  
-      update_item_display_field(solr_input_doc, crez_row)
-      orig_item_disp_val = get_matching_item_from_vals(crez_row[:barcode], item_display_vals)
-      ix = item_display_vals.index(orig_item_disp_val)
-      if ix >= 0
-        item_display_vals[ix] = add_crez_info_to_item_disp_val(orig_item_disp_val, crez_row)
-      else
-        # FIXME: this should print an error message??  or someplace else doing this matching ...
-        item_display_vals << add_crez_info_to_item_disp_val(orig_item_disp_val, crez_row)
-      end
-    }
-
-# FIXME:  need solrj_wrapper method for  replace_all_field_vals    
-#   want to only do this if the array changed
-    if item_display_vals.size > 0 && item_display_vals != [nil]
-      solr_input_doc.removeField("item_display")
-      @solrj_wrapper.add_vals_to_fld(solr_input_doc, "item_display", item_display_vals)
-    end
-  end
-  
-  
-  # NAOMI_MUST_COMMENT_THIS_METHOD
   # Note: there is no checking here to ensure the crez_row barcode matches the item_display barcode
+  # @param orig_item_display_val - the original value of the item_display field
+  # @param crez_row - the CSV::Row object containing the information to be appended to the item_display value
+  # @return an item_display value string with course reserve values appended
   def append_crez_info_to_item_disp(orig_item_display_val, crez_row)
     sep = " -|- "
     rez_building = REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]]
@@ -166,23 +109,10 @@ class AddCrezToSolrDoc
     dept = course_id.split("-")[0]
     dept = dept.split(" ")[0]
   end
-
-# FIXME: this method should go away
-  # add a value to the @new_solr_flds hash for the Solr field name.
-  # @param solr_fldname_sym - the name of the new Solr field, as a symbol
-  # @param new_val - the single value to add to the Solr field value array, if it isn't already there.
-  def add_to_new_flds_hash(solr_fldname_sym, new_val)
-    unless new_val.nil?
-      @new_solr_flds[solr_fldname_sym] ||= []
-      @new_solr_flds[solr_fldname_sym] << new_val
-      @new_solr_flds[solr_fldname_sym].uniq!
-    end
-  end
-
-# FIXME: this method should probably go away  
+  
+  # returns the single item_display field value matching the barcode, or nil if none match
   # @param desired_barcode the barcode of the desired item_display field
   # @param solr_input_doc the SolrInputDocument with item_display fields to be matched
-  # @return the single item display field matching the barcode, or nil if none match
   def get_matching_item_from_doc(desired_barcode, solr_input_doc)
     item_display_vals = solr_input_doc["item_display"].getValues
     get_matching_item_from_values(desired_barcode, item_display_vals)
@@ -214,12 +144,11 @@ class AddCrezToSolrDoc
         new_building_facet_vals << home_bldg
       end
     }
-    solr_input_doc.removeField("building_facet")
     if new_building_facet_vals.uniq.size > 0 && new_building_facet_vals != [nil]
+      solr_input_doc.removeField("building_facet")
       @solrj_wrapper.add_vals_to_fld(solr_input_doc, "building_facet", new_building_facet_vals.uniq)
     end
   end
-
 
   # given an array of existing values (can be nil), add the value from the indicated crez_info column to the array
   # @param crez_col_syms an Array of header symbols for the csv_row, in the order desired
@@ -239,9 +168,9 @@ class AddCrezToSolrDoc
   
   protected  #-------------------------- protected -------------------------------
   
+  # returns the single item_display field value matching the barcode, or nil if none match
   # @param desired_barcode the barcode of the desired item_display field
   # @param item_display_values an array of item_display Solr field values of a SolrInputDocument
-  # @return the single item_display field value matching the barcode, or nil if none match
   def get_matching_item_from_values(desired_barcode, item_display_values)
     item_display_values.find { |idv|
       desired_barcode.strip == item_disp_val_hash(idv)[:barcode]

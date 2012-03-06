@@ -6,9 +6,9 @@ describe AddCrezToSolrDoc do
   before(:all) do
     @@solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
 #    @@solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
-    p = ParseCrezData.new
-    p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
-    @@ckey_2_crez_info = p.ckey_2_crez_info
+    @@p = ParseCrezData.new
+    @@p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
+    @@ckey_2_crez_info = @@p.ckey_2_crez_info
     @@a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
     @@sid555 = @@a.solr_input_doc("555")
     @@sid666 = @@a.solr_input_doc("666")
@@ -20,64 +20,22 @@ describe AddCrezToSolrDoc do
     @@sid666["id"].getValue.should == "666"
   end
   
-  it "should raise an exception when there is no document in the Solr index for the ckey" do
-    expect {@@a.solr_input_doc("aaa")}.to raise_error("Can't find document for ckey aaa")
-  end
-  
-  it "should write an error message when there is no document in the Solr index for the ckey in the crez data" do
-    pending "to be implemented"
-  end
-  
   it "should retrieve the array of crez_info csv rows for a ckey" do
     crez_info = @@a.crez_info("666")
     crez_info.should be_an_instance_of(Array)
     crez_info[0].should be_an_instance_of(CSV::Row)
   end
   
-  it "new_solr_flds object should start out as an empty Hash" do
-    @@a.new_solr_flds.should be_an_instance_of(Hash)
-    @@a.new_solr_flds.should be_empty
+  it "should write an error message when there is no document in the Solr index for the ckey in the crez data" do
+    expect {@@a.solr_input_doc("aaa")}.to raise_error("Can't find document for ckey aaa")
+    pending "need to write to logger, not raise exception"
   end
   
-  context "add_to_new_flds_hash" do
-    before(:each) do
-      @@a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
-    end
+  it "should write an error message when no item matches the barcode from Course Reserve data" do
+    pending "to be implemented"
+    expect {@@a.solr_input_doc("666")}.to raise_error("Can't find item for barcode aaa")
+  end
     
-    it "should not create a field if the only value to be added is nil" do
-      @@a.add_to_new_flds_hash(:fname, nil)
-      @@a.new_solr_flds.should be_empty
-    end
-    
-    it "should not add a value when the CSV Row is missing the value" do
-      crez_info = @@a.crez_info("666")
-      @@a.add_to_new_flds_hash(:fname, crez_info[0][:fake])
-      @@a.new_solr_flds.should be_empty
-    end
-    
-    it "should not add a nil value to new_solr_flds" do
-      @@a.add_to_new_flds_hash(:fname, "val1")
-      @@a.new_solr_flds[:fname].size.should == 1
-      @@a.new_solr_flds[:fname].should == ["val1"]
-      @@a.add_to_new_flds_hash(:fname, nil)
-      @@a.new_solr_flds[:fname].size.should == 1
-      @@a.new_solr_flds[:fname].should == ["val1"]
-    end
-    
-    it "should not add a duplicate value to new_solr_flds" do
-      @@a.add_to_new_flds_hash(:fname, "val1")
-      @@a.new_solr_flds[:fname].size.should == 1
-      @@a.new_solr_flds[:fname].should == ["val1"]
-      @@a.add_to_new_flds_hash(:fname, "val2")
-      @@a.new_solr_flds[:fname].size.should == 2
-      @@a.new_solr_flds[:fname].should == ["val1", "val2"]
-      @@a.add_to_new_flds_hash(:fname, "val1")
-      @@a.new_solr_flds[:fname].size.should == 2
-      @@a.new_solr_flds[:fname].should == ["val1", "val2"]
-    end
-    
-  end # add_to_new_flds_hash context
-  
   context "get_compound_value_from_row" do
     it "should add the fields in order, with the indicated separator" do
       row = @@a.crez_info("666")[0]
@@ -95,8 +53,8 @@ describe AddCrezToSolrDoc do
       val.should == " FALL"
       val = @@a.get_compound_value_from_row(row, [:term, :fake], " ")
       val.should == "FALL "
-      val = @@a.get_compound_value_from_row(row, [:course_id, :fake, :term], " -!- ")
-      val.should == "COMPLIT-101 -!-  -!- FALL"
+      val = @@a.get_compound_value_from_row(row, [:course_id, :fake, :term], " -|- ")
+      val.should == "COMPLIT-101 -|-  -|- FALL"
     end
   end
 
@@ -108,38 +66,7 @@ describe AddCrezToSolrDoc do
     @@a.get_dept("BIOHOPK-182H/323H").should == "BIOHOPK"
   end
 
-  context "create_new_solr_flds_hash" do
-    before(:all) do
-      @@a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
-    end
-    
-    it "should add all expected non-nil fields to the hash" do
-      @@a.create_new_solr_flds_hash(@@a.crez_info("666"))
-      fld_hash = @@a.new_solr_flds
-      fld_hash[:crez_instructor_search].should == ["Saldivar, Jose David"]
-      fld_hash[:crez_course_name_search].should == ["What is Literature?"]
-      fld_hash[:crez_course_id_search].should == ["COMPLIT-101"]
-      fld_hash[:crez_term_facet].should be_nil
-      fld_hash[:crez_desk_facet].should == ["Green Reserves"]
-      fld_hash[:dept_facet].should == ["COMPLIT"]
-      fld_hash[:crez_course_facet].should == ["COMPLIT-101 What is Literature?"]
-      fld_hash[:crez_display].should == ["COMPLIT-101 -|- What is Literature? -|- Saldivar, Jose David"]
-
-      @@a.create_new_solr_flds_hash(@@a.crez_info("555"))
-      fld_hash = @@a.new_solr_flds
-      fld_hash[:crez_instructor_search].should == ["Harris, Bradford Cole", "Kreiner, Jamie K"]
-      fld_hash[:crez_course_name_search].should == ["Saints in the Middle Ages"]
-      fld_hash[:crez_course_id_search].should == ["HISTORY-41S", "HISTORY-211C"]
-      fld_hash[:crez_term_facet].should be_nil
-      fld_hash[:crez_desk_facet].should == ["Green Reserves"]
-      fld_hash[:dept_facet].should == ["HISTORY"]
-      fld_hash[:crez_course_facet].should == ["HISTORY-41S ", "HISTORY-211C Saints in the Middle Ages"]
-      fld_hash[:crez_display].should == ["HISTORY-41S -|-  -|- Harris, Bradford Cole", "HISTORY-211C -|- Saints in the Middle Ages -|- Kreiner, Jamie K"]
-    end
-  end
-  
-  context "get_item_display_val" do
-
+  context "get_matching_item_from_doc" do
     it "should return nil if there is no matching barcode" do
       @@a.get_matching_item_from_doc("fake", @@sid666).should be_nil
     end
@@ -158,16 +85,10 @@ describe AddCrezToSolrDoc do
     end
   end
   
-  it "should write an error message when no item matches the barcode from Course Reserve" do
-    pending "to be implemented"
-    expect {@@a.solr_input_doc("666")}.to raise_error("Can't find item for barcode aaa")
-  end
-  
   context "redo_building_facet" do
     before(:all) do
-      p = ParseCrezData.new
-      p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
-      @@ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, p.ckey_2_crez_info)
+      @@p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
+      @@ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
     end
 
     it "should use the Course Reserve rez_desk value instead of the item_display library value" do
@@ -253,7 +174,6 @@ describe AddCrezToSolrDoc do
 
   context "update_building_facet" do
     before(:all) do
-      @@p = ParseCrezData.new
       @@p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
     end
     
@@ -297,9 +217,8 @@ describe AddCrezToSolrDoc do
   
   context "append_crez_info_to_item_disp" do
     before(:each) do
-      p = ParseCrezData.new
-      p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
-      @@crez8834492_row0 = p.ckey_2_crez_info["8834492"][0]
+      @@p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
+      @@crez8834492_row0 = @@p.ckey_2_crez_info["8834492"][0]
       @@item_display_val = @@sid666["item_display"].getValues.first
       @@new_val = @@a.append_crez_info_to_item_disp(@@item_display_val, @@crez8834492_row0)
     end
@@ -321,5 +240,69 @@ describe AddCrezToSolrDoc do
       @@new_val.split("-|-")[12].strip.should == "2 Hours"
     end
   end
+  
+  context "add_crez_info_to_solr_doc" do
+    before(:each) do
+      @@p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
+      a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
+      @@oldSid666 = a.solr_input_doc("666")
+      @@newSid666 = a.add_crez_info_to_solr_doc("666")
+      @@newSid555 = a.add_crez_info_to_solr_doc("555")
+      p2 = ParseCrezData.new
+      p2.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
+      b = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, p2.ckey_2_crez_info)
+      @@oldSid8707706 = b.solr_input_doc("8707706")
+      @@newSid8707706 = b.add_crez_info_to_solr_doc("8707706")
+      @@newSid9423045 = b.add_crez_info_to_solr_doc("9423045")
+    end
+    
+    it "should add all the crez specific fields to the solr_input_doc for the ckey" do
+      @@newSid666["crez_instructor_search"].getValues.should == java.util.ArrayList.new(["Saldivar, Jose David"])   
+      @@newSid666["crez_course_name_search"].getValues.should == java.util.ArrayList.new(["What is Literature?"])
+      @@newSid666["crez_course_id_search"].getValues.should == java.util.ArrayList.new(["COMPLIT-101"])
+      @@newSid666["crez_desk_facet"].getValues.should == java.util.ArrayList.new(["Green Reserves"])
+      @@newSid666["dept_facet"].getValues.should == java.util.ArrayList.new(["COMPLIT"])
+      @@newSid666["crez_course_facet"].getValues.should == java.util.ArrayList.new(["COMPLIT-101 What is Literature?"])
+      @@newSid666["crez_display"].getValues.should == java.util.ArrayList.new(["COMPLIT-101 -|- What is Literature? -|- Saldivar, Jose David"])
+      
+      @@newSid555["crez_instructor_search"].getValues.should == java.util.ArrayList.new(["Harris, Bradford Cole", "Kreiner, Jamie K"])
+      @@newSid555["crez_course_name_search"].getValues.should  == java.util.ArrayList.new(["Saints in the Middle Ages"])
+      @@newSid555["crez_course_id_search"].getValues.should == java.util.ArrayList.new(["HISTORY-41S", "HISTORY-211C"])
+      @@newSid555["crez_desk_facet"].getValues.should == java.util.ArrayList.new(["Green Reserves"])
+      @@newSid555["dept_facet"].getValues.should  == java.util.ArrayList.new(["HISTORY"])
+      @@newSid555["crez_course_facet"].getValues.should  == java.util.ArrayList.new(["HISTORY-41S ", "HISTORY-211C Saints in the Middle Ages"])
+      @@newSid555["crez_display"].getValues.should  == java.util.ArrayList.new(["HISTORY-41S -|-  -|- Harris, Bradford Cole", "HISTORY-211C -|- Saints in the Middle Ages -|- Kreiner, Jamie K"])
+    end
+    
+    it "should call add_crez_val_to_access_facet once, always" do
+      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
+      ac2sd.should_receive(:add_crez_val_to_access_facet).twice
+      ac2sd.add_crez_info_to_solr_doc("8707706")
+      ac2sd.add_crez_info_to_solr_doc("666")
+    end
+    
+    it "should call update_building_facet once, always" do
+      p = ParseCrezData.new
+      p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
+      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, p.ckey_2_crez_info)
+      ac2sd.should_receive(:update_building_facet).twice
+      ac2sd.add_crez_info_to_solr_doc("8707706")
+      ac2sd.add_crez_info_to_solr_doc("9423045")
+    end
+    
+    it "should call append_crez_info_to_item_disp for every csv row with a matching item" do
+      p = ParseCrezData.new
+      p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
+      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, p.ckey_2_crez_info)
+      ac2sd.should_receive(:append_crez_info_to_item_disp).twice
+      ac2sd.add_crez_info_to_solr_doc("8707706")
+    end
+    
+    it "should leave other fields alone" do
+      @@oldSid8707706["title_245_search"].getValues.should == @@newSid8707706["title_245_search"].getValues
+    end
+    
+  end # context add_crez_info_to_solr_doc
+
   
 end
