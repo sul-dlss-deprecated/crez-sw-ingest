@@ -137,18 +137,18 @@ describe AddCrezToSolrDoc do
   context "get_item_display_val" do
 
     it "should return nil if there is no matching barcode" do
-      @@a.get_item_display_val("fake", @@sid666).should be_nil
+      @@a.get_matching_item_from_doc("fake", @@sid666).should be_nil
     end
 
     it "should find an item_display field with matching barcode" do
-      matching_val = @@a.get_item_display_val("36105041846424", @@sid666)
+      matching_val = @@a.get_matching_item_from_doc("36105041846424", @@sid666)
       matching_val.split("-|-").size.should == 10
       matching_val.split("-|-")[0].strip.should == "36105041846424"
       sid = @@a.solr_input_doc("9340596")
-      matching_val = @@a.get_item_display_val("36105217077085", sid)
+      matching_val = @@a.get_matching_item_from_doc("36105217077085", sid)
       matching_val.split("-|-").size.should == 10
       matching_val.split("-|-")[0].strip.should == "36105217077085"
-      matching_val = @@a.get_item_display_val("36105217629935", sid)
+      matching_val = @@a.get_matching_item_from_doc("36105217629935", sid)
       matching_val.split("-|-").size.should == 10
       matching_val.split("-|-")[0].strip.should == "36105217629935"
     end
@@ -291,25 +291,34 @@ describe AddCrezToSolrDoc do
     sid["access_facet"].getValues.contains("Course Reserve").should be_true
   end
   
-  context "updating existing solr doc fields" do
-
-
-    it "should add stuff to the item_display field" do
-      pending "to be implemented"
-    end
-
-    it "should use the reserve desk for the library (location) facet value" do
+  context "update_item_display_fields" do
+    it "should only add the suffix to matching items" do
+      
       pending "to be implemented"
     end
     
-    it "should add the building if there are other non-reserve items at the orig building" do
+    it "should add an item display value??  if none exsits?  Or throw an error?" do
+      
       pending "to be implemented"
     end
     
-    it "should remove the old building value if there are no more items there" do
+    it "should have the same number of item_display values after update" do
+      
       pending "to be implemented"
     end
     
+    
+    it "should add information even if the rez_desk doesn't change" do
+      
+      pending "to be implemented"
+    end
+    
+    it "should add information even if some of the info to add is null" do
+      
+      pending "to be implemented"
+    end
+
+
   end
   
   

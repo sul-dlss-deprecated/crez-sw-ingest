@@ -23,6 +23,15 @@ class AddCrezToSolrDoc
   #  3. adds the course reserve info to the SolrInputDoc
   # @param ckey the id of the existing Document in the Solr index
   def add_crez_info_to_solr_doc(ckey)
+    sid = solr_input_doc(ckey)
+    crez_rows = crez_info(ckey)
+# FIXME:  it would be more efficient to loop through crez rows here and do what needs doing for each row in other methods    
+    
+# createNew_solr_flds_hash(crez_rows)
+#  write hash to doc    
+    add_crez_val_to_access_facet(sid)
+    update_building_facet(sid, crez_rows)
+    update_item_display_fields(sid, crez_rows)
     "to be implemented"
   end
 
@@ -55,39 +64,6 @@ class AddCrezToSolrDoc
     }
   end
   
-  # add a value to the @new_solr_flds hash for the Solr field name.
-  # @param solr_fldname_sym - the name of the new Solr field, as a symbol
-  # @param new_val - the single value to add to the Solr field value array, if it isn't already there.
-  def add_to_new_flds_hash(solr_fldname_sym, new_val)
-    unless new_val.nil?
-      @new_solr_flds[solr_fldname_sym] ||= []
-      @new_solr_flds[solr_fldname_sym] << new_val
-      @new_solr_flds[solr_fldname_sym].uniq!
-    end
-  end
-
-  # given an array of existing values (can be nil), add the value from the indicated crez_info column to the array
-  # @param crez_col_syms an Array of header symbols for the csv_row, in the order desired
-  # @param sep the separator between the values
-  def get_compound_value_from_row(csv_row, crez_col_syms, sep)
-    compound_val = nil
-    crez_col_syms.each { |col|
-      col_val = csv_row[col].to_s.dup # CSV::Row is adding a space for multiple lookups - odd
-      if compound_val.nil?
-        compound_val = col_val
-      else
-        compound_val << sep << col_val
-      end
-    }
-    compound_val
-  end
-  
-  # derive the department from the course_id
-  def get_dept(course_id)
-    dept = course_id.split("-")[0]
-    dept = dept.split(" ")[0]
-  end
-
   # add a value "Course Reserve" to the access_facet field of the solr_input_doc
   # @param solr_input_doc - the SolrInputDocument to be changed
   def add_crez_val_to_access_facet(solr_input_doc)
@@ -103,7 +79,7 @@ class AddCrezToSolrDoc
       #  do we need to recompute the building facet?
       rez_building = REZ_DESK_2_BLDG_FACET[crez_row[:rez_desk]]
       unless rez_building.nil? 
-        item_disp_val = get_item_display_val(crez_row[:barcode], solr_input_doc)
+        item_disp_val = get_matching_item_from_doc(crez_row[:barcode], solr_input_doc)
         item_disp_hash = item_disp_val_hash(item_disp_val)
         if rez_building != LIB_2_BLDG_FACET[item_disp_hash[:building]]
             # the rez-desk is different from the existing building so we must redo the facet values
@@ -114,6 +90,82 @@ class AddCrezToSolrDoc
     }
   end
   
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def update_item_display_field(solr_input_doc, crez_row, orig_item_display_vals)
+    orig_item_disp_val = get_matching_item_from_doc(crez_row[:barcode], solr_input_doc)
+    ix = item_display_array.index(orig_item_disp_val)
+    if ix >= 0
+      item_display_array[ix] = crez_item_disp_val(orig_item_disp_val, crez_row)
+    else
+      # FIXME: this should print an error message??  or someplace else doing this matching ...
+      item_display_array << crez_item_disp_val(orig_item_disp_val, crez_row)
+    end
+    
+    # code to replace field value
+    
+  end
+  
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def update_item_display_fields(solr_input_doc, crez_info)
+    # for each crez row that matches an item display value
+    #   update that item_display value
+    #   leave all the other ones alone.
+    item_display_vals = solr_input_doc["item_display"].getValues
+    crez_info.each { |crez_row|  
+      orig_item_disp_val = get_matching_item_from_vals(crez_row[:barcode], item_display_vals)
+      ix = item_display_vals.index(orig_item_disp_val)
+      if ix >= 0
+        item_display_vals[ix] = crez_item_disp_val(orig_item_disp_val, crez_row)
+      else
+        # FIXME: this should print an error message??  or someplace else doing this matching ...
+        item_display_vals << crez_item_disp_val(orig_item_disp_val, crez_row)
+      end
+    }
+
+# FIXME:  need solrj_wrapper method for  replace_all_field_vals    
+#   want to only do this if the array changed
+    if item_display_vals.size > 0 && item_display_vals != [nil]
+      solr_input_doc.removeField("item_display")
+      @solrj_wrapper.add_vals_to_fld(solr_input_doc, "item_display", item_display_vals)
+    end
+  end
+  
+  
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def crez_item_disp_val(orig_item_display_val, crez_row)
+    #  FIXME: would like to add the course reserve call number, but don't have it.
+    suffix = get_compound_value_from_row(crez_row, [:course_id, :rez_desk, :loan_period], " -|- ")
+    orig_item_display_val + " -|- " + suffix
+  end
+
+# ---------------- FIXME:  probably should be protected ---------------------------
+
+  # derive the department from the course_id
+  def get_dept(course_id)
+    dept = course_id.split("-")[0]
+    dept = dept.split(" ")[0]
+  end
+
+# FIXME: this method should go away
+  # add a value to the @new_solr_flds hash for the Solr field name.
+  # @param solr_fldname_sym - the name of the new Solr field, as a symbol
+  # @param new_val - the single value to add to the Solr field value array, if it isn't already there.
+  def add_to_new_flds_hash(solr_fldname_sym, new_val)
+    unless new_val.nil?
+      @new_solr_flds[solr_fldname_sym] ||= []
+      @new_solr_flds[solr_fldname_sym] << new_val
+      @new_solr_flds[solr_fldname_sym].uniq!
+    end
+  end
+
+# FIXME: this method should probably go away  
+  # @param desired_barcode the barcode of the desired item_display field
+  # @param solr_input_doc the SolrInputDocument with item_display fields to be matched
+  # @return the single item display field matching the barcode, or nil if none match
+  def get_matching_item_from_doc(desired_barcode, solr_input_doc)
+    item_display_vals = solr_input_doc["item_display"].getValues
+    get_matching_item_from_values(desired_barcode, item_display_vals)
+  end
 
   # NOTE:  use adjust_building_facet unless you are sure you need to recompute the values
   # recompute the values for the building_facet for a document based on crez data and item_display data
@@ -146,16 +198,33 @@ class AddCrezToSolrDoc
       @solrj_wrapper.add_vals_to_fld(solr_input_doc, "building_facet", new_building_facet_vals.uniq)
     end
   end
+
+
+  # given an array of existing values (can be nil), add the value from the indicated crez_info column to the array
+  # @param crez_col_syms an Array of header symbols for the csv_row, in the order desired
+  # @param sep the separator between the values
+  def get_compound_value_from_row(csv_row, crez_col_syms, sep)
+    compound_val = nil
+    crez_col_syms.each { |col|
+      col_val = csv_row[col].to_s.dup # CSV::Row is adding a space for multiple lookups - odd
+      if compound_val.nil?
+        compound_val = col_val
+      else
+        compound_val << sep << col_val
+      end
+    }
+    compound_val
+  end
   
-  # @param desired_barcode the barcode of the desired item_display field
-  # @param solr_input_doc the SolrInputDocument with item_display fields to be matched
-  # @return the single item display field matching the barcode, or nil if none match
-  def get_item_display_val(desired_barcode, solr_input_doc)
-    item_display_vals = solr_input_doc["item_display"].getValues
-    item_display_vals.find { |idv|
+  protected
+  
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def get_matching_item_from_values(desired_barcode, item_display_values)
+    item_display_values.find { |idv|
       desired_barcode.strip == item_disp_val_hash(idv)[:barcode]
     }
   end
+
   
   # converts the passed item_display field value into a hash containing the desired pieces
   # @param item_display_val the value of an item_display field in a Solr document
@@ -178,14 +247,5 @@ class AddCrezToSolrDoc
       }
     end
   end
-  
 
-  # NAOMI_MUST_COMMENT_THIS_METHOD
-  def modify_existing_fields
-#    :item_display for the specific barcode modified   add  :rez_desk, :crez_callnum, :crez_loan_period, :crez_id
-# :access facet gets additional value of "Course Reserve"
-# :location facet changes per crez desk ... ewwwww
-    
-  end
-  
 end
