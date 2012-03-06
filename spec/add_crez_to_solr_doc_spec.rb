@@ -162,7 +162,7 @@ describe AddCrezToSolrDoc do
   context "redo_building_facet" do
     before(:all) do
       p = ParseCrezData.new
-      p.read(File.expand_path('test_data/multrezdesk.csv', File.dirname(__FILE__)))
+      p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
       @@ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, p.ckey_2_crez_info)
     end
 
@@ -192,7 +192,28 @@ describe AddCrezToSolrDoc do
     end
 
     it "should retain the library loc if only some items with that loc are overridden" do
-      pending "to be implemented"
+      sid8834492 = @@ac2sd.solr_input_doc("8834492")
+      orig_vals = sid8834492["building_facet"].getValues
+      orig_vals.size.should == 2
+      orig_vals.contains("Green (Humanities & Social Sciences)").should be_true
+      orig_vals.contains("SAL3 (Off-campus)").should be_true
+      @@ac2sd.redo_building_facet(sid8834492, @@ac2sd.crez_info("8834492"))
+      new_vals = sid8834492["building_facet"].getValues
+      new_vals.size.should == 3
+      orig_vals.contains("Green (Humanities & Social Sciences)").should be_true
+      orig_vals.contains("SAL3 (Off-campus)").should be_true
+      new_vals.contains("Physics").should be_true
+    end
+    
+    it "should retain the library if the crez location is for the same library" do
+      sid9423045 = @@ac2sd.solr_input_doc("9423045")
+      orig_vals = sid9423045["building_facet"].getValues
+      orig_vals.size.should == 1
+      orig_vals[0].should == "Green (Humanities & Social Sciences)"
+      @@ac2sd.redo_building_facet(sid9423045, @@ac2sd.crez_info("9423045"))
+      new_vals = sid9423045["building_facet"].getValues
+      new_vals.size.should == 1
+      new_vals[0].should == "Green (Humanities & Social Sciences)"
     end
 
     it "should ignore a crez loc with no translation (use the library from item_display)" do
@@ -211,7 +232,7 @@ describe AddCrezToSolrDoc do
       sid9434391["building_facet"].should be_nil
     end
     
-    it "should create a value from the crez loc even if there was no original value" do
+    it "should create a building_facet value from the crez loc when there was no original value from item_display" do
       sid9518589 = @@ac2sd.solr_input_doc("9518589")
       sid9518589["building_facet"].should be_nil
       @@ac2sd.redo_building_facet(sid9518589, @@ac2sd.crez_info("9518589"))
@@ -221,11 +242,7 @@ describe AddCrezToSolrDoc do
     end
 
     it "should ignore a (un-overridden) library value missing from the library translation table" do
-      pending "to be implemented"
-      sid9434391 = @@ac2sd.solr_input_doc("9434391")
-      sid9434391["building_facet"].should be_nil
-      @@ac2sd.redo_building_facet(sid9434391, @@ac2sd.crez_info("9434391"))
-      sid9434391["building_facet"].should be_nil
+      pending "need a record with both an overridden and an unoverridden case ..."
     end
     
   end
