@@ -13,3 +13,6 @@ FAKE-RESV|20111216|CURRENT|888|36105041848594  |STACKS|PHYS-RESV|ON_RESERVE|2H|2
 
 # crez desk loc with no translation overriding an item display building with no translation
 FAKE-RESV|20111216|CURRENT|9434391|9434391-1001  |STACKS|PHYS-RESV|ON_RESERVE|2H|20111216|ACTIVE|COMPLIT-101|course name|FALL|lib_id|univ_id|Yoda|
+
+# crez desk loc overriding an item display building with no translation
+PHYS-RESV|20111216|CURRENT|9518589|9518589-1001  |STACKS|PHYS-RESV|ON_RESERVE|2H|20111216|ACTIVE|COMPLIT-101|course name|FALL|lib_id|univ_id|Yoda|

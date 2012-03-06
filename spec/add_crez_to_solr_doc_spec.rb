@@ -191,6 +191,10 @@ describe AddCrezToSolrDoc do
       new_vals.contains("Physics").should be_true
     end
 
+    it "should retain the library loc if only some items with that loc are overridden" do
+      pending "to be implemented"
+    end
+
     it "should ignore a crez loc with no translation (use the library from item_display)" do
       sid888 = @@ac2sd.solr_input_doc("888")
       orig_vals = sid888["building_facet"].getValues
@@ -200,22 +204,30 @@ describe AddCrezToSolrDoc do
       new_vals = sid888["building_facet"].getValues
       new_vals.size.should == 1
       new_vals[0].should == "Music"
-    end
-    
-    it "should ignore a (un-overridden) library value missing from the library translation table" do
+      # no translation for library in item_display either
       sid9434391 = @@ac2sd.solr_input_doc("9434391")
       sid9434391["building_facet"].should be_nil
       @@ac2sd.redo_building_facet(sid9434391, @@ac2sd.crez_info("9434391"))
       sid9434391["building_facet"].should be_nil
     end
     
-    it "should use the crez loc for library loc without translation" do
+    it "should create a value from the crez loc even if there was no original value" do
+      sid9518589 = @@ac2sd.solr_input_doc("9518589")
+      sid9518589["building_facet"].should be_nil
+      @@ac2sd.redo_building_facet(sid9518589, @@ac2sd.crez_info("9518589"))
+      new_vals = sid9518589["building_facet"].getValues
+      new_vals.size.should == 1
+      new_vals[0].should == "Physics"
+    end
+
+    it "should ignore a (un-overridden) library value missing from the library translation table" do
       pending "to be implemented"
+      sid9434391 = @@ac2sd.solr_input_doc("9434391")
+      sid9434391["building_facet"].should be_nil
+      @@ac2sd.redo_building_facet(sid9434391, @@ac2sd.crez_info("9434391"))
+      sid9434391["building_facet"].should be_nil
     end
     
-    it "should retain the library loc if only some items with that loc are overridden" do
-      pending "to be implemented"
-    end
   end
 
   
