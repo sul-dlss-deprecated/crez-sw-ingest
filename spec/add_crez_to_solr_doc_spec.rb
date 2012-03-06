@@ -244,18 +244,55 @@ describe AddCrezToSolrDoc do
     it "should ignore a (un-overridden) library value missing from the library translation table" do
       pending "need a record with both an overridden and an unoverridden case ..."
     end
-    
-  end
 
+  end # context "redo_building_facet"
+
+  context "update_building_facet" do
+    before(:all) do
+      @@p = ParseCrezData.new
+      @@p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
+    end
+    
+    it "should only call redo_building_facet once" do
+      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
+      ac2sd.should_receive(:redo_building_facet).once
+      sid8707706 = ac2sd.solr_input_doc("8707706")
+      ac2sd.update_building_facet(sid8707706, ac2sd.crez_info("8707706"))
+    end
+
+    it "should call redo_building_facet if there is a rez desk and there was no building_facet value" do
+      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
+      ac2sd.should_receive(:redo_building_facet).once
+      sid9518589 = ac2sd.solr_input_doc("9518589")
+      ac2sd.update_building_facet(sid9518589, ac2sd.crez_info("9518589"))
+    end
+    
+    it "should not call redo_building_facet if no crez rez-desk differs from library in item_display field" do
+      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
+      ac2sd.should_not_receive(:redo_building_facet)
+      sid4286782 = ac2sd.solr_input_doc("4286782")
+      ac2sd.update_building_facet(sid4286782, ac2sd.crez_info("4286782"))
+    end
+    
+    it "should not call redo_building_facet if the only rez_desk values don't map to anything" do
+      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
+      ac2sd.should_not_receive(:redo_building_facet)
+      sid9434391 = ac2sd.solr_input_doc("9434391")
+      ac2sd.update_building_facet(sid9434391, ac2sd.crez_info("9434391"))
+    end
+    
+  end # context update_building_facet
+
+
+  it "should add the Course Reserve value to the Access facet" do
+    sid = @@a.solr_input_doc("666")
+    sid["access_facet"].getValues.contains("Course Reserve").should be_false
+    @@a.add_crez_val_to_access_facet(sid)
+    sid["access_facet"].getValues.contains("Course Reserve").should be_true
+  end
   
   context "updating existing solr doc fields" do
 
-    it "should add the Course Reserve value to the Access facet" do
-      sid = @@a.solr_input_doc("666")
-      sid["access_facet"].getValues.contains("Course Reserve").should be_false
-      @@a.add_crez_val_to_access_facet(sid)
-      sid["access_facet"].getValues.contains("Course Reserve").should be_true
-    end
 
     it "should add stuff to the item_display field" do
       pending "to be implemented"

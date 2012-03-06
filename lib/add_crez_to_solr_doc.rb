@@ -94,33 +94,32 @@ class AddCrezToSolrDoc
     @solrj_wrapper.add_vals_to_fld(solr_input_doc, "access_facet", ["Course Reserve"])
   end
   
-  # NAOMI_MUST_COMMENT_THIS_METHOD
-  def adjust_building_facet(solr_input_doc, crez_info)
-    orig_build_facet_vals = solr_input_doc["building_facet"].getValues
-    new_building_facet_vals ||= begin
-      new_building_facet_vals = []
-      crez_info.each { |crez_row|
-        #  do we need to recompute the building facet?
-        rez_building = REZ_DESK_2_BLDG_FACET[crez_row[:rez_desk]]
-        unless rez_building.nil? 
-          crez_barcode = crez_row[:barcode]
-          item_disp_val = get_item_display_val(crez_barcode, solr_input_doc)
-          item_disp_hash = item_disp_val_hash(item_disp_val)
-          if rez_building != item_disp_hash[:building]
-              # if the rez-desk is different from the existing building
-              need_to_redo_bldg_facet = true
-          # only do this once for all crez data
-              #      recompute the whole building_facet, and use rez_desk instead of originating library
-          end
+  # Recompute the building_facet values but ONLY *if needed* -- when there is a rez_desk value
+  #  that warrants it (by differing from the home library of an item)
+  # @param solr_input_doc the SolrInputDocument object that will get new building_facet values
+  # @param crez_info an Array of CSV::Row objects containing data for items in the SolrInputDocument
+  def update_building_facet(solr_input_doc, crez_info)
+    crez_info.each { |crez_row|
+      #  do we need to recompute the building facet?
+      rez_building = REZ_DESK_2_BLDG_FACET[crez_row[:rez_desk]]
+      unless rez_building.nil? 
+        item_disp_val = get_item_display_val(crez_row[:barcode], solr_input_doc)
+        item_disp_hash = item_disp_val_hash(item_disp_val)
+        if rez_building != LIB_2_BLDG_FACET[item_disp_hash[:building]]
+            # the rez-desk is different from the existing building so we must redo the facet values
+            redo_building_facet(solr_input_doc, crez_info)
+            return
         end
-      }
-      if need_to_redo_bldg_facet
-        redo_building_facet(solr_input_doc, creaz_info)
       end
-    end
+    }
   end
   
-  # NAOMI_MUST_COMMENT_THIS_METHOD
+
+  # NOTE:  use adjust_building_facet unless you are sure you need to recompute the values
+  # recompute the values for the building_facet for a document based on crez data and item_display data
+  #  the passed solr_input_doc is changed by this method
+  # @param solr_input_doc the SolrInputDocument object that will get new building_facet values
+  # @param crez_info an Array of CSV::Row objects containing data for items in the SolrInputDocument
   def redo_building_facet(solr_input_doc, crez_info)
     new_building_facet_vals = []
     item_display_vals = solr_input_doc["item_display"].getValues
@@ -153,26 +152,31 @@ class AddCrezToSolrDoc
   # @return the single item display field matching the barcode, or nil if none match
   def get_item_display_val(desired_barcode, solr_input_doc)
     item_display_vals = solr_input_doc["item_display"].getValues
-    array_result = item_display_vals.find { |idv|
-      desired_barcode == item_disp_val_hash(idv)[:barcode]
+    item_display_vals.find { |idv|
+      desired_barcode.strip == item_disp_val_hash(idv)[:barcode]
     }
   end
   
-  # NAOMI_MUST_COMMENT_THIS_METHOD
+  # converts the passed item_display field value into a hash containing the desired pieces
+  # @param item_display_val the value of an item_display field in a Solr document
   def item_disp_val_hash(item_display_val)
-    idv_array = item_display_val.split("-|-").map{|w| w.strip }
-    { 
-      :barcode => idv_array[0],
-      :building => idv_array[1]
-#      :home_location => idv_array[2],
-#      :current_location => idv_array[3],
-#      :callnum_type => idv_array[4],
-#      :trunc_callnum => idv_array[5],
-#      :trunc_shelfkey => idv_array[6],
-#      :reverse_shelfkey => idv_array[7],
-#      :full_callnum => idv_array[8],
-#      :full_shelfkey => idv_array[9]
-    }
+    if item_display_val.nil?
+      {}
+    else
+      idv_array = item_display_val.split("-|-").map{|w| w.strip }
+      { 
+        :barcode => idv_array[0],
+        :building => idv_array[1]
+        # :home_location => idv_array[2],
+        # :current_location => idv_array[3],
+        # :callnum_type => idv_array[4],
+        # :trunc_callnum => idv_array[5],
+        # :trunc_shelfkey => idv_array[6],
+        # :reverse_shelfkey => idv_array[7],
+        # :full_callnum => idv_array[8],
+        # :full_shelfkey => idv_array[9]
+      }
+    end
   end
   
 
