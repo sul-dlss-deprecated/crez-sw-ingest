@@ -18,18 +18,32 @@ class SolrjWrapper
   end
   
   # given a SolrInputDocument, add the field and/or the values.  This will not add empty values, and it will not add duplicate values
-  def add_vals_to_fld(solr_input_doc, fldname, val_array)
-    if !fldname.nil? && fldname.size > 0 && !val_array.nil? && val_array.size > 0
-      if !solr_input_doc[fldname].nil?
-        existing_vals = solr_input_doc[fldname].getValues
-      end
-      val_array.each { |val|  
-        if existing_vals.nil? || !existing_vals.contains(val)
-          solr_input_doc.addField(fldname, val, 1.0)
-        end
+  # @param solr_input_doc - the SolrInputDocument object receiving a new field value
+  # @param fld_name - the name of the Solr field
+  # @param val_array - an array of values for the Solr field
+  def add_vals_to_fld(solr_input_doc, fld_name, val_array)
+    unless val_array.nil?
+      val_array.each { |value|  
+        add_val_to_fld(solr_input_doc, fld_name, value)
       }
     end
   end
+
+  # given a SolrInputDocument, add the field and/or the value.  This will not add empty values, and it will not add duplicate values
+  # @param solr_input_doc - the SolrInputDocument object receiving a new field value
+  # @param fld_name - the name of the Solr field
+  # @param value - the value to add to the Solr field
+  def add_val_to_fld(solr_input_doc, fld_name, value)
+    if !fld_name.nil? && fld_name.size > 0 && !value.nil? && value.size > 0
+      if !solr_input_doc[fld_name].nil? && solr_input_doc
+        existing_vals = solr_input_doc[fld_name].getValues
+      end
+      if existing_vals.nil? || !existing_vals.contains(value)
+        solr_input_doc.addField(fld_name, value, 1.0)
+      end
+    end
+  end
+
   
   protected 
 

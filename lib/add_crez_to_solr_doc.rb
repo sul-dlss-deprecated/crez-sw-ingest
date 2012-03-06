@@ -33,6 +33,16 @@ class AddCrezToSolrDoc
 #  write hash to doc    
 
     crez_rows.each { |crez_row|
+      # add new fields
+      add_to_new_flds_hash(:crez_instructor_search, row[:instructor_name])
+      add_to_new_flds_hash(:crez_course_name_search, row[:course_name])
+      add_to_new_flds_hash(:crez_course_id_search, row[:course_id])
+# instructor facet is a copy field
+      add_to_new_flds_hash(:crez_desk_facet, REZ_DESK_2_REZ_LOC_FACET[row[:rez_desk]])
+      add_to_new_flds_hash(:dept_facet, get_dept(row[:course_id]))
+      add_to_new_flds_hash(:crez_course_facet, get_compound_value_from_row(row, [:course_id, :course_name], " ")) # for record view
+      add_to_new_flds_hash(:crez_display, get_compound_value_from_row(row, [:course_id, :course_name, :instructor_name], " -|- "))
+
       orig_item_disp_val = get_matching_item_from_doc(crez_row[:barcode], solr_input_doc)
       new_item_disp_val = append_crez_info_to_item_disp(orig_item_disp_val, crez_row)
       # write new item disp val
@@ -42,6 +52,20 @@ class AddCrezToSolrDoc
     update_building_facet(sid, crez_rows)
     "to be implemented"
   end
+
+
+  # add a value to the @new_solr_flds hash for the Solr field name.
+  # @param solr_fldname_sym - the name of the new Solr field, as a symbol
+  # @param new_val - the single value to add to the Solr field value array, if it isn't already there.
+  # @param sid - the SolrInputDocument object receiving a new field value
+  def add_fld_val_to_solr_input_doc(solr_fldname_sym, new_val, sid)
+    unless new_val.nil?
+      @new_solr_flds[solr_fldname_sym] ||= []
+      @new_solr_flds[solr_fldname_sym] << new_val
+      @new_solr_flds[solr_fldname_sym].uniq!
+    end
+  end
+
 
   # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument
   #  note that it identifies Solr documents by the "id" field, and expects the marc to be stored in a Solr field "marcxml"
@@ -215,13 +239,14 @@ class AddCrezToSolrDoc
   
   protected  #-------------------------- protected -------------------------------
   
-  # NAOMI_MUST_COMMENT_THIS_METHOD
+  # @param desired_barcode the barcode of the desired item_display field
+  # @param item_display_values an array of item_display Solr field values of a SolrInputDocument
+  # @return the single item_display field value matching the barcode, or nil if none match
   def get_matching_item_from_values(desired_barcode, item_display_values)
     item_display_values.find { |idv|
       desired_barcode.strip == item_disp_val_hash(idv)[:barcode]
     }
   end
-
   
   # converts the passed item_display field value into a hash containing the desired pieces
   # @param item_display_val the value of an item_display field in a Solr document
