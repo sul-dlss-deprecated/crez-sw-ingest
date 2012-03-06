@@ -143,7 +143,9 @@ class AddCrezToSolrDoc
       end
     }
     solr_input_doc.removeField("building_facet")
-    @solrj_wrapper.add_vals_to_fld(solr_input_doc, "building_facet", new_building_facet_vals.uniq)
+    if new_building_facet_vals.uniq.size > 0 && new_building_facet_vals != [nil]
+      @solrj_wrapper.add_vals_to_fld(solr_input_doc, "building_facet", new_building_facet_vals.uniq)
+    end
   end
   
   # @param desired_barcode the barcode of the desired item_display field

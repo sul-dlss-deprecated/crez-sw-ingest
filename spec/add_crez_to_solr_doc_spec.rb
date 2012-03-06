@@ -166,7 +166,7 @@ describe AddCrezToSolrDoc do
       @@ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, p.ckey_2_crez_info)
     end
 
-    it "should use the Course Reserve value over the item_display value" do
+    it "should use the Course Reserve rez_desk value instead of the item_display library value" do
       sid9262146 = @@ac2sd.solr_input_doc("9262146")
       orig_vals = sid9262146["building_facet"].getValues
       orig_vals.size.should == 2
@@ -191,11 +191,7 @@ describe AddCrezToSolrDoc do
       new_vals.contains("Physics").should be_true
     end
 
-    it "should ignore a (un-overridden) library value missing from the library translation table" do
-      pending "to be implemented"
-    end
-    
-    it "should ignore a crez loc with no translation" do
+    it "should ignore a crez loc with no translation (use the library from item_display)" do
       sid888 = @@ac2sd.solr_input_doc("888")
       orig_vals = sid888["building_facet"].getValues
       orig_vals.size.should == 1
@@ -204,6 +200,13 @@ describe AddCrezToSolrDoc do
       new_vals = sid888["building_facet"].getValues
       new_vals.size.should == 1
       new_vals[0].should == "Music"
+    end
+    
+    it "should ignore a (un-overridden) library value missing from the library translation table" do
+      sid9434391 = @@ac2sd.solr_input_doc("9434391")
+      sid9434391["building_facet"].should be_nil
+      @@ac2sd.redo_building_facet(sid9434391, @@ac2sd.crez_info("9434391"))
+      sid9434391["building_facet"].should be_nil
     end
     
     it "should use the crez loc for library loc without translation" do
