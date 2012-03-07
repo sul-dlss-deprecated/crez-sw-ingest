@@ -1,20 +1,21 @@
 require 'solrj_wrapper'
-require 'solrmarc_wrapper'
 
 describe SolrjWrapper do
   
-# FIXME:  need a way to avoid hardcoding the solrj jars directory  
+# FIXME:  need to use config/yml file to avoid hardcoding initialization values  
   
   before(:all) do
     solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
 #    solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
     solrj_jars_dir = solrmarc_dist_dir + "/lib"
-    @@solrj_wrapper = SolrjWrapper.new(solrj_jars_dir)
-    @@solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dist_dir, "sw_config.properties")
+    @@solr_url = "http://sw-solr-gen.stanford.edu:8983/solr"
+    @@queue_size = 10
+    @@num_threads = 2
+    @@solrj_wrapper = SolrjWrapper.new(solrj_jars_dir, @@solr_url, @@queue_size, @@num_threads)
   end
   
   it "should initialize a streaming_update_server object" do
-    sus = @@solrj_wrapper.streaming_update_server
+    sus = @@solrj_wrapper.streaming_update_server(@@solr_url, @@queue_size, @@num_threads)
     sus.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::StreamingUpdateSolrServer)
   end
   

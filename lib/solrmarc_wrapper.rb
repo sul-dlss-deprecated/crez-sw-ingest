@@ -9,13 +9,11 @@ class SolrmarcWrapper
   
   # @param solr_marc_dir the "dist" directory from a solrmarc ant build
   # @param config_props_fname  the name of the xx_config.properties file relative to the solr_marc_directory
-  def initialize(solr_marc_dir, config_props_fname)
+  def initialize(solrmarc_dir, config_props_fname, solr_url)
     if not defined? JRUBY_VERSION
       raise "SolrmarcWrapper only runs under jruby"
     end
-    load_solrmarc(solr_marc_dir)
-    # the full path for the config/solr.yml file
-    @solr_config_file = File.expand_path('../config/solr.yml', File.dirname(__FILE__))
+    load_solrmarc(solrmarc_dir)
     setup_solr_reindexer(solr_url, config_props_fname)
 # FIXME:  need to log to a file, passed in
     @logger = Logger.new(STDERR)
@@ -41,16 +39,6 @@ class SolrmarcWrapper
     Dir["#{solr_marc_dir}/lib/*.jar"].each {|jar_file| require jar_file }
   end
 
-  # set solr_url to value of "url" in config/solr.yml`
-  def solr_url
-    @solr_url ||= begin
-      raise "You are missing the config/solr.yml file: #{@solr_config_file}. " unless File.exists?(@solr_config_file) 
-      @solr_config = YAML::load(File.open(@solr_config_file))
-      raise "config/solr.yml must have a value for 'url'" unless @solr_config["url"] 
-      @solr_config["url"]
-    end
-  end
-  
   # initialize the @solrmarc_reindexer object
   # @param solr_url the url of the Solr server
   # @param config_props_fname  the name of the xx_config.properties file relative to the solr_marc_dir used in initialize method

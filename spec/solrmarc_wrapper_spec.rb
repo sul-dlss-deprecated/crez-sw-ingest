@@ -3,12 +3,13 @@ require 'logger'
 
 describe SolrmarcWrapper do
   
-# FIXME:  need a way to avoid hardcoding the solrmarc directory  
+# FIXME:  need to use config/yml file to avoid hardcoding initialization values  
   
   before(:all) do
     solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
 #    solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
-    @@solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dist_dir, "sw_config.properties")
+    solr_url = "http://sw-solr-gen.stanford.edu:8983/solr"
+    @@solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dist_dir, "sw_config.properties", solr_url)
   end
   
   it "should retrieve the SolrInputDoc generated from the marc record" do

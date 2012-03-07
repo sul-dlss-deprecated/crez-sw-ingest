@@ -4,13 +4,19 @@ require 'logger'
 
 describe AddCrezToSolrDoc do
   
+# FIXME:  need to use config/yml file to avoid hardcoding initialization values  
+
   before(:all) do
     @@solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
 #    @@solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
+    @@solr_url = "http://sw-solr-gen.stanford.edu:8983/solr"
+    @@solrj_jars_dir = @@solrmarc_dist_dir + "lib"
+    @@queue_size = 3
+    @@num_threads = 1
     @@p = ParseCrezData.new
     @@p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
     @@ckey_2_crez_info = @@p.ckey_2_crez_info
-    @@a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
+    @@a = AddCrezToSolrDoc.new(@@ckey_2_crez_info, @@solrmarc_dist_dir, "sw_config.properties", @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
     @@sid555 = @@a.solr_input_doc("555")
     @@sid666 = @@a.solr_input_doc("666")
   end
@@ -29,20 +35,18 @@ describe AddCrezToSolrDoc do
   
   it "should log an error message when no item matches the barcode from Course Reserve data" do
     lager = double("logger")
-    a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
-    a.logger = lager
+    @@a.logger = lager
     lager.should_receive(:error).with("Solr Document for 666 has no item with barcode 36105044915804")
     lager.should_receive(:error).with("Solr Document for 666 has no item with barcode 36105044915807")
     lager.should_receive(:error).with("Solr Document for 666 has no item with barcode 36105044915808")
-    a.add_crez_info_to_solr_doc("666")
+    @@a.add_crez_info_to_solr_doc("666")
   end
     
   it "should log an error message when there are no csv rows for a ckey" do
     lager = double("logger")
-    a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
-    a.logger = lager
+    @@a.logger = lager
     lager.should_receive(:error).with("Ckey 777 has no rows in the Course Reserves csv data")
-    a.add_crez_info_to_solr_doc("777")
+    @@a.add_crez_info_to_solr_doc("777")
   end
   
   context "get_compound_value_from_row" do
@@ -97,7 +101,7 @@ describe AddCrezToSolrDoc do
   context "redo_building_facet" do
     before(:all) do
       @@p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
-      @@ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
+      @@ac2sd = AddCrezToSolrDoc.new(@@p.ckey_2_crez_info, @@solrmarc_dist_dir, "sw_config.properties", @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
     end
 
     it "should use the Course Reserve rez_desk value instead of the item_display library value" do
@@ -178,7 +182,6 @@ describe AddCrezToSolrDoc do
     it "should ignore a (un-overridden) library value missing from the library translation table" do
       pending "need a record with both an overridden and an unoverridden case ..."
     end
-
   end # context "redo_building_facet"
 
   context "update_building_facet" do
@@ -187,33 +190,28 @@ describe AddCrezToSolrDoc do
     end
     
     it "should only call redo_building_facet once" do
-      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
-      ac2sd.should_receive(:redo_building_facet).once
-      sid8707706 = ac2sd.solr_input_doc("8707706")
-      ac2sd.update_building_facet(sid8707706, ac2sd.crez_info("8707706"))
+      @@a.should_receive(:redo_building_facet).once
+      sid8707706 = @@a.solr_input_doc("8707706")
+      @@a.update_building_facet(sid8707706, @@a.crez_info("8707706"))
     end
 
     it "should call redo_building_facet if there is a rez desk and there was no building_facet value" do
-      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
-      ac2sd.should_receive(:redo_building_facet).once
-      sid9518589 = ac2sd.solr_input_doc("9518589")
-      ac2sd.update_building_facet(sid9518589, ac2sd.crez_info("9518589"))
+      @@a.should_receive(:redo_building_facet).once
+      sid9518589 = @@a.solr_input_doc("9518589")
+      @@a.update_building_facet(sid9518589, @@a.crez_info("9518589"))
     end
     
     it "should not call redo_building_facet if no crez rez-desk differs from library in item_display field" do
-      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
-      ac2sd.should_not_receive(:redo_building_facet)
-      sid4286782 = ac2sd.solr_input_doc("4286782")
-      ac2sd.update_building_facet(sid4286782, ac2sd.crez_info("4286782"))
+      @@a.should_not_receive(:redo_building_facet)
+      sid4286782 = @@a.solr_input_doc("4286782")
+      @@a.update_building_facet(sid4286782, @@a.crez_info("4286782"))
     end
     
     it "should not call redo_building_facet if the only rez_desk values don't map to anything" do
-      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
-      ac2sd.should_not_receive(:redo_building_facet)
-      sid9434391 = ac2sd.solr_input_doc("9434391")
-      ac2sd.update_building_facet(sid9434391, ac2sd.crez_info("9434391"))
+      @@a.should_not_receive(:redo_building_facet)
+      sid9434391 = @@a.solr_input_doc("9434391")
+      @@a.update_building_facet(sid9434391, @@a.crez_info("9434391"))
     end
-    
   end # context update_building_facet
 
 
@@ -253,13 +251,13 @@ describe AddCrezToSolrDoc do
   context "add_crez_info_to_solr_doc" do
     before(:each) do
       @@p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
-      a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
+      a = AddCrezToSolrDoc.new(@@p.ckey_2_crez_info, @@solrmarc_dist_dir, "sw_config.properties", @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
       @@oldSid666 = a.solr_input_doc("666")
       @@newSid666 = a.add_crez_info_to_solr_doc("666")
       @@newSid555 = a.add_crez_info_to_solr_doc("555")
       p2 = ParseCrezData.new
       p2.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
-      b = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, p2.ckey_2_crez_info)
+      b = AddCrezToSolrDoc.new(p2.ckey_2_crez_info, @@solrmarc_dist_dir, "sw_config.properties", @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
       @@oldSid8707706 = b.solr_input_doc("8707706")
       @@newSid8707706 = b.add_crez_info_to_solr_doc("8707706")
       @@newSid9423045 = b.add_crez_info_to_solr_doc("9423045")
@@ -284,7 +282,7 @@ describe AddCrezToSolrDoc do
     end
     
     it "should call add_crez_val_to_access_facet once, always" do
-      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@p.ckey_2_crez_info)
+      ac2sd = AddCrezToSolrDoc.new(@@p.ckey_2_crez_info, @@solrmarc_dist_dir, "sw_config.properties", @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
       ac2sd.should_receive(:add_crez_val_to_access_facet).twice
       ac2sd.add_crez_info_to_solr_doc("8707706")
       ac2sd.add_crez_info_to_solr_doc("666")
@@ -293,7 +291,7 @@ describe AddCrezToSolrDoc do
     it "should call update_building_facet once, always" do
       p = ParseCrezData.new
       p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
-      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, p.ckey_2_crez_info)
+      ac2sd = AddCrezToSolrDoc.new(p.ckey_2_crez_info, @@solrmarc_dist_dir, "sw_config.properties", @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
       ac2sd.should_receive(:update_building_facet).twice
       ac2sd.add_crez_info_to_solr_doc("8707706")
       ac2sd.add_crez_info_to_solr_doc("9423045")
@@ -302,7 +300,7 @@ describe AddCrezToSolrDoc do
     it "should call append_crez_info_to_item_disp for every csv row with a matching item" do
       p = ParseCrezData.new
       p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
-      ac2sd = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, p.ckey_2_crez_info)
+      ac2sd = AddCrezToSolrDoc.new(p.ckey_2_crez_info, @@solrmarc_dist_dir, "sw_config.properties", @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
       ac2sd.should_receive(:append_crez_info_to_item_disp).twice
       ac2sd.add_crez_info_to_solr_doc("8707706")
     end

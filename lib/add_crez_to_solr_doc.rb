@@ -5,7 +5,10 @@ require 'rez_desk_translations'
 require 'library_code_translations'
 require 'loan_period_translations'
 
-# NAOMI_MUST_COMMENT_THIS_CLASS
+# key method:  add_crez_info_to_solr_doc(ckey)
+#   class is initialized with Hash of ckeys mapped to Array of CSV::Row objects containing course reserve data for the ckey.
+#   so given a ckey, add_crez_info_to_solr_doc(ckey) will recreate the SearchWorks solr doc from the marcxml and will add the
+#   course reserve data to it.
 class AddCrezToSolrDoc
   include RezDeskTranslations
   include LibraryCodeTranslations
@@ -13,13 +16,14 @@ class AddCrezToSolrDoc
   
   attr_reader :ckey_2_crez_info
   attr_accessor :logger
-  
-  def initialize(solrmarc_dir, ckey_2_crez_info)
+
+# FIXME:  too many arguments ...  
+  def initialize(ckey_2_crez_info, solrmarc_dir, solrmarc_conf_props_fname, solr_url, solrj_jars_dir, queue_size, num_threads)
     if not defined? JRUBY_VERSION
       raise "AddCrezToSolrDoc only runs under jruby"
     end
-    @solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dir, "sw_config.properties")
-    @solrj_wrapper = SolrjWrapper.new(solrmarc_dir + "lib")
+    @solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dir, solrmarc_conf_props_fname, solr_url)
+    @solrj_wrapper = SolrjWrapper.new(solrj_jars_dir, solr_url, queue_size, num_threads)
     @ckey_2_crez_info = ckey_2_crez_info
 # FIXME:  need to log to a file, passed in
     @logger = Logger.new(STDERR)

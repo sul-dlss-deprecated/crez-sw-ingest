@@ -5,14 +5,14 @@ class SolrjWrapper
   
   attr_reader :streaming_update_server
   
-  def initialize(solrj_jar_dir)
+  def initialize(solrj_jar_dir, solr_url, queue_size, num_threads)
     if not defined? JRUBY_VERSION
       raise "SolrjWrapper only runs under jruby"
     end
     load_solrj(solrj_jar_dir)
-    # the full path for the config/solr.yml file
-    @solr_config_file = File.expand_path('../config/solr.yml', File.dirname(__FILE__))
-    @streaming_update_server = streaming_update_server
+#    # the full path for the config/solr.yml file
+#    @solr_config_file = File.expand_path('../config/solr.yml', File.dirname(__FILE__))
+    @streaming_update_server = streaming_update_server(solr_url, queue_size, num_threads)
     useJavabin!
   end
   
@@ -25,8 +25,8 @@ class SolrjWrapper
   
   
   # returns a SolrJ StreamingUpdateSolrServer object 
-  def streaming_update_server
-    @streaming_update_server ||= org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer.new(solr_url, 100, 2)
+  def streaming_update_server(solr_url, queue_size, num_threads)
+    @streaming_update_server ||= org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer.new(solr_url, queue_size, num_threads)
   end
   
   # given a SolrInputDocument, add the field and/or the values.  This will not add empty values, and it will not add duplicate values
@@ -63,7 +63,7 @@ class SolrjWrapper
   def load_solrj(solrj_jar_dir)
     Dir["#{solrj_jar_dir}/*.jar"].each {|jar_file| require jar_file }
   end
-  
+=begin  
 # FIXME:  duplicated in solrmarc_wrapper ...  
   # set solr_url to value of "url" in config/solr.yml`
   def solr_url
@@ -74,5 +74,5 @@ class SolrjWrapper
       @solr_config["url"]
     end
   end
-  
+=end  
 end
