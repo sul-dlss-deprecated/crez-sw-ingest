@@ -6,11 +6,23 @@ class SolrjWrapper
   attr_reader :streaming_update_server
   
   def initialize(solrj_jar_dir)
+    if not defined? JRUBY_VERSION
+      raise "SolrjWrapper only runs under jruby"
+    end
     load_solrj(solrj_jar_dir)
     # the full path for the config/solr.yml file
     @solr_config_file = File.expand_path('../config/solr.yml', File.dirname(__FILE__))
     @streaming_update_server = streaming_update_server
+    useJavabin!
   end
+  
+  # Send requests using the Javabin binary format instead of serializing to XML
+  # Requires /update/javabin to be defined in solrconfig.xml as
+  # <requestHandler name="/update/javabin" class="solr.BinaryUpdateRequestHandler" />
+  def useJavabin!
+    @streaming_update_server.setRequestWriter Java::org.apache.solr.client.solrj.impl.BinaryRequestWriter.new
+  end
+  
   
   # returns a SolrJ StreamingUpdateSolrServer object 
   def streaming_update_server
