@@ -15,7 +15,7 @@ module LoanPeriodTranslations
     "14D" => "14 Days",
     "28D" => "28 Days",
     "365DAYS" => "1 Year",
-    "NON-CIRC" => "Library Use Only",
+    "NON-CIRC" => "In-Library Use Only",
     "E-ACCESS" => nil,  # electronic has no useful loan period
   }
 end 
