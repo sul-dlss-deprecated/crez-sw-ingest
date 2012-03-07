@@ -5,6 +5,10 @@ class SolrjWrapper
   
   attr_reader :streaming_update_server
   
+  # @param solrj_jar_dir  the location of Solrj jars needed to use SolrJ here
+  # @param solr_url  base url of the solr instance
+  # @param queue_size the number of Solr documents to buffer before writing to Solr
+  # @param num_threads the number of threads to use when writing to Solr (should not be more than the number of cpu cores avail) 
   def initialize(solrj_jar_dir, solr_url, queue_size, num_threads)
     if not defined? JRUBY_VERSION
       raise "SolrjWrapper only runs under jruby"

@@ -6,6 +6,7 @@ class GetMarcxml
   
   # FIMXE:  method definitions or instance variables?
   
+#  def initialize(solr_url, solr_params)  # FIXME: should pass these in
   def initialize
     if not defined? JRUBY_VERSION
       raise "GetMarcxml only runs under jruby"

@@ -17,19 +17,25 @@ class AddCrezToSolrDoc
   attr_reader :ckey_2_crez_info
   attr_accessor :logger
 
-# FIXME:  too many arguments ...  
-  def initialize(ckey_2_crez_info, solrmarc_dir, solrmarc_conf_props_fname, solr_url, solrj_jars_dir, queue_size, num_threads)
+  # @param ckey_2_crez_info  Hash of ckeys mapped to Array of CSV::Row objects containing course reserve data for the ckey.
+  # @param solrmarc_dist_dir  distribution directory of SolrMarc build 
+  # @param solrmarc_conf_props_fname  the name of the xx_config.properties file for SolrMarc, relative to solrmarc_dist_dir
+  # @param solr_url  base url of the solr instance
+  # @param solrj_jars_dir  the location of Solrj jars needed to use SolrJ here
+  # @param queue_size the number of Solr documents to buffer before writing to Solr
+  # @param num_threads the number of threads to use when writing to Solr (should not be more than the number of cpu cores avail) 
+  def initialize(ckey_2_crez_info, solrmarc_dist_dir, solrmarc_conf_props_fname, solr_url, solrj_jars_dir, queue_size, num_threads)
     if not defined? JRUBY_VERSION
       raise "AddCrezToSolrDoc only runs under jruby"
     end
-    @solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dir, solrmarc_conf_props_fname, solr_url)
+    @solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dist_dir, solrmarc_conf_props_fname, solr_url)
     @solrj_wrapper = SolrjWrapper.new(solrj_jars_dir, solr_url, queue_size, num_threads)
     @ckey_2_crez_info = ckey_2_crez_info
 # FIXME:  need to log to a file, passed in
     @logger = Logger.new(STDERR)
   end
 
-# FIXME:  do we have the crez_rows already?  b/c aren't we going to step through the crez  data file by ckey?  
+# FIXME:  do we have the crez_rows already?  b/c aren't we going to step through the crez data file by ckey?  
 # Or through a list of ids to delete crez data, then list of ids to add crez data, derived from a parse through csv file and comparison to database table?
   # given a ckey, 
   #  1. calls solrmarc_wrapper to retrieve a SolrInputDoc derived from the marcxml in the Solr index

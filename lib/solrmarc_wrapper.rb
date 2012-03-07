@@ -7,13 +7,14 @@ class SolrmarcWrapper
   
   attr_accessor :logger
   
-  # @param solr_marc_dir the "dist" directory from a solrmarc ant build
-  # @param config_props_fname  the name of the xx_config.properties file relative to the solr_marc_directory
-  def initialize(solrmarc_dir, config_props_fname, solr_url)
+  # @param solrmarc_dist_dir  distribution directory of SolrMarc build 
+  # @param solrmarc_conf_props_fname  the name of the xx_config.properties file for SolrMarc, relative to solrmarc_dist_dir
+  # @param solr_url  base url of the solr instance
+  def initialize(solrmarc_dist_dir, config_props_fname, solr_url)
     if not defined? JRUBY_VERSION
       raise "SolrmarcWrapper only runs under jruby"
     end
-    load_solrmarc(solrmarc_dir)
+    load_solrmarc(solrmarc_dist_dir)
     setup_solr_reindexer(solr_url, config_props_fname)
 # FIXME:  need to log to a file, passed in
     @logger = Logger.new(STDERR)
