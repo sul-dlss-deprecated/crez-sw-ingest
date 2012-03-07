@@ -1,4 +1,5 @@
 require 'solrmarc_wrapper'
+require 'logger'
 
 describe SolrmarcWrapper do
   
@@ -22,8 +23,11 @@ describe SolrmarcWrapper do
     sid["title_245a_search"].getValue.should_not be_nil
   end
   
-  it "should raise an exception when there is no document in the Solr index for the ckey" do
-    expect {@@solrmarc_wrapper.get_solr_input_doc("aaa")}.to raise_error("Can't find document for ckey aaa")
+  it "should log an error message when there is no document in the Solr index for the ckey" do
+    lager = double("logger")
+    @@solrmarc_wrapper.logger = lager
+    lager.should_receive(:error).with("Can't find single SearchWorks Solr document with id aaa")
+    @@solrmarc_wrapper.get_solr_input_doc("aaa")
   end
   
 end

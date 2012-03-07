@@ -1,5 +1,6 @@
 require 'solrmarc_wrapper'
 require 'solrj_wrapper'
+require 'logger'
 require 'rez_desk_translations'
 require 'library_code_translations'
 require 'loan_period_translations'
@@ -10,14 +11,19 @@ class AddCrezToSolrDoc
   include LibraryCodeTranslations
   include LoanPeriodTranslations
   
-  attr_reader :ckey_2_crez_info, :new_solr_flds
+  attr_reader :ckey_2_crez_info
+  attr_accessor :logger
   
   def initialize(solrmarc_dir, ckey_2_crez_info)
     @solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dir, "sw_config.properties")
     @solrj_wrapper = SolrjWrapper.new(solrmarc_dir + "lib")
     @ckey_2_crez_info = ckey_2_crez_info
+# FIXME:  need to log to a file, passed in
+    @logger = Logger.new(STDERR)
   end
 
+# FIXME:  do we have the crez_rows already?  b/c aren't we going to step through the crez  data file by ckey?  
+# Or through a list of ids to delete crez data, then list of ids to add crez data, derived from a parse through csv file and comparison to database table?
   # given a ckey, 
   #  1. calls solrmarc_wrapper to retrieve a SolrInputDoc derived from the marcxml in the Solr index
   #  2. gets the relevant course reserve data from the reserves-dump .csv file
@@ -25,28 +31,35 @@ class AddCrezToSolrDoc
   # @param ckey the id of the existing Document in the Solr index
   def add_crez_info_to_solr_doc(ckey)
     solr_input_doc = solr_input_doc(ckey)
-    crez_rows = crez_info(ckey)
-    unless crez_rows.nil?
-      crez_rows.each { |crez_row|
-        # add new fields
-        @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_instructor_search", crez_row[:instructor_name])
-        @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_name_search", crez_row[:course_name])
-        @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_id_search", crez_row[:course_id])
-        # note that instructor facet is a copy field
-        @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_desk_facet", REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]])
-        @solrj_wrapper.add_val_to_fld(solr_input_doc, "dept_facet", get_dept(crez_row[:course_id]))
-        @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_facet", get_compound_value_from_row(crez_row, [:course_id, :course_name], " ")) # for record view
-        @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_display", get_compound_value_from_row(crez_row, [:course_id, :course_name, :instructor_name], " -|- "))
-        # update item_display value with crez data
-        orig_item_disp_val = get_matching_item_from_doc(crez_row[:barcode], solr_input_doc)
-        unless orig_item_disp_val.nil?
-          new_item_disp_val = append_crez_info_to_item_disp(orig_item_disp_val, crez_row)
-          @solrj_wrapper.add_val_to_fld(solr_input_doc, "item_display", new_item_disp_val)
-        end
-      }
-      update_building_facet(solr_input_doc, crez_rows) # could work this logic in here if performance is an issue
+    unless solr_input_doc.nil?  # if solr_input_doc was nil, then error has already been logged by solrmarc_wrapper
+      crez_rows = crez_info(ckey)
+      if crez_rows.nil?
+        @logger.error "Ckey #{ckey} has no rows in the Course Reserves csv data"
+        return
+      else
+        crez_rows.each { |crez_row|
+          # add new fields
+          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_instructor_search", crez_row[:instructor_name])
+          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_name_search", crez_row[:course_name])
+          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_id_search", crez_row[:course_id])
+          # note that instructor facet is a copy field
+          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_desk_facet", REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]])
+          @solrj_wrapper.add_val_to_fld(solr_input_doc, "dept_facet", get_dept(crez_row[:course_id]))
+          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_facet", get_compound_value_from_row(crez_row, [:course_id, :course_name], " ")) # for record view
+          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_display", get_compound_value_from_row(crez_row, [:course_id, :course_name, :instructor_name], " -|- "))
+          # update item_display value with crez data
+          orig_item_disp_val = get_matching_item_from_doc(crez_row[:barcode], solr_input_doc)
+          if orig_item_disp_val.nil?
+            @logger.error "Solr Document for #{ckey} has no item with barcode #{crez_row[:barcode].strip}"
+          else
+            new_item_disp_val = append_crez_info_to_item_disp(orig_item_disp_val, crez_row)
+            @solrj_wrapper.add_val_to_fld(solr_input_doc, "item_display", new_item_disp_val)
+          end
+        }
+        update_building_facet(solr_input_doc, crez_rows) # could work this logic in here if performance is an issue
+      end
+      add_crez_val_to_access_facet(solr_input_doc)
     end
-    add_crez_val_to_access_facet(solr_input_doc)
     solr_input_doc
   end
 

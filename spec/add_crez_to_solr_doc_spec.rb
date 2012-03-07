@@ -1,5 +1,6 @@
 require 'add_crez_to_solr_doc'
 require 'parse_crez_data'
+require 'logger'
 
 describe AddCrezToSolrDoc do
   
@@ -26,16 +27,24 @@ describe AddCrezToSolrDoc do
     crez_info[0].should be_an_instance_of(CSV::Row)
   end
   
-  it "should write an error message when there is no document in the Solr index for the ckey in the crez data" do
-    expect {@@a.solr_input_doc("aaa")}.to raise_error("Can't find document for ckey aaa")
-    pending "need to write to logger, not raise exception"
-  end
-  
-  it "should write an error message when no item matches the barcode from Course Reserve data" do
-    pending "to be implemented"
-    expect {@@a.solr_input_doc("666")}.to raise_error("Can't find item for barcode aaa")
+  it "should log an error message when no item matches the barcode from Course Reserve data" do
+    lager = double("logger")
+    a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
+    a.logger = lager
+    lager.should_receive(:error).with("Solr Document for 666 has no item with barcode 36105044915804")
+    lager.should_receive(:error).with("Solr Document for 666 has no item with barcode 36105044915807")
+    lager.should_receive(:error).with("Solr Document for 666 has no item with barcode 36105044915808")
+    a.add_crez_info_to_solr_doc("666")
   end
     
+  it "should log an error message when there are no csv rows for a ckey" do
+    lager = double("logger")
+    a = AddCrezToSolrDoc.new(@@solrmarc_dist_dir, @@ckey_2_crez_info)
+    a.logger = lager
+    lager.should_receive(:error).with("Ckey 777 has no rows in the Course Reserves csv data")
+    a.add_crez_info_to_solr_doc("777")
+  end
+  
   context "get_compound_value_from_row" do
     it "should add the fields in order, with the indicated separator" do
       row = @@a.crez_info("666")[0]

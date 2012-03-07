@@ -1,8 +1,11 @@
 include Java
+require 'logger'
 
 # a way to use SolrMarc objects, 
 #  such as using SolrReIndexer to get a SolrInputDocument from a marc record stored in the Solr index.
 class SolrmarcWrapper
+  
+  attr_accessor :logger
   
   # @param solr_marc_dir the "dist" directory from a solrmarc ant build
   # @param config_props_fname  the name of the xx_config.properties file relative to the solr_marc_directory
@@ -11,6 +14,8 @@ class SolrmarcWrapper
     # the full path for the config/solr.yml file
     @solr_config_file = File.expand_path('../config/solr.yml', File.dirname(__FILE__))
     setup_solr_reindexer(solr_url, config_props_fname)
+# FIXME:  need to log to a file, passed in
+    @logger = Logger.new(STDERR)
   end
   
   # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument
@@ -20,8 +25,7 @@ class SolrmarcWrapper
   def get_solr_input_doc(doc_id)
     @solr_input_doc = @solrmarc_reindexer.getSolrInputDoc("id", doc_id, "marcxml")
    rescue java.lang.NullPointerException
-     puts "Can't find document for ckey #{doc_id}"
-     raise "Can't find document for ckey #{doc_id}"
+     logger.error("Can't find single SearchWorks Solr document with id #{doc_id}")
   end
   
   
