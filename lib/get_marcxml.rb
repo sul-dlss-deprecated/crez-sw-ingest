@@ -7,6 +7,9 @@ class GetMarcxml
   # FIMXE:  method definitions or instance variables?
   
   def initialize
+    if not defined? JRUBY_VERSION
+      raise "GetMarcxml only runs under jruby"
+    end
     # parameters to retrieve marcxml with a solr request
     # solr_params should be in solr.yml config file
     @solr_params = {:qt => "document", :fl => "id,marcxml", :echoParams => "none"}

@@ -10,6 +10,9 @@ class SolrmarcWrapper
   # @param solr_marc_dir the "dist" directory from a solrmarc ant build
   # @param config_props_fname  the name of the xx_config.properties file relative to the solr_marc_directory
   def initialize(solr_marc_dir, config_props_fname)
+    if not defined? JRUBY_VERSION
+      raise "SolrmarcWrapper only runs under jruby"
+    end
     load_solrmarc(solr_marc_dir)
     # the full path for the config/solr.yml file
     @solr_config_file = File.expand_path('../config/solr.yml', File.dirname(__FILE__))

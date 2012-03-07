@@ -15,6 +15,9 @@ class AddCrezToSolrDoc
   attr_accessor :logger
   
   def initialize(solrmarc_dir, ckey_2_crez_info)
+    if not defined? JRUBY_VERSION
+      raise "AddCrezToSolrDoc only runs under jruby"
+    end
     @solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dir, "sw_config.properties")
     @solrj_wrapper = SolrjWrapper.new(solrmarc_dir + "lib")
     @ckey_2_crez_info = ckey_2_crez_info
