@@ -1,19 +1,18 @@
+require File.expand_path('../spec_helper', __FILE__)
+
 require 'add_crez_to_solr_doc'
 require 'parse_crez_data'
 require 'logger'
-require 'settings'
 
 describe AddCrezToSolrDoc do
   
   before(:all) do
-    env = ENV['settings'] || 'test'
-    config = Settings.new(env)
-    @@solrmarc_dist_dir = config.solrmarc_dist_dir
-    @@solrmarc_conf_props = config.solrmarc_conf_props_file
-    @@solr_url = config.solr_url
-    @@solrj_jars_dir = config.solrj_jar_dir
-    @@queue_size = config.solrj_queue_size
-    @@num_threads = config.solrj_num_threads
+    @@solrmarc_dist_dir = @@settings.solrmarc_dist_dir
+    @@solrmarc_conf_props = @@settings.solrmarc_conf_props_file
+    @@solr_url = @@settings.solr_url
+    @@solrj_jars_dir = @@settings.solrj_jar_dir
+    @@queue_size = @@settings.solrj_queue_size
+    @@num_threads = @@settings.solrj_num_threads
     @@p = ParseCrezData.new
     @@p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
     @@ckey_2_crez_info = @@p.ckey_2_crez_info

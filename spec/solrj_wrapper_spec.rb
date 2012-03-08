@@ -1,19 +1,15 @@
+require File.expand_path('../spec_helper', __FILE__)
+
 require 'solrj_wrapper'
-require 'settings'
 
 describe SolrjWrapper do
   
   before(:all) do
-    env = ENV['settings'] || 'test'
-    config = Settings.new(env)
-    @@solr_url = config.solr_url
-    @@queue_size = config.solrj_queue_size
-    @@num_threads = config.solrj_num_threads
-    @@solrj_wrapper = SolrjWrapper.new(config.solrj_jar_dir, @@solr_url, @@queue_size, @@num_threads)
+    @@solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
   end
   
   it "should initialize a streaming_update_server object" do
-    sus = @@solrj_wrapper.streaming_update_server(@@solr_url, @@queue_size, @@num_threads)
+    sus = @@solrj_wrapper.streaming_update_server(@@settings.solr_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
     sus.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::StreamingUpdateSolrServer)
   end
   

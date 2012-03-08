@@ -1,13 +1,12 @@
+require File.expand_path('../spec_helper', __FILE__)
+
 require 'solrmarc_wrapper'
 require 'logger'
-require 'settings'
 
 describe SolrmarcWrapper do
   
   before(:all) do
-    env = ENV['settings'] || 'test'
-    config = Settings.new(env)
-    @@solrmarc_wrapper = SolrmarcWrapper.new(config.solrmarc_dist_dir, config.solrmarc_conf_props_file, config.solr_url)
+    @@solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_url)
   end
   
   it "should retrieve the SolrInputDoc generated from the marc record" do

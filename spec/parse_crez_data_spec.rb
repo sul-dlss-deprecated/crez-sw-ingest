@@ -1,3 +1,5 @@
+require File.expand_path('../spec_helper', __FILE__)
+
 require 'parse_crez_data.rb'
 
 describe ParseCrezData do
