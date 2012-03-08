@@ -1,15 +1,13 @@
 require 'solrmarc_wrapper'
 require 'logger'
+require 'settings'
 
 describe SolrmarcWrapper do
   
-# FIXME:  need to use config/yml file to avoid hardcoding initialization values  
-  
   before(:all) do
-    solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
-#    solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
-    solr_url = "http://sw-solr-gen.stanford.edu:8983/solr"
-    @@solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dist_dir, "sw_config.properties", solr_url)
+    env = ENV['settings'] || 'test'
+    config = Settings.new(env)
+    @@solrmarc_wrapper = SolrmarcWrapper.new(config.solrmarc_dist_dir, config.solrmarc_conf_props_file, config.solr_url)
   end
   
   it "should retrieve the SolrInputDoc generated from the marc record" do

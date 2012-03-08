@@ -1,3 +1,6 @@
+# Set up the environment for testing
+ENV["settings"] ||= 'test'
+
 # for test coverage
 require 'simplecov'
 SimpleCov.start do

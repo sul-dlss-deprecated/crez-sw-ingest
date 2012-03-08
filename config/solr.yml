@@ -1,3 +1,0 @@
-url: http://sw-solr-gen.stanford.edu:8983/solr
-
-#get_marcxml_params: "{:qt => 'document", :fl => "marcxml", :echoParams => "none"}"

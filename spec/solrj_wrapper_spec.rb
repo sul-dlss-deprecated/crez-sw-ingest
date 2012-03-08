@@ -1,17 +1,15 @@
 require 'solrj_wrapper'
+require 'settings'
 
 describe SolrjWrapper do
   
-# FIXME:  need to use config/yml file to avoid hardcoding initialization values  
-  
   before(:all) do
-    solrmarc_dist_dir = "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist"
-#    solrmarc_dist_dir = "/Users/ndushay/searchworks/solrmarc-sw/dist"
-    solrj_jars_dir = solrmarc_dist_dir + "/lib"
-    @@solr_url = "http://sw-solr-gen.stanford.edu:8983/solr"
-    @@queue_size = 10
-    @@num_threads = 2
-    @@solrj_wrapper = SolrjWrapper.new(solrj_jars_dir, @@solr_url, @@queue_size, @@num_threads)
+    env = ENV['settings'] || 'test'
+    config = Settings.new(env)
+    @@solr_url = config.solr_url
+    @@queue_size = config.solrj_queue_size
+    @@num_threads = config.solrj_num_threads
+    @@solrj_wrapper = SolrjWrapper.new(config.solrj_jar_dir, @@solr_url, @@queue_size, @@num_threads)
   end
   
   it "should initialize a streaming_update_server object" do

@@ -1,3 +1,4 @@
+# put config directory on load path to find translation files
 conf_dir = File.expand_path('../config/', File.dirname(__FILE__))
 $:.push conf_dir unless $:.include?(conf_dir)
 
