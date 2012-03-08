@@ -1,3 +1,6 @@
+conf_dir = File.expand_path('../config/', File.dirname(__FILE__))
+$:.push conf_dir unless $:.include?(conf_dir)
+
 require 'solrmarc_wrapper'
 require 'solrj_wrapper'
 require 'logger'
