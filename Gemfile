@@ -3,12 +3,13 @@ source :rubygems
 gem 'yard' 				# for javadoc-y documentation tags
 gem 'RedCloth' 		# for textile formatting used in Readme
 gem 'rake'
-gem 'rsolr'
+#gem 'rsolr'
 
 group :test do
 	gem 'rspec'
 	gem 'simplecov', :require => false
-	gem 'marc'  # test that marcxml returned is parseable
+	gem 'simplecov-rcov', :require => false
+#	gem 'marc'  # test that marcxml returned is parseable
 end
 
 group :development do
