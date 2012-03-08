@@ -22,18 +22,14 @@ class AddCrezToSolrDoc
   attr_accessor :logger
 
   # @param ckey_2_crez_info  Hash of ckeys mapped to Array of CSV::Row objects containing course reserve data for the ckey.
-  # @param solrmarc_dist_dir  distribution directory of SolrMarc build 
-  # @param solrmarc_conf_props_fname  the name of the xx_config.properties file for SolrMarc, relative to solrmarc_dist_dir
-  # @param solr_url  base url of the solr instance
-  # @param solrj_jars_dir  the location of Solrj jars needed to use SolrJ here
-  # @param queue_size  the number of Solr documents Solrj will buffer before writing to Solr
-  # @param num_threads  the number of threads Solrj will use when writing to Solr (should not be more than the number of cpu cores avail) 
-  def initialize(ckey_2_crez_info, solrmarc_dist_dir, solrmarc_conf_props_fname, solr_url, solrj_jars_dir, queue_size, num_threads)
+  # @param solrmarc_wrapper  SolrmarcWrapper object for accessing SolrMarc 
+  # @param solrj_wrapper  SolrjWrapper for using SolrJ objects
+  def initialize(ckey_2_crez_info, solrmarc_wrapper, solrj_wrapper)
     if not defined? JRUBY_VERSION
       raise "AddCrezToSolrDoc only runs under jruby"
     end
-    @solrmarc_wrapper = SolrmarcWrapper.new(solrmarc_dist_dir, solrmarc_conf_props_fname, solr_url)
-    @solrj_wrapper = SolrjWrapper.new(solrj_jars_dir, solr_url, queue_size, num_threads)
+    @solrmarc_wrapper = solrmarc_wrapper
+    @solrj_wrapper = solrj_wrapper
     @ckey_2_crez_info = ckey_2_crez_info
 # FIXME:  need to log to a file, passed in
     @logger = Logger.new(STDERR)

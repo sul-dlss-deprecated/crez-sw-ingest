@@ -7,16 +7,12 @@ require 'logger'
 describe AddCrezToSolrDoc do
   
   before(:all) do
-    @@solrmarc_dist_dir = @@settings.solrmarc_dist_dir
-    @@solrmarc_conf_props = @@settings.solrmarc_conf_props_file
-    @@solr_url = @@settings.solr_url
-    @@solrj_jars_dir = @@settings.solrj_jar_dir
-    @@queue_size = @@settings.solrj_queue_size
-    @@num_threads = @@settings.solrj_num_threads
+    @@solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_url)
+    @@solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
     @@p = ParseCrezData.new
     @@p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
     @@ckey_2_crez_info = @@p.ckey_2_crez_info
-    @@a = AddCrezToSolrDoc.new(@@ckey_2_crez_info, @@solrmarc_dist_dir, @@solrmarc_conf_props, @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
+    @@a = AddCrezToSolrDoc.new(@@ckey_2_crez_info, @@solrmarc_wrapper, @@solrj_wrapper)
     @@sid555 = @@a.solr_input_doc("555")
     @@sid666 = @@a.solr_input_doc("666")
   end
@@ -101,7 +97,7 @@ describe AddCrezToSolrDoc do
   context "redo_building_facet" do
     before(:all) do
       @@p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
-      @@ac2sd = AddCrezToSolrDoc.new(@@p.ckey_2_crez_info, @@solrmarc_dist_dir, @@solrmarc_conf_props, @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
+      @@ac2sd = AddCrezToSolrDoc.new(@@ckey_2_crez_info, @@solrmarc_wrapper, @@solrj_wrapper)
     end
 
     it "should use the Course Reserve rez_desk value instead of the item_display library value" do
@@ -251,13 +247,13 @@ describe AddCrezToSolrDoc do
   context "add_crez_info_to_solr_doc" do
     before(:each) do
       @@p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
-      a = AddCrezToSolrDoc.new(@@p.ckey_2_crez_info, @@solrmarc_dist_dir, @@solrmarc_conf_props, @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
+      a = AddCrezToSolrDoc.new(@@p.ckey_2_crez_info, @@solrmarc_wrapper, @@solrj_wrapper)
       @@oldSid666 = a.solr_input_doc("666")
       @@newSid666 = a.add_crez_info_to_solr_doc("666")
       @@newSid555 = a.add_crez_info_to_solr_doc("555")
       p2 = ParseCrezData.new
       p2.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
-      b = AddCrezToSolrDoc.new(p2.ckey_2_crez_info, @@solrmarc_dist_dir, @@solrmarc_conf_props, @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
+      b = AddCrezToSolrDoc.new(p2.ckey_2_crez_info, @@solrmarc_wrapper, @@solrj_wrapper)
       @@oldSid8707706 = b.solr_input_doc("8707706")
       @@newSid8707706 = b.add_crez_info_to_solr_doc("8707706")
       @@newSid9423045 = b.add_crez_info_to_solr_doc("9423045")
@@ -282,7 +278,7 @@ describe AddCrezToSolrDoc do
     end
     
     it "should call add_crez_val_to_access_facet once, always" do
-      ac2sd = AddCrezToSolrDoc.new(@@p.ckey_2_crez_info, @@solrmarc_dist_dir, @@solrmarc_conf_props, @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
+      ac2sd = AddCrezToSolrDoc.new(@@p.ckey_2_crez_info, @@solrmarc_wrapper, @@solrj_wrapper)
       ac2sd.should_receive(:add_crez_val_to_access_facet).twice
       ac2sd.add_crez_info_to_solr_doc("8707706")
       ac2sd.add_crez_info_to_solr_doc("666")
@@ -291,7 +287,7 @@ describe AddCrezToSolrDoc do
     it "should call update_building_facet once, always" do
       p = ParseCrezData.new
       p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
-      ac2sd = AddCrezToSolrDoc.new(p.ckey_2_crez_info, @@solrmarc_dist_dir, @@solrmarc_conf_props, @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
+      ac2sd = AddCrezToSolrDoc.new(p.ckey_2_crez_info, @@solrmarc_wrapper, @@solrj_wrapper)
       ac2sd.should_receive(:update_building_facet).twice
       ac2sd.add_crez_info_to_solr_doc("8707706")
       ac2sd.add_crez_info_to_solr_doc("9423045")
@@ -300,7 +296,7 @@ describe AddCrezToSolrDoc do
     it "should call append_crez_info_to_item_disp for every csv row with a matching item" do
       p = ParseCrezData.new
       p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
-      ac2sd = AddCrezToSolrDoc.new(p.ckey_2_crez_info, @@solrmarc_dist_dir, @@solrmarc_conf_props, @@solr_url, @@solrj_jars_dir, @@queue_size, @@num_threads)
+      ac2sd = AddCrezToSolrDoc.new(p.ckey_2_crez_info, @@solrmarc_wrapper, @@solrj_wrapper)
       ac2sd.should_receive(:append_crez_info_to_item_disp).twice
       ac2sd.add_crez_info_to_solr_doc("8707706")
     end
