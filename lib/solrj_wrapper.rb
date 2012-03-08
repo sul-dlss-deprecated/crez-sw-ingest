@@ -14,7 +14,7 @@ class SolrjWrapper
       raise "SolrjWrapper only runs under jruby"
     end
     load_solrj(solrj_jar_dir)
-    @streaming_update_server = streaming_update_server(solr_url, queue_size, num_threads)
+    @streaming_update_server = org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer.new(solr_url, queue_size, num_threads)
     useJavabin!
   end
   
@@ -24,11 +24,11 @@ class SolrjWrapper
   def useJavabin!
     @streaming_update_server.setRequestWriter Java::org.apache.solr.client.solrj.impl.BinaryRequestWriter.new
   end
-  
-  
-  # returns a SolrJ StreamingUpdateSolrServer object 
-  def streaming_update_server(solr_url, queue_size, num_threads)
-    @streaming_update_server ||= org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer.new(solr_url, queue_size, num_threads)
+
+  # returns the SolrJ StreamingUpdateSolrServer object initialized with the solr_url, queue size and number of threads
+  #  passed to the constructor
+  def get_streaming_update_server
+    @streaming_update_server
   end
   
   # given a SolrInputDocument, add the field and/or the values.  This will not add empty values, and it will not add duplicate values

@@ -9,7 +9,7 @@ describe SolrjWrapper do
   end
   
   it "should initialize a streaming_update_server object" do
-    sus = @@solrj_wrapper.streaming_update_server(@@settings.solr_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
+    sus = @@solrj_wrapper.streaming_update_server
     sus.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::StreamingUpdateSolrServer)
   end
   

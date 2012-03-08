@@ -26,8 +26,8 @@ class AddCrezToSolrDoc
   # @param solrmarc_conf_props_fname  the name of the xx_config.properties file for SolrMarc, relative to solrmarc_dist_dir
   # @param solr_url  base url of the solr instance
   # @param solrj_jars_dir  the location of Solrj jars needed to use SolrJ here
-  # @param queue_size the number of Solr documents to buffer before writing to Solr
-  # @param num_threads the number of threads to use when writing to Solr (should not be more than the number of cpu cores avail) 
+  # @param queue_size  the number of Solr documents Solrj will buffer before writing to Solr
+  # @param num_threads  the number of threads Solrj will use when writing to Solr (should not be more than the number of cpu cores avail) 
   def initialize(ckey_2_crez_info, solrmarc_dist_dir, solrmarc_conf_props_fname, solr_url, solrj_jars_dir, queue_size, num_threads)
     if not defined? JRUBY_VERSION
       raise "AddCrezToSolrDoc only runs under jruby"
