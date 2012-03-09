@@ -123,8 +123,12 @@ class AddCrezToSolrDoc
   def append_crez_info_to_item_disp(orig_item_display_val, crez_row)
     sep = " -|- "
     rez_building = REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]]
+    rez_building ||= ""
     loan_period = LOAN_CODE_2_USER_STR[crez_row[:loan_period]]
-    suffix = crez_row[:course_id] + sep + rez_building + sep + loan_period
+    loan_period ||= ""
+    course_id = crez_row[:course_id]
+    course_id ||= ""
+    suffix = course_id + sep + rez_building + sep + loan_period
     orig_item_display_val + " -|- " + suffix
   end
 
