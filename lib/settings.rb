@@ -15,4 +15,14 @@ class Settings
     @solrj_num_threads = yml["solrj_num_threads"]
   end
   
+  # @return the attributes of this class as a Hash
+  def as_hash
+    {:solrmarc_dist_dir => @solrmarc_dist_dir,
+      :solrmarc_conf_props_file => @solrmarc_conf_props_file,
+      :solr_url => @solr_url,
+      :solrj_jar_dir => @solrj_jar_dir,
+      :solrj_queue_size => @solrj_queue_size,
+      :solrj_num_threads => @solrj_num_threads }
+  end
+  
 end
