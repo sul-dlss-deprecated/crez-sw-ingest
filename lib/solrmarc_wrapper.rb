@@ -31,7 +31,7 @@ class SolrmarcWrapper
   end
   
   
-  protected
+protected
   
   # require all the necessary jars to use SolrMarc classes
   def load_solrmarc(solr_marc_dir)

@@ -192,7 +192,7 @@ class AddCrezToSolrDoc
     compound_val
   end
   
-  protected  #-------------------------- protected -------------------------------
+protected  #-------------------------- protected -------------------------------
   
   # returns the single item_display field value matching the barcode, or nil if none match
   # @param desired_barcode the barcode of the desired item_display field

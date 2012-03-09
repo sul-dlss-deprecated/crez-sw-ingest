@@ -58,8 +58,8 @@ class SolrjWrapper
     end
   end
 
-  
-  protected 
+
+protected 
 
   # require all the necessary jars to use Solrj classes
   def load_solrj(solrj_jar_dir)
