@@ -1,6 +1,7 @@
 require 'parse_crez_data'
 require 'solrj_wrapper'
 require 'add_crez_to_solr_doc'
+require 'logger'
 
 # Use this class to take a csv file containing course reserve data and add the appropriate information to the 
 # appropriate Solr Documents.
@@ -12,25 +13,31 @@ class IndexCrezData
   # @param solrmarc_wrapper  SolrmarcWrapper object for accessing SolrMarc 
   # @param solrj_wrapper  SolrjWrapper for using SolrJ objects
   def index_crez_data(crez_data_file, solrmarc_wrapper, solrj_wrapper)
+# FIXME:  need to log to a file, passed in
+    @logger = Logger.new(STDERR)
     ckey_2_crez_info = get_ckey_2_crez_info(crez_data_file)
     sus = solrj_wrapper.streaming_update_server
     ac2sd = AddCrezToSolrDoc.new(ckey_2_crez_info, solrmarc_wrapper, solrj_wrapper)
     ckey_2_crez_info.keys.each { |ckey|  
       solr_input_doc = ac2sd.add_crez_info_to_solr_doc(ckey)
-      begin
-        sus.add(solr_input_doc)
-      rescue org.apache.solr.common.SolrException => e 
-        logger.error("SolrException while indexing document #{ckey}")
-        logger.error("#{e.printStackTrace}")
+      unless solr_input_doc.nil?
+        begin
+          sus.add(solr_input_doc)
+          @logger.info("updating Solr document #{ckey}")        
+        rescue org.apache.solr.common.SolrException => e 
+          @logger.error("SolrException while indexing document #{ckey}")
+          @logger.error("#{e.message}")
+          @logger.error("#{e.backtrace}")
+        end
       end
     }
     begin
-      sus.commit
+      update_response = sus.commit
     rescue org.apache.solr.common.SolrException => e
-      logger.error("SolrException while committing updates")
-      logger.error("#{e.printStackTrace}")
+      @logger.error("SolrException while committing updates")
+      @logger.error("#{e.message}")
+      @logger.error("#{e.backtrace}")
     end
-    
   end
   
 protected  
