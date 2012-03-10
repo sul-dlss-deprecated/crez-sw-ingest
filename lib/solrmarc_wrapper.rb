@@ -25,9 +25,13 @@ class SolrmarcWrapper
   # @param doc_id  the value of the "id" Solr field for the record to be retrieved
   # @return a SolrInputDocument for the doc_id, populated via marcxml and SolrMarc
   def get_solr_input_doc(doc_id)
-    @solr_input_doc = @solrmarc_reindexer.getSolrInputDoc("id", doc_id, "marcxml")
+    begin
+      @solr_input_doc = @solrmarc_reindexer.getSolrInputDoc("id", doc_id, "marcxml")
     rescue java.lang.NullPointerException
       logger.error("Can't find single SearchWorks Solr document with id #{doc_id}")
+      return nil
+    end
+    @solr_input_doc
   end
   
   
