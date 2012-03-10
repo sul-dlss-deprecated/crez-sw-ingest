@@ -36,7 +36,7 @@ class SolrjWrapper
   # @param fld_name - the name of the Solr field
   # @param val_array - an array of values for the Solr field
   def add_vals_to_fld(solr_input_doc, fld_name, val_array)
-    unless val_array.nil?
+    unless val_array.nil? || solr_input_doc.nil? || fld_name.nil?
       val_array.each { |value|  
         add_val_to_fld(solr_input_doc, fld_name, value)
       }
@@ -48,7 +48,7 @@ class SolrjWrapper
   # @param fld_name - the name of the Solr field
   # @param value - the value to add to the Solr field
   def add_val_to_fld(solr_input_doc, fld_name, value)
-    if !fld_name.nil? && fld_name.size > 0 && !value.nil? && value.size > 0
+    if !solr_input_doc.nil? && !fld_name.nil? && fld_name.size > 0 && !value.nil? && value.size > 0
       if !solr_input_doc[fld_name].nil? && solr_input_doc
         existing_vals = solr_input_doc[fld_name].getValues
       end
