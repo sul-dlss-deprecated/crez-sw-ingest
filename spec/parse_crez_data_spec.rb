@@ -42,8 +42,8 @@ describe ParseCrezData do
     crez_item_info[:course_id].should == "HISTORY-211C"
     crez_item_info[:course_name].should == "Saints in the Middle Ages"
     crez_item_info[:term].should == "FALL"
-    crez_item_info[:instructor_lib_id].should == "2556820237"
-    crez_item_info[:instructor_univ_id].should == "05173979"
+    crez_item_info[:instructor_lib_id].should be_nil
+    crez_item_info[:instructor_univ_id].should be_nil
     crez_item_info[:instructor_name].should == "Kreiner, Jamie K"
   end
   
