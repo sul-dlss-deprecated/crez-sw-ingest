@@ -45,11 +45,11 @@ optparse = OptionParser.new do |opts|
   end
   
   opts.on('-d', '--solrmarc-dir DIR', "Load SolrMarc distribution from DIR") do |dir|
-    (cmdline_options[:solrmarc_dist_dir] ||= []) << dir
+    (cmdline_options[:solrmarc_dist_dir] ||= "") << dir
   end
   
   opts.on('-j', '--solrj-jars DIR', "Load SolrJ jars from DIR") do |dir|
-    (cmdline_options[:solrj_jar_dir] ||= []) << dir
+    (cmdline_options[:solrj_jar_dir] ||= "") << dir
   end
 
   opts.on('-n', '--no-action', "Dry run; don't execute") do
@@ -57,19 +57,19 @@ optparse = OptionParser.new do |opts|
   end
   
   opts.on('-p', '--solrmarc-props FILE', "SolrMarc configuration properties FILE (relative to solrmarc-dir)") do |solrmarc_conf_props_file|
-    (cmdline_options[:solrmarc_conf_props_file] ||= []) << solrmarc_conf_props_file
+    (cmdline_options[:solrmarc_conf_props_file] ||= "") << solrmarc_conf_props_file
   end
 
   opts.on('-q', '--solrj-queue INT', "Queue size for SolrJ StreamingUpdateServer") do |num|
-    (cmdline_options[:solrj_queue_size] ||= []) << num.to_i
+    (cmdline_options[:solrj_queue_size] ||= "") << num.to_i
   end
 
   opts.on('-t', '--solrj-thread INT', "Number of threads for SolrJ StreamingUpdateServer") do |num|
-    (cmdline_options[:solrj_num_threads] ||= []) << num.to_i
+    (cmdline_options[:solrj_num_threads] ||= "") << num.to_i
   end
 
   opts.on('-u', '--solr-url URL', "Solr base URL with docs to be updated") do |solr_url|
-    (cmdline_options[:solr_url] ||= []) << solr_url
+    (cmdline_options[:solr_url] ||= "") << solr_url
   end
 
   opts.on_tail('-h', '--help', "Show this help message") do
