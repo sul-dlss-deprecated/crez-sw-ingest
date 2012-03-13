@@ -58,6 +58,16 @@ class SolrjWrapper
     end
   end
 
+  # given a SolrInputDocument, replace all the values of the field with the new values.  
+  #  If the values to be added are an empty array, the field will be removed.
+  #  If the field doesn't exist in the document, then it will be created (if the value array isn't empty)
+  # @param solr_input_doc - the SolrInputDocument object receiving a new field value
+  # @param fld_name - the name of the Solr field
+  # @param value - an array of values for the Solr field
+  def replace_field_values(solr_input_doc, fld_name, val_array)
+    solr_input_doc.removeField(fld_name)
+    add_vals_to_fld(solr_input_doc, fld_name, val_array)
+  end
 
 protected 
 

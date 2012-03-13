@@ -31,6 +31,7 @@ class IndexCrezData
         end
       end
     }
+    # commit
     begin
       update_response = sus.commit
     rescue org.apache.solr.common.SolrException => e

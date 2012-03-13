@@ -111,4 +111,46 @@ describe SolrjWrapper do
     end
   end # context add_vals_to_fld
 
+  context "replace_field_values" do
+    it "should work for disjoint sets of field values" do
+      sid = Java::OrgApacheSolrCommon::SolrInputDocument.new
+      @@solrj_wrapper.add_vals_to_fld(sid, "fld", ["val1", "val2", "val3"])
+      @@solrj_wrapper.replace_field_values(sid, "fld", ["val4", "val5"])
+      vals = sid["fld"].getValues
+      vals.size.should == 2
+      vals.contains("val1").should be_false
+      vals.contains("val2").should be_false
+      vals.contains("val3").should be_false
+      vals.contains("val4").should be_true
+      vals.contains("val5").should be_true
+    end
+
+    it "should retain unchanged values" do
+      sid = Java::OrgApacheSolrCommon::SolrInputDocument.new
+      @@solrj_wrapper.add_vals_to_fld(sid, "fld", ["val1", "val2"])
+      @@solrj_wrapper.replace_field_values(sid, "fld", ["val2", "val3"])
+      vals = sid["fld"].getValues
+      vals.size.should == 2
+      vals.contains("val1").should be_false
+      vals.contains("val2").should be_true
+      vals.contains("val3").should be_true
+    end
+    
+    it "should create a field when none existed before" do
+      sid = Java::OrgApacheSolrCommon::SolrInputDocument.new
+      sid["fld"].should be_nil
+      @@solrj_wrapper.replace_field_values(sid, "fld", ["val1"])
+      vals = sid["fld"].getValues
+      vals.size.should == 1
+      vals.contains("val1").should be_true
+    end
+    
+    it "should remove a field if there are no values to add" do
+      sid = Java::OrgApacheSolrCommon::SolrInputDocument.new
+      @@solrj_wrapper.add_vals_to_fld(sid, "fld", ["val1", "val2"])
+      @@solrj_wrapper.replace_field_values(sid, "fld", [])
+      sid["fld"].should be_nil
+    end
+  end
+
 end

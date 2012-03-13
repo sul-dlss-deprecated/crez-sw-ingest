@@ -292,6 +292,15 @@ describe AddCrezToSolrDoc do
       ac2sd.add_crez_info_to_solr_doc("9423045")
     end
     
+    it "should overwrite the existing item_display field for the barcode" do
+      @@p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
+      @@sid666["item_display"].getValues.size.should == 1
+      ac2sd = AddCrezToSolrDoc.new(@@p.ckey_2_crez_info, @@solrmarc_wrapper, @@solrj_wrapper)
+      @@oldSid8707706 = ac2sd.solr_input_doc("8707706")
+      @@newSid8707706 = ac2sd.add_crez_info_to_solr_doc("8707706")
+      @@newSid8707706["item_display"].getValues.size.should == @@oldSid8707706["item_display"].getValues.size
+    end
+    
     it "should call append_crez_info_to_item_disp for every csv row with a matching item" do
       p = ParseCrezData.new
       p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))

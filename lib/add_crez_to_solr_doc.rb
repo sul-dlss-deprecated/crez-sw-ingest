@@ -61,12 +61,16 @@ class AddCrezToSolrDoc
           @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_facet", get_compound_value_from_row(crez_row, [:course_id, :course_name], " ")) # for record view
           @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_display", get_compound_value_from_row(crez_row, [:course_id, :course_name, :instructor_name], " -|- "))
           # update item_display value with crez data
-          orig_item_disp_val = get_matching_item_from_doc(crez_row[:barcode], solr_input_doc)
+          item_display_vals = solr_input_doc["item_display"].getValues
+          orig_item_disp_val = get_matching_item_from_values(crez_row[:barcode], item_display_vals)
           if orig_item_disp_val.nil?
             @logger.error "Solr Document for #{ckey} has no item with barcode #{crez_row[:barcode].strip}"
           else
+            item_display_vals_array = java.util.ArrayList.new(item_display_vals)
+            ix = item_display_vals_array.indexOf(orig_item_disp_val)
             new_item_disp_val = append_crez_info_to_item_disp(orig_item_disp_val, crez_row)
-            @solrj_wrapper.add_val_to_fld(solr_input_doc, "item_display", new_item_disp_val)
+            item_display_vals_array.set(ix, new_item_disp_val)
+            @solrj_wrapper.replace_field_values(solr_input_doc, "item_display", item_display_vals_array)
           end
         }
         update_building_facet(solr_input_doc, crez_rows) # could work this logic in here if performance is an issue
@@ -175,8 +179,7 @@ class AddCrezToSolrDoc
       end
     }
     if new_building_facet_vals.uniq.size > 0 && new_building_facet_vals != [nil]
-      solr_input_doc.removeField("building_facet")
-      @solrj_wrapper.add_vals_to_fld(solr_input_doc, "building_facet", new_building_facet_vals.uniq)
+      @solrj_wrapper.replace_field_values(solr_input_doc, "building_facet", new_building_facet_vals.uniq)
     end
   end
 
