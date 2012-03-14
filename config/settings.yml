@@ -4,7 +4,7 @@ prod:
   solrmarc_conf_props_file: sw_config.properties
 #  solr_url: http://sw-solr-gen.stanford.edu:8983/solr
   solrj_jar_dir: /home/blacklight/solrmarc-sw/dist/lib
-  solrj_queue_size: 10
+  solrj_queue_size: 20
   solrj_num_threads: 4
 
 # settings for running local tests
@@ -14,7 +14,7 @@ test:
 # FIXME:  this should be a local jetty with solr spun up from within the app for testing  
   solr_url: http://sw-solr-gen.stanford.edu:8983/solr
   solrj_jar_dir: /Users/ndushay/searchworks/solrmarc-sw/dist/lib
-  solrj_queue_size: 10
+  solrj_queue_size: 20
   solrj_num_threads: 1
 
 # settings for continuous integration
@@ -24,7 +24,7 @@ ci:
 # FIXME:  this should be a local jetty with solr spun up from within the app for testing  
   solr_url: http://sw-solr-gen.stanford.edu:8983/solr
   solrj_jar_dir: /hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist/lib
-  solrj_queue_size: 10
+  solrj_queue_size: 20
   solrj_num_threads: 1
     
 # add:
