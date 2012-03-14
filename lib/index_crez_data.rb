@@ -15,7 +15,9 @@ class IndexCrezData
   def index_crez_data(crez_data_file, solrmarc_wrapper, solrj_wrapper)
 # FIXME:  need to log to a file, passed in
     @logger = Logger.new(STDERR)
+    @logger.info("Starting Course Reserve Processing")
     ckey_2_crez_info = get_ckey_2_crez_info(crez_data_file)
+    @logger.info("Starting Course Reserve Indexing")
     sus = solrj_wrapper.streaming_update_server
     ac2sd = AddCrezToSolrDoc.new(ckey_2_crez_info, solrmarc_wrapper, solrj_wrapper)
     ckey_2_crez_info.keys.each { |ckey|  
@@ -31,6 +33,7 @@ class IndexCrezData
         end
       end
     }
+    @logger.info("Starting Course Reserve Commit")
     # commit
     begin
       update_response = sus.commit
@@ -39,6 +42,7 @@ class IndexCrezData
       @logger.error("#{e.message}")
       @logger.error("#{e.backtrace}")
     end
+    @logger.info("Ending Course Reserve Data Processing")
   end
   
 protected  
