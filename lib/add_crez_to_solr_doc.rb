@@ -55,11 +55,10 @@ class AddCrezToSolrDoc
           @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_instructor_search", crez_row[:instructor_name])
           @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_name_search", crez_row[:course_name])
           @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_id_search", crez_row[:course_id])
-          # note that instructor facet is a copy field
+          # note that crez_instructor_facet is a copy field
           @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_desk_facet", REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]])
-          @solrj_wrapper.add_val_to_fld(solr_input_doc, "dept_facet", get_dept(crez_row[:course_id]))
-          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_facet", get_compound_value_from_row(crez_row, [:course_id, :course_name], " ")) # for record view
-          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_display", get_compound_value_from_row(crez_row, [:course_id, :course_name, :instructor_name], " -|- "))
+          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_dept_facet", get_dept(crez_row[:course_id]))
+          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_info", get_compound_value_from_row(crez_row, [:course_id, :course_name, :instructor_name], " -|- "))
           # update item_display value with crez data
           item_display_vals = solr_input_doc["item_display"].getValues
           orig_item_disp_val = get_matching_item_from_values(crez_row[:barcode], item_display_vals)
