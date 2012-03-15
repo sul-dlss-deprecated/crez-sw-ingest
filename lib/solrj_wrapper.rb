@@ -3,7 +3,7 @@ include Java
 # Methods required to interact with SolrJ objects
 class SolrjWrapper
   
-  attr_reader :streaming_update_server
+  attr_reader :streaming_update_server, :query_server
   
   # @param solrj_jar_dir  the location of Solrj jars needed to use SolrJ here
   # @param solr_url  base url of the solr instance
@@ -14,6 +14,7 @@ class SolrjWrapper
       raise "SolrjWrapper only runs under jruby"
     end
     load_solrj(solrj_jar_dir)
+    @query_server = org.apache.solr.client.solrj.impl.CommonsHttpSolrServer.new(solr_url)
     @streaming_update_server = org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer.new(solr_url, queue_size, num_threads)
     useJavabin!
   end
@@ -27,9 +28,9 @@ class SolrjWrapper
 
   # returns the SolrJ StreamingUpdateSolrServer object initialized with the solr_url, queue size and number of threads
   #  passed to the constructor
-  def get_streaming_update_server
-    @streaming_update_server
-  end
+#  def get_streaming_update_server
+#    @streaming_update_server
+#  end
   
   # given a SolrInputDocument, add the field and/or the values.  This will not add empty values, and it will not add duplicate values
   # @param solr_input_doc - the SolrInputDocument object receiving a new field value

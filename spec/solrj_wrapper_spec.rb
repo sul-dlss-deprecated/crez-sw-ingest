@@ -8,10 +8,13 @@ describe SolrjWrapper do
   end
   
   it "should initialize a streaming_update_server object" do
-    sus = @@solrj_wrapper.streaming_update_server
-    sus.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::StreamingUpdateSolrServer)
+    @@solrj_wrapper.streaming_update_server.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::StreamingUpdateSolrServer)
   end
   
+  it "should initialize a query_server object" do
+    @@solrj_wrapper.query_server.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::CommonsHttpSolrServer)
+  end
+
   context "add_vals_to_fld" do
     it "should do nothing if the field name or value is nil or of size 0" do
       sid = Java::OrgApacheSolrCommon::SolrInputDocument.new
