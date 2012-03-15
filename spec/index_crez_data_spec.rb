@@ -29,7 +29,7 @@ describe IndexCrezData do
 # item_display field must be one with barcode match    
 #    item_display_val_b4 = @@sid_8707706_b4["item_display"].first
 #    item_display_val_b4.split("-|-").size.should == 10
-    @@sid_8707706_after["crez_display"].should_not be_nil
+    @@sid_8707706_after["crez_course_info"].should_not be_nil
     @@sid_8707706_after["last_updated"].should_not == @@sid_8707706_b4["last_updated"]
 #    item_display_val_after = sid_8707706_after["item_display"]   
 #    item_display_val_after.split("-|-").size.should == 13
