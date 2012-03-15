@@ -26,12 +26,6 @@ class SolrjWrapper
     @streaming_update_server.setRequestWriter Java::org.apache.solr.client.solrj.impl.BinaryRequestWriter.new
   end
 
-  # returns the SolrJ StreamingUpdateSolrServer object initialized with the solr_url, queue size and number of threads
-  #  passed to the constructor
-#  def get_streaming_update_server
-#    @streaming_update_server
-#  end
-  
   # given a SolrInputDocument, add the field and/or the values.  This will not add empty values, and it will not add duplicate values
   # @param solr_input_doc - the SolrInputDocument object receiving a new field value
   # @param fld_name - the name of the Solr field
