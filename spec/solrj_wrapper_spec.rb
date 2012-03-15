@@ -19,17 +19,28 @@ describe SolrjWrapper do
     before(:each) do
       @q = @@solrj_wrapper.query
     end
-    it "should return an array of size 0 when there are no hits" do
+
+    it "should return a SolrDocumentList object" do
+      @q.setQuery("zzzzzznohitszzzzzzzz")
+      @@solrj_wrapper.get_query_result_docs.should be_an_instance_of(Java::OrgApacheSolrCommon::SolrDocumentList)
+      @q.setQuery("")
+    end
+    
+    it "should return an object of size 0 when there are no hits" do
       @q.setQuery("zzzzzznohitszzzzzzzz")
       @@solrj_wrapper.get_query_result_docs.size.should == 0
+      @q.setQuery("")
     end
     
-    it "should return an array of SolrDocument objects" do
-      pending "to be implemented"
+    it "should return an object of size 0 when rows = 0" do
+      orig_rows = @q.getRows
+      @q.setRows(0)
+      @@solrj_wrapper.get_query_result_docs.size.should == 0
+      @q.setRows(orig_rows)
     end
-    
-    it "should send the right query to Solr" do
-      pending "to be implemented - search for id and retrieve only that document"
+
+    it "should return an object of size > 1 when there are hits and rows is > 0" do
+      @@solrj_wrapper.get_query_result_docs.size.should_not == 0
     end
   end
   
