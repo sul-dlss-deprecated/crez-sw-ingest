@@ -8,6 +8,7 @@ REMOTE_DATA_DIR=/s/Dataload/SearchworksReserves/Data
 
 LOCAL_DATA_DIR=/data/sirsi/crez
 
-FILE="$(ssh -i '~/.ssh/id_rsa' apache@jenson ls -t $REMOTE_DATA_DIR/reserves-data.* | head -1)"
-    
-scp -p -o '~/.ssh/id_rsa' apache@jenson:$FILE $LOCAL_DATA_DIR
+#FILE="$(ssh apache@jenson ls -t $REMOTE_DATA_DIR/reserves-data.* | head -1)"
+FILE="$(echo ls -t | sftp -b- -o 'IdentityFile=~/.ssh/id_rsa' apache@jenson:$REMOTE_DATA_DIR/reserves-data.* | head -1)"
+
+scp -p -o 'IdentityFile=~/.ssh/id_rsa' apache@jenson:$FILE $LOCAL_DATA_DIR
