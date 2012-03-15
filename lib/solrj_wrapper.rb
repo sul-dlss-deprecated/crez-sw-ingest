@@ -4,6 +4,7 @@ include Java
 class SolrjWrapper
   
   attr_reader :streaming_update_server, :query_server
+  attr_accessor :query
   
   # @param solrj_jar_dir  the location of Solrj jars needed to use SolrJ here
   # @param solr_url  base url of the solr instance
@@ -15,8 +16,16 @@ class SolrjWrapper
     end
     load_solrj(solrj_jar_dir)
     @query_server = org.apache.solr.client.solrj.impl.CommonsHttpSolrServer.new(solr_url)
+    @query = org.apache.solr.client.solrj.SolrQuery.new
     @streaming_update_server = org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer.new(solr_url, queue_size, num_threads)
     useJavabin!
+  end
+
+  # NAOMI_MUST_COMMENT_THIS_METHOD
+  def get_query_result_docs
+    response = @query_server.query(@query)
+    response.getResults
+    
   end
   
   # Send requests using the Javabin binary format instead of serializing to XML

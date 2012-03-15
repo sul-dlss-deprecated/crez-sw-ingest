@@ -7,14 +7,36 @@ describe SolrjWrapper do
     @@solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
   end
   
-  it "should initialize a streaming_update_server object" do
-    @@solrj_wrapper.streaming_update_server.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::StreamingUpdateSolrServer)
+  it "should initialize a query object" do
+    @@solrj_wrapper.query.should be_an_instance_of(Java::OrgApacheSolrClientSolrj::SolrQuery)
   end
   
   it "should initialize a query_server object" do
     @@solrj_wrapper.query_server.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::CommonsHttpSolrServer)
   end
 
+  context "get_query_result_docs" do
+    before(:each) do
+      @q = @@solrj_wrapper.query
+    end
+    it "should return an array of size 0 when there are no hits" do
+      @q.setQuery("zzzzzznohitszzzzzzzz")
+      @@solrj_wrapper.get_query_result_docs.size.should == 0
+    end
+    
+    it "should return an array of SolrDocument objects" do
+      pending "to be implemented"
+    end
+    
+    it "should send the right query to Solr" do
+      pending "to be implemented - search for id and retrieve only that document"
+    end
+  end
+  
+  it "should initialize a streaming_update_server object" do
+    @@solrj_wrapper.streaming_update_server.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::StreamingUpdateSolrServer)
+  end
+  
   context "add_vals_to_fld" do
     it "should do nothing if the field name or value is nil or of size 0" do
       sid = Java::OrgApacheSolrCommon::SolrInputDocument.new
