@@ -6,7 +6,7 @@ require 'logger'
 #  and create a Hash with all the information
 class ParseCrezData
   
-  # ckey => array of on-reserve items, each a CSV::Row object
+  # hash: ckey => array of on-reserve items, each a CSV::Row object
   attr_accessor :ckey_2_crez_info
 
   @@csv_cols = "rez_desk|resctl_exp_date|resctl_status|ckey|barcode|home_loc|curr_loc|item_rez_status|loan_period|rez_expire_date|rez_stage|course_id|course_name|term|instructor_name"
