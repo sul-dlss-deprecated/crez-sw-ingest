@@ -17,8 +17,8 @@ class IndexCrezData
     @logger = Logger.new(STDERR)
     @logger.info("Starting Course Reserve Processing")
     ckey_2_crez_info = get_ckey_2_crez_info(crez_data_file)
-    @logger.info("Starting Course Reserve Indexing")
     sus = solrj_wrapper.streaming_update_server
+    @logger.info("Starting Course Reserve Indexing")
     ac2sd = AddCrezToSolrDoc.new(ckey_2_crez_info, solrmarc_wrapper, solrj_wrapper)
     ckey_2_crez_info.keys.each { |ckey|  
       solr_input_doc = ac2sd.add_crez_info_to_solr_doc(ckey)
@@ -43,6 +43,27 @@ class IndexCrezData
       @logger.error("#{e.backtrace}")
     end
     @logger.info("Ending Course Reserve Data Processing")
+  end
+  
+  # Get an array containing ids of solr docs that have course reserve information
+  #  uses the access_facet "Course Reserve" value to identify the Solr documents.
+  #  Intended to default to getting ALL the docs with course reserve data
+  # @param num_to_return - the number of ids to get.  defaults to 4500, 
+  #  which is more than all the docs with crez info for a given term (roughly 3800, in general)
+  # @return an array containing ids of Solr documents that have crez info
+  def get_current_crez_ckeys(solrj_wrapper, num_to_return=4500)
+    q = org.apache.solr.client.solrj.SolrQuery.new
+    q.setQuery("access_facet:Course*")
+    q.setParam("qt","search_local_params")
+    q.setParam("fl", "id")
+    q.setRows(num_to_return)
+    q.setFacet(false)
+    doc_list = solrj_wrapper.get_query_result_docs(q)
+    current_crez_ckeys = []
+    doc_list.each { |doc| 
+      current_crez_ckeys << doc["id"]
+    }
+    current_crez_ckeys
   end
   
 protected  
