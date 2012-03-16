@@ -20,11 +20,12 @@ class SolrmarcWrapper
     @logger = Logger.new(STDERR)
   end
   
-  # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument
+  # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument 
   #  note that it identifies Solr documents by the "id" field, and expects the marc to be stored in a Solr field "marcxml"
+  #  if there is no single document matching the id, an error is logged and nil is returned
   # @param doc_id  the value of the "id" Solr field for the record to be retrieved
   # @return a SolrInputDocument for the doc_id, populated via marcxml and SolrMarc
-  def get_solr_input_doc(doc_id)
+  def get_solr_input_doc_from_marcxml(doc_id)
     begin
       @solr_input_doc = @solrmarc_reindexer.getSolrInputDoc("id", doc_id, "marcxml")
     rescue java.lang.NullPointerException
