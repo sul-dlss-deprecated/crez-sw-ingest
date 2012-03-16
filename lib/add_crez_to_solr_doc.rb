@@ -79,12 +79,12 @@ class AddCrezToSolrDoc
     solr_input_doc
   end
 
-  # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument
+  # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument that contains no course reserve information
   #  note that it identifies Solr documents by the "id" field, and expects the marc to be stored in a Solr field "marcxml"
-  # @param ckey  the value of the "id" Solr field for the record to be retrieved
-  def solr_input_doc(ckey)
-     @solrmarc_wrapper.get_solr_input_doc(ckey)
-     # note:  @solrmarc_wrapper raises an exception if the ckey doesn't find a doc in the Solr index
+  #  if there is no single document matching the id, an error is logged and nil is returned
+  # @param id  the value of the "id" Solr field for the record to be retrieved
+  def solr_input_doc(id)
+     @solrmarc_wrapper.get_solr_input_doc_from_marcxml(id)
   end
 
   # populates (and returns) crez_info with the Array of CSV::Row objects from the reserves data that pertain to the ckey
