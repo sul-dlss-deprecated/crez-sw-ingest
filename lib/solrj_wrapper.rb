@@ -16,16 +16,16 @@ class SolrjWrapper
     end
     load_solrj(solrj_jar_dir)
     @query_server = org.apache.solr.client.solrj.impl.CommonsHttpSolrServer.new(solr_url)
-    @query = org.apache.solr.client.solrj.SolrQuery.new
     @streaming_update_server = org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer.new(solr_url, queue_size, num_threads)
     useJavabin!
   end
 
-  # NAOMI_MUST_COMMENT_THIS_METHOD
-  def get_query_result_docs
-    response = @query_server.query(@query)
+  # send the query to Solr and get the SolrDocumentList from the response
+  # @param org.apache.solr.client.solrj.SolrQuery object populated with query information to send to Solr
+  # @return Java::OrgApacheSolrCommon::SolrDocumentList per the query.  The list size will be the number of rows in the Solr response
+  def get_query_result_docs(query_obj)
+    response = @query_server.query(query_obj)
     response.getResults
-    
   end
   
   # Send requests using the Javabin binary format instead of serializing to XML

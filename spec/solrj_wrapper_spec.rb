@@ -7,40 +7,31 @@ describe SolrjWrapper do
     @@solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
   end
   
-  it "should initialize a query object" do
-    @@solrj_wrapper.query.should be_an_instance_of(Java::OrgApacheSolrClientSolrj::SolrQuery)
-  end
-  
   it "should initialize a query_server object" do
     @@solrj_wrapper.query_server.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::CommonsHttpSolrServer)
   end
 
   context "get_query_result_docs" do
-    before(:each) do
-      @q = @@solrj_wrapper.query
-    end
-
     it "should return a SolrDocumentList object" do
-      @q.setQuery("zzzzzznohitszzzzzzzz")
-      @@solrj_wrapper.get_query_result_docs.should be_an_instance_of(Java::OrgApacheSolrCommon::SolrDocumentList)
-      @q.setQuery("")
+      q = org.apache.solr.client.solrj.SolrQuery.new
+      @@solrj_wrapper.get_query_result_docs(q).should be_an_instance_of(Java::OrgApacheSolrCommon::SolrDocumentList)
     end
     
     it "should return an object of size 0 when there are no hits" do
-      @q.setQuery("zzzzzznohitszzzzzzzz")
-      @@solrj_wrapper.get_query_result_docs.size.should == 0
-      @q.setQuery("")
+      q = org.apache.solr.client.solrj.SolrQuery.new
+      q.setQuery("zzzzzznohitszzzzzzzz")
+      @@solrj_wrapper.get_query_result_docs(q).size.should == 0
     end
     
     it "should return an object of size 0 when rows = 0" do
-      orig_rows = @q.getRows
-      @q.setRows(0)
-      @@solrj_wrapper.get_query_result_docs.size.should == 0
-      @q.setRows(orig_rows)
+      q = org.apache.solr.client.solrj.SolrQuery.new
+      q.setRows(0)
+      @@solrj_wrapper.get_query_result_docs(q).size.should == 0
     end
 
     it "should return an object of size > 1 when there are hits and rows is > 0" do
-      @@solrj_wrapper.get_query_result_docs.size.should_not == 0
+      q = org.apache.solr.client.solrj.SolrQuery.new
+      @@solrj_wrapper.get_query_result_docs(q).size.should_not == 0
     end
   end
   
