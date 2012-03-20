@@ -5,7 +5,7 @@ require 'logger'
 
 # Use this class to take a csv file containing course reserve data and add the appropriate information to the 
 # appropriate Solr Documents.
-class IndexCrezData
+class CrezIndexer
   
   # @param solrmarc_wrapper  SolrmarcWrapper object for accessing SolrMarc 
   # @param solrj_wrapper  SolrjWrapper for using SolrJ objects

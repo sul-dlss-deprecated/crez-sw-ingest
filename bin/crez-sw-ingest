@@ -3,12 +3,12 @@
 $LOAD_PATH.unshift('lib', File.expand_path(File.dirname(__FILE__)))
 require 'rubygems'
 begin
-  require 'index_crez_data'
+  require 'crez_indexer'
   require 'solrj_wrapper'
   require 'solrmarc_wrapper'
 rescue LoadError
   require 'bundler/setup'
-  require 'index_crez_data'
+  require 'crez_indexer'
   require 'solrj_wrapper'
   require 'solrmarc_wrapper'
 end
@@ -97,5 +97,5 @@ end
   
 solrmarc_wrapper = SolrmarcWrapper.new(options[:solrmarc_dist_dir], options[:solrmarc_conf_props_file], options[:solr_url])
 solrj_wrapper = SolrjWrapper.new(options[:solrj_jar_dir], options[:solr_url], options[:solrj_queue_size], options[:solrj_num_threads])
-index_crez_data = IndexCrezData.new(solrmarc_wrapper, solrj_wrapper)
-index_crez_data.index_crez_data(crez_file_path)
+crez_indexer = CrezIndexer.new(solrmarc_wrapper, solrj_wrapper)
+crez_indexer.index_crez_data(crez_file_path)

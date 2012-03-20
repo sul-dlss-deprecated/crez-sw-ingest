@@ -1,20 +1,20 @@
 require File.expand_path('../spec_helper', __FILE__)
-require 'index_crez_data'
+require 'crez_indexer'
 require 'parse_crez_data'
 require 'rsolr'
 
-describe IndexCrezData do
+describe CrezIndexer do
   before(:all) do
     @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_url)
     @solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
     @sus = @solrj_wrapper.streaming_update_server
     @solr ||=  RSolr.connect :url => @@settings.solr_url
-    @index_crez_data = IndexCrezData.new(@solrmarc_wrapper, @solrj_wrapper)
+    @crez_indexer = CrezIndexer.new(@solrmarc_wrapper, @solrj_wrapper)
   end
   
   context "get_crez_ckeys_from_index" do
     before(:all) do
-      @crez_ckeys = @index_crez_data.get_crez_ckeys_from_index(5)
+      @crez_ckeys = @crez_indexer.get_crez_ckeys_from_index(5)
     end
 
     it "should return a list of Symphony ckeys" do
@@ -36,7 +36,7 @@ describe IndexCrezData do
   
   context "remove_stale_crez_data" do
     it "should remove crez data when the ckey no longer has crez data" do
-      i = index_crez_data_stub
+      i = crez_indexer_stub
       i.should_receive(:add_solr_doc_to_ix).with do |sid_arg|
         sid_arg["crez_course_info"].should be_nil
       end.twice
@@ -46,7 +46,7 @@ describe IndexCrezData do
     end
     
     it "should leave solr doc alone if ckey is in current crez data" do
-      i = index_crez_data_stub
+      i = crez_indexer_stub
       i.should_receive(:add_solr_doc_to_ix).with do |sid_arg|
         sid_arg["id"].getValue.should == "1"
       end.once
@@ -65,12 +65,12 @@ describe IndexCrezData do
 
     it "should call add_crez_info_to_solr_doc for each ckey in the crez data" do
       AddCrezToSolrDoc.any_instance.should_receive(:add_crez_info_to_solr_doc).with(any_args).exactly(@ckey_2_crez_info.keys.size).times
-      i = index_crez_data_stub
+      i = crez_indexer_stub
       i.add_crez_data(@ckey_2_crez_info)
     end
 
     it "should call add_solr_doc_to_ix for each ckey in the crez data" do
-      i = index_crez_data_stub
+      i = crez_indexer_stub
       i.should_receive(:add_solr_doc_to_ix).exactly(@ckey_2_crez_info.keys.size).times
       i.add_crez_data(@ckey_2_crez_info)
     end
@@ -82,25 +82,25 @@ describe IndexCrezData do
     end
     
     it "should call remove_stale_crez_data once" do
-      i = index_crez_data_stub
+      i = crez_indexer_stub
       i.should_receive(:remove_stale_crez_data).once
       i.index_crez_data(@rezdeskbldg_data_file)
     end
     
     it "should call add_crez_data once" do
-      i = index_crez_data_stub
+      i = crez_indexer_stub
       i.should_receive(:add_crez_data).once
       i.index_crez_data(@rezdeskbldg_data_file)
     end
     
     it "should call add_solr_doc_to_ix for each doc being updated" do
-      i = index_crez_data_stub
+      i = crez_indexer_stub
       i.should_receive(:add_solr_doc_to_ix).exactly(10).times
       i.index_crez_data(@rezdeskbldg_data_file)
     end
     
     it "should send commit to sus at end of processing" do
-      i = index_crez_data_stub
+      i = crez_indexer_stub
       i.stub(:add_solr_doc_to_ix).with(any_args)
       i.should_receive(:send_ix_commit).once
       i.index_crez_data(@rezdeskbldg_data_file)
@@ -124,8 +124,8 @@ describe IndexCrezData do
       }
 
       # add crez data to index
-      @index_crez_data.stub(:remove_stale_crez_data)
-      @index_crez_data.index_crez_data(@rezdeskbldg_data_file)
+      @crez_indexer.stub(:remove_stale_crez_data)
+      @crez_indexer.index_crez_data(@rezdeskbldg_data_file)
       sid_8707706_after = get_solr_doc("8707706")
       sid_8707706_after["crez_course_info"].should_not be_nil
       sid_8707706_after["last_updated"].should_not == sid_8707706_b4["last_updated"]
@@ -162,9 +162,9 @@ def ensure_solr_doc_has_crez_info(doc_id)
   doc_list[0]["crez_course_info"].should_not be_nil
 end  
 
-# return an IndexCrezData object with the Solr update methods stubbed
-def index_crez_data_stub
-  i = IndexCrezData.new(@solrmarc_wrapper, @solrj_wrapper)
+# return an CrezIndexer object with the Solr update methods stubbed
+def crez_indexer_stub
+  i = CrezIndexer.new(@solrmarc_wrapper, @solrj_wrapper)
   i.stub(:get_crez_ckeys_from_index).with(any_args).and_return(["1", "2"])
   i.stub(:add_solr_doc_to_ix).with(any_args)
   i.stub(:send_ix_commit)
