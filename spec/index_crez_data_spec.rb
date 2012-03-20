@@ -119,8 +119,7 @@ describe IndexCrezData do
         sid_8707706_b4 = get_solr_doc("8707706")
       end
       sid_8707706_b4["crez_course_info"].should be_nil
-      item_disp_vals_b4 = sid_8707706_b4["item_display"].getValues
-      item_disp_vals_b4.each { |val|  
+      sid_8707706_b4["item_display"].each { |val|  
           val.split("-|-").size.should == 10
       }
 
@@ -130,8 +129,7 @@ describe IndexCrezData do
       sid_8707706_after = get_solr_doc("8707706")
       sid_8707706_after["crez_course_info"].should_not be_nil
       sid_8707706_after["last_updated"].should_not == sid_8707706_b4["last_updated"]
-      item_disp_vals_after = sid_8707706_after["item_display"].getValues
-      item_disp_vals_after.each { |val|
+      sid_8707706_after["item_display"].each { |val|
         if val.match(/36105215224689|36105215166732/)
           val.split("-|-").size.should == 13
         else
