@@ -31,9 +31,9 @@ describe AddCrezToSolrDoc do
   it "should log an error message when no item matches the barcode from Course Reserve data" do
     lager = double("logger")
     @a.logger = lager
-    lager.should_receive(:error).with("Solr Document for 666 has no item with barcode 36105044915804")
-    lager.should_receive(:error).with("Solr Document for 666 has no item with barcode 36105044915807")
-    lager.should_receive(:error).with("Solr Document for 666 has no item with barcode 36105044915808")
+    lager.should_receive(:error).with("Solr Document for 666 has no item with barcode 666")
+    lager.should_receive(:error).with("Solr Document for 666 has no item with barcode 667")
+    lager.should_receive(:error).with("Solr Document for 666 has no item with barcode 668")
     @a.add_crez_info_to_solr_doc("666")
   end
     
