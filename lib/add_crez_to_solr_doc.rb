@@ -5,6 +5,7 @@ $:.push conf_dir unless $:.include?(conf_dir)
 require 'solrmarc_wrapper'
 require 'solrj_wrapper'
 require 'logger'
+require 'dept_translations'
 require 'rez_desk_translations'
 require 'library_code_translations'
 require 'loan_period_translations'
@@ -17,6 +18,7 @@ class AddCrezToSolrDoc
   include RezDeskTranslations
   include LibraryCodeTranslations
   include LoanPeriodTranslations
+  include DeptTranslations
   
   attr_reader :ckey_2_crez_info
   attr_accessor :logger
@@ -55,7 +57,7 @@ class AddCrezToSolrDoc
           @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_instructor_search", crez_row[:instructor_name])
           @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_name_search", crez_row[:course_name])
           @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_id_search", crez_row[:course_id])
-          # note that crez_instructor_facet is a copy field
+          # note that instructor and course are copy fields
           @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_desk_facet", REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]])
           @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_dept_facet", get_dept(crez_row[:course_id]))
           @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_info", get_compound_value_from_row(crez_row, [:course_id, :course_name, :instructor_name], " -|- "))
@@ -141,6 +143,7 @@ class AddCrezToSolrDoc
   def get_dept(course_id)
     dept = course_id.split("-")[0]
     dept = dept.split(" ")[0]
+    DEPT_CODE_2_USER_STR[dept]
   end
   
   # returns the single item_display field value matching the barcode, or nil if none match

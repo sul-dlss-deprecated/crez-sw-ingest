@@ -66,12 +66,11 @@ describe AddCrezToSolrDoc do
     end
   end
 
-  # FIXME:  this needs a translation table
-  it "should set dept to the course id(s) before the slash" do
-    @a.get_dept("COMPLIT-101").should == "COMPLIT"
-    @a.get_dept("MUSIC-2C-001").should == "MUSIC"
-    @a.get_dept("GEOPHYS 251").should == "GEOPHYS"
-    @a.get_dept("BIOHOPK-182H/323H").should == "BIOHOPK"
+  it "should set dept to the translated course id(s) before the slash" do
+    @a.get_dept("COMPLIT-101").should == "Comparative Literature"
+    @a.get_dept("MUSIC-2C-001").should == "Music"
+    @a.get_dept("GEOPHYS 251").should == "Geophysics"
+    @a.get_dept("BIOHOPK-182H/323H").should == "Biology/Hopkins Marine"
   end
 
   context "get_matching_item_from_doc" do
