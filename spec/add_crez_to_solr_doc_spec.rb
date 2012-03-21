@@ -262,14 +262,14 @@ describe AddCrezToSolrDoc do
       @newSid666["crez_course_name_search"].getValues.should == java.util.ArrayList.new(["What is Literature?"])
       @newSid666["crez_course_id_search"].getValues.should == java.util.ArrayList.new(["COMPLIT-101"])
       @newSid666["crez_desk_facet"].getValues.should == java.util.ArrayList.new(["Green Reserves"])
-      @newSid666["crez_dept_facet"].getValues.should == java.util.ArrayList.new(["COMPLIT"])
+      @newSid666["crez_dept_facet"].getValues.should == java.util.ArrayList.new(["Comparative Literature"])
       @newSid666["crez_course_info"].getValues.should == java.util.ArrayList.new(["COMPLIT-101 -|- What is Literature? -|- Saldivar, Jose David"])
       
       @newSid555["crez_instructor_search"].getValues.should == java.util.ArrayList.new(["Harris, Bradford Cole", "Kreiner, Jamie K"])
       @newSid555["crez_course_name_search"].getValues.should  == java.util.ArrayList.new(["Saints in the Middle Ages"])
       @newSid555["crez_course_id_search"].getValues.should == java.util.ArrayList.new(["HISTORY-41S", "HISTORY-211C"])
       @newSid555["crez_desk_facet"].getValues.should == java.util.ArrayList.new(["Green Reserves"])
-      @newSid555["crez_dept_facet"].getValues.should  == java.util.ArrayList.new(["HISTORY"])
+      @newSid555["crez_dept_facet"].getValues.should  == java.util.ArrayList.new(["History"])
       @newSid555["crez_course_info"].getValues.should  == java.util.ArrayList.new(["HISTORY-41S -|-  -|- Harris, Bradford Cole", "HISTORY-211C -|- Saints in the Middle Ages -|- Kreiner, Jamie K"])
     end
     
