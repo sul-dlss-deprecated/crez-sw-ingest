@@ -1,21 +1,21 @@
 # Map Loan Period Codes to User Friendly String
 module LoanPeriodTranslations
   LOAN_CODE_2_USER_STR = {
-    "2H" => "2 Hours",
-    "3H" => "3 Hours",
-    "MED3H" => "3 Hours",
-    "4H" => "4 Hours",
-    "24H" => "24 Hours",
-    "1DND" => "1 Day",
-    "1DND-RES" => "1 Day",
-    "2D-RES" => "2 Days",
-    "3D-RES" => "3 Days",
-    "7D" => "7 Days",
-    "7D-RES" => "7 Days",
-    "14D" => "14 Days",
-    "28D" => "28 Days",
-    "365DAYS" => "1 Year",
-    "NON-CIRC" => "In-Library Use Only",
+    "2H" => "2-hour loan",
+    "3H" => "3-hour loan",
+    "MED3H" => "3-hour loan", # going away?
+    "4H" => "4-hour loan",
+    "24H" => "1-day loan",
+    "1DND" => "1-day loan",
+    "1DND-RES" => "1-day loan",
+    "2D-RES" => "2-day loan",
+    "3D-RES" => "3-day loan",
+    "7D" => "7-day loan",
+    "7D-RES" => "7-day loan",
+    "14D" => "14-day loan",
+    "28D" => "28-day loan",
+    "365DAYS" => "1-year loan",
+    "NON-CIRC" => "In-library use only",
     "E-ACCESS" => nil,  # electronic has no useful loan period
   }
 end 

@@ -230,7 +230,7 @@ describe AddCrezToSolrDoc do
     end
     
     it "should append course id, rez_desk and loan period to the item_display value" do
-      @new_val.should == @item_display_val + " -|- COMPLIT-101 -|- Physics Reserves -|- 2 Hours"
+      @new_val.should == @item_display_val + " -|- COMPLIT-101 -|- Physics Reserves -|- 2-hour loan"
     end
 
     it "should translate the rez desk to a user friendly string" do
@@ -238,7 +238,7 @@ describe AddCrezToSolrDoc do
     end
     
     it "should translate the loan period to a user friendly string" do
-      @new_val.split("-|-")[12].strip.should == "2 Hours"
+      @new_val.split("-|-")[12].strip.should == "2-hour loan"
     end
   end
   
