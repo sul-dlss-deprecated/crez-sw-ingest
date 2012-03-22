@@ -19,7 +19,6 @@ require 'settings'
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 
 DEFAULT_OPTIONS = {
-  :crez_data_file => File.expand_path('test_data/nonrezfirst.csv', File.dirname(__FILE__)),
   :solrmarc_dist_dir => "/hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist",
   :solrmarc_conf_props_file => "sw_config.properties",
   :solr_url => "http://127.0.0.1:8983/solr",
