@@ -2,7 +2,7 @@
 prod:
   solrmarc_dist_dir: /home/blacklight/solrmarc-sw/dist
   solrmarc_conf_props_file: sw_config.properties
-#  solr_url: http://sw-solr-gen.stanford.edu:8983/solr
+  solr_url: http://127.0.0.1:8983/solr
   solrj_jar_dir: /home/blacklight/solrmarc-sw/dist/lib
   solrj_queue_size: 20
   solrj_num_threads: 4
