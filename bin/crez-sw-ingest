@@ -85,6 +85,7 @@ settings_group = cmdline_options[:settings_group] ||= DEFAULT_OPTIONS[:settings_
 settings_file_options = Settings.new(settings_group)
 
 options = DEFAULT_OPTIONS.merge(settings_file_options.as_hash).merge(config_file_options).merge(cmdline_options)
+puts "Solr url to receive updates: #{options[:solr_url]}"
 
 if dry_run
   puts "Settings are: "
