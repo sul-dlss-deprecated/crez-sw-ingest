@@ -1,6 +1,6 @@
 #! /bin/bash
-# pull_latest_crez_data
-# Pull over the latest course reserve data file from jenson 
+# pull_latest
+# Pull the latest course reserve data file from jenson without password prompts
 #
 # Naomi Dushay 2012-03-14
 
@@ -8,8 +8,8 @@ REMOTE_DATA_DIR=/s/Dataload/SearchworksReserves/Data
 
 LOCAL_DATA_DIR=/data/sirsi/crez
 
-FULL_FILE_PATH="$(ssh -i ~/.ssh/id_rsa apache@jenson ls -t $REMOTE_DATA_DIR/reserves-data.* | head -1)"
-FILE="$(basename $FULL_FILE_PATH)"
+FULL_REMOTE_FILE_PATH="$(ssh -i ~/.ssh/id_rsa apache@jenson ls -t $REMOTE_DATA_DIR/reserves-data.* | head -1)"
+FILE="$(basename $FULL_REMOTE_FILE_PATH)"
 
 if [ -r $LOCAL_DATA_DIR/$FILE ]; 
 then
@@ -17,6 +17,6 @@ then
   exit 1
 else
 #  echo "getting $FILE"
-  scp -p -i ~/.ssh/id_rsa apache@jenson:$FULL_FILE_PATH $LOCAL_DATA_DIR
+  scp -p -i ~/.ssh/id_rsa apache@jenson:$FULL_REMOTE_FILE_PATH $LOCAL_DATA_DIR
   exit 0
 fi
