@@ -1,4 +1,4 @@
-! /bin/bash
+#! /bin/bash
 # pull_and_index_latest
 # Pull the latest course reserve data file from jenson without password prompts
 #  and index that file
