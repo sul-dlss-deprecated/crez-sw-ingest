@@ -1,5 +1,5 @@
 #! /bin/bash
-# pull_and_index_w_password
+# pull_and_ix_latest_w_passwd
 # Pull the latest course reserve data file from jenson with password prompts
 #  and index that file
 # If we already have the latest file on jenson, do nothing.
