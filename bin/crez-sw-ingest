@@ -15,6 +15,7 @@ end
 require 'optparse'
 require 'yaml'
 require 'settings'
+require 'logger'
 
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 
@@ -25,7 +26,8 @@ DEFAULT_OPTIONS = {
 #  :solrj_jar_dir => DEFAULT_OPTIONS[:solrmarc_dist_dir] + "lib",
   :solrj_queue_size => 10,
   :solrj_num_threads => 4,
-  :settings_group => "test"
+  :settings_group => "test",
+  :log_level => "warn"
 }
 DEFAULT_OPTIONS[:solrj_jar_dir] = DEFAULT_OPTIONS[:solrmarc_dist_dir] + "lib"
 
@@ -47,6 +49,10 @@ optparse = OptionParser.new do |opts|
   
   opts.on('-j', '--solrj-jars DIR', "Load SolrJ jars from DIR") do |dir|
     (cmdline_options[:solrj_jar_dir] ||= "") << dir
+  end
+
+  opts.on('-m', '--log-level STR', "Severity level of log messages to output") do |str|
+    (cmdline_options[:log_level] ||= "") << str
   end
 
   opts.on('-n', '--no-action', "Dry run; don't execute") do
@@ -100,7 +106,21 @@ if crez_file_path.nil?
   exit
 end
   
-solrmarc_wrapper = SolrmarcWrapper.new(options[:solrmarc_dist_dir], options[:solrmarc_conf_props_file], options[:solr_url])
-solrj_wrapper = SolrjWrapper.new(options[:solrj_jar_dir], options[:solr_url], options[:solrj_queue_size], options[:solrj_num_threads])
-crez_indexer = CrezIndexer.new(solrmarc_wrapper, solrj_wrapper)
+case options[:log_level]
+  when "debug"
+    logger_level = Logger::DEBUG
+  when "warn"
+    logger_level = Logger::WARN
+  when "error"
+    logger_level = Logger::ERROR
+  when "fatal"
+    logger_level = Logger::FATAL
+  else
+    logger_level = Logger::INFO
+end
+
+  
+solrmarc_wrapper = SolrmarcWrapper.new(options[:solrmarc_dist_dir], options[:solrmarc_conf_props_file], options[:solr_url], logger_level)
+solrj_wrapper = SolrjWrapper.new(options[:solrj_jar_dir], options[:solr_url], options[:solrj_queue_size], options[:solrj_num_threads], logger_level)
+crez_indexer = CrezIndexer.new(solrmarc_wrapper, solrj_wrapper, logger_level)
 crez_indexer.index_crez_data(crez_file_path)

@@ -10,13 +10,14 @@ class SolrmarcWrapper
   # @param solrmarc_dist_dir  distribution directory of SolrMarc build 
   # @param solrmarc_conf_props_fname  the name of the xx_config.properties file for SolrMarc, relative to solrmarc_dist_dir
   # @param solr_url  base url of the solr instance
-  def initialize(solrmarc_dist_dir, config_props_fname, solr_url, log_file=STDERR)
+  def initialize(solrmarc_dist_dir, config_props_fname, solr_url, log_level=Logger::INFO, log_file=STDERR)
     if not defined? JRUBY_VERSION
       raise "SolrmarcWrapper only runs under jruby"
     end
     load_solrmarc(solrmarc_dist_dir)
     setup_solr_reindexer(solr_url, config_props_fname)
     @logger = Logger.new(log_file)
+    @logger.level = log_level
   end
   
   # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument 
@@ -28,7 +29,7 @@ class SolrmarcWrapper
     begin
       @solr_input_doc = @solrmarc_reindexer.getSolrInputDoc("id", doc_id, "marcxml")
     rescue java.lang.NullPointerException
-      logger.error("Can't find single SearchWorks Solr document with id #{doc_id}")
+      @logger.error("Can't find single SearchWorks Solr document with id #{doc_id}")
       return nil
     end
     @solr_input_doc

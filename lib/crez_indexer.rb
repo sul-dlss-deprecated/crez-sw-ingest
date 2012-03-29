@@ -9,8 +9,9 @@ class CrezIndexer
   
   # @param solrmarc_wrapper  SolrmarcWrapper object for accessing SolrMarc 
   # @param solrj_wrapper  SolrjWrapper for using SolrJ objects
-  def initialize(solrmarc_wrapper, solrj_wrapper, log_file=STDERR)
+  def initialize(solrmarc_wrapper, solrj_wrapper, log_level=Logger::INFO, log_file=STDERR)
     @logger = Logger.new(log_file)
+    @logger.level = log_level
     @solrmarc_wrapper = solrmarc_wrapper
     @solrj_wrapper = solrj_wrapper
     @sus = solrj_wrapper.streaming_update_server
@@ -21,21 +22,21 @@ class CrezIndexer
   #   2)  add the course reserve data from the file to the correct Solr documents and update the index
   # @param crez_data_file  full path to the course reserve data file, a csv file created from Sirsi Symphony by a script written by Darsi
   def index_crez_data(crez_data_file)
-    @logger.info("Starting Course Reserve Processing")
+    @logger.unknown("Starting Course Reserve Processing")
     ckey_2_crez_info = get_ckey_2_crez_info(crez_data_file)
 
-    @logger.info("Starting Course Reserve Indexing")
+    @logger.unknown("Starting Course Reserve Indexing")
 
-    @logger.info("Removing Stale Course Reserve Data")
+    @logger.unknown("Removing Stale Course Reserve Data")
     prev_ckeys = get_crez_ckeys_from_index
     remove_stale_crez_data(prev_ckeys, ckey_2_crez_info.keys)
 
-    @logger.info("Adding Course Reserve Data")
+    @logger.unknown("Adding Course Reserve Data")
     add_crez_data(ckey_2_crez_info)
 
-    @logger.info("Starting Course Reserve Commit")
+    @logger.unknown("Starting Course Reserve Commit")
     send_ix_commit
-    @logger.info("Ending Course Reserve Data Processing")
+    @logger.unknown("Ending Course Reserve Data Processing")
   end
   
   # Get an array containing ids of solr docs that have course reserve information
@@ -79,7 +80,7 @@ class CrezIndexer
   #  and add each document to the Solr index 
   # @param ckey_2_crez_info  Hash of ckeys mapped to Array of CSV::Row objects containing course reserve data for the ckey.
   def add_crez_data(ckey_2_crez_info)
-    ac2sd = AddCrezToSolrDoc.new(ckey_2_crez_info, @solrmarc_wrapper, @solrj_wrapper)
+    ac2sd = AddCrezToSolrDoc.new(ckey_2_crez_info, @solrmarc_wrapper, @solrj_wrapper, @logger.level)
     ckey_2_crez_info.keys.each { |ckey|
       sid = ac2sd.add_crez_info_to_solr_doc(ckey)
       add_solr_doc_to_ix(sid, ckey)
@@ -93,7 +94,7 @@ protected
   # @param crez_data_file  full path to the course reserve data file, a csv file created from Sirsi Symphony by a script written by Darsi
   # @return Hash with key of ckey, value an Array of CSV::Row objects each containing data pertaining to a specific item (barcode) associated with the ckey
   def get_ckey_2_crez_info(crez_data_file)
-    p = ParseCrezData.new
+    p = ParseCrezData.new(@logger.level)
     p.read(crez_data_file)
     p.ckey_2_crez_info
   end

@@ -26,7 +26,7 @@ class AddCrezToSolrDoc
   # @param ckey_2_crez_info  Hash of ckeys mapped to Array of CSV::Row objects containing course reserve data for the ckey.
   # @param solrmarc_wrapper  SolrmarcWrapper object for accessing SolrMarc 
   # @param solrj_wrapper  SolrjWrapper for using SolrJ objects
-  def initialize(ckey_2_crez_info, solrmarc_wrapper, solrj_wrapper, log_file=STDERR)
+  def initialize(ckey_2_crez_info, solrmarc_wrapper, solrj_wrapper, log_level=Logger::INFO, log_file=STDERR)
     if not defined? JRUBY_VERSION
       raise "AddCrezToSolrDoc only runs under jruby"
     end
@@ -34,6 +34,7 @@ class AddCrezToSolrDoc
     @solrj_wrapper = solrj_wrapper
     @ckey_2_crez_info = ckey_2_crez_info
     @logger = Logger.new(log_file)
+    @logger.level = log_level
   end
 
 # FIXME:  do we have the crez_rows already?  b/c aren't we going to step through the crez data file by ckey?  
