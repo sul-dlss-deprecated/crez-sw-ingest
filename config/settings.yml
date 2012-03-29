@@ -6,6 +6,7 @@ prod:
   solrj_jar_dir: /home/blacklight/solrmarc-sw/dist/lib
   solrj_queue_size: 20
   solrj_num_threads: 4
+  log_level: error
 
 # settings for running local tests
 test:
@@ -16,6 +17,7 @@ test:
   solrj_jar_dir: /Users/ndushay/searchworks/solrmarc-sw/dist/lib
   solrj_queue_size: 20
   solrj_num_threads: 1
+  log_level: info
 
 # settings for continuous integration
 ci:
@@ -26,6 +28,7 @@ ci:
   solrj_jar_dir: /hudson/home/hudson/hudson/jobs/solrmarc-SW-solr3.5-dist/workspace/dist/lib
   solrj_queue_size: 20
   solrj_num_threads: 1
+  log_level: info
     
 # add:
 #solr id field?
