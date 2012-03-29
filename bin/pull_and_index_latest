@@ -19,4 +19,6 @@ else
   `#{command}`
   command = "bin/crez-sw-ingest #{ARGV.join(' ')} #{local_dir}/#{file} &>#{local_dir}/logs/#{file}.log"
   `#{command}`
+  command = "cat #{local_dir}/logs/#{file}.log"
+  `#{command}`
 end
