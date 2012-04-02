@@ -1,9 +1,18 @@
 #!/usr/bin/env ruby
-# pull_and_ix_latest_w_passwd
-# Pull the latest course reserve data file from jenson with password prompts
+# pull_and_index_latest
+# Pull the latest course reserve data file from jenson without password prompts
 #  and index that file
 # If we already have the latest file on jenson, do nothing.
 # Naomi Dushay 2012-03-28
+
+code_dir = "/home/blacklight/crez-sw-ingest"
+
+# not working!!
+# move to code directory to get correct rvm dir
+#command = "cd #{code_dir}"
+#`#{command}`
+#command = "source .rvmrc"
+#`#{command}`
 
 remote_dir = "/s/Dataload/SearchworksReserves/Data"
 local_dir = "/data/sirsi/crez"
@@ -15,10 +24,11 @@ file = File.basename(full_remote_file_name).strip
 if File.exist?("#{local_dir}/#{file}")
   puts "already have latest data: #{file}"
 else
+  log_file = "#{local_dir}/logs/#{file}.log"
   command = "scp -p -i ~/.ssh/id_rsa apache@jenson:#{full_remote_file_name.strip} #{local_dir}"
   `#{command}`
-  command = "bin/crez-sw-ingest #{ARGV.join(' ')} #{local_dir}/#{file} &>#{local_dir}/logs/#{file}.log"
+  command = "#{code_dir}/bin/crez-sw-ingest #{ARGV.join(' ')} #{local_dir}/#{file} &>#{log_file}"
   `#{command}`
-  command = "cat #{local_dir}/logs/#{file}.log"
+  command = "mail -s '#{file} update' sulcirchelp@stanford.edu, dlrueda@stanford.edu, searchworks-ops@lists.stanford.edu < #{log_file}"
   `#{command}`
 end
