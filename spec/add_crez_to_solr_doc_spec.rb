@@ -216,12 +216,12 @@ describe AddCrezToSolrDoc do
     sid["access_facet"].getValues.contains("Course Reserve").should be_true
   end
   
-  context "append_crez_info_to_item_disp" do
+  context "update_item_display" do
     before(:each) do
       @p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
       @crez8834492_row0 = @p.ckey_2_crez_info["8834492"][0]
       @item_display_val = @sid666["item_display"].getValues.first
-      @new_val = @a.append_crez_info_to_item_disp(@item_display_val, @crez8834492_row0)
+      @new_val = @a.update_item_display(@item_display_val, @crez8834492_row0)
     end
     
     it "should add the right number of separators to the item_display value" do
@@ -298,11 +298,11 @@ describe AddCrezToSolrDoc do
       @newSid8707706["item_display"].getValues.size.should == @oldSid8707706["item_display"].getValues.size
     end
     
-    it "should call append_crez_info_to_item_disp for every csv row with a matching item" do
+    it "should call update_item_display for every csv row with a matching item" do
       p = ParseCrezData.new
       p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
       ac2sd = AddCrezToSolrDoc.new(p.ckey_2_crez_info, @solrmarc_wrapper, @solrj_wrapper)
-      ac2sd.should_receive(:append_crez_info_to_item_disp).twice
+      ac2sd.should_receive(:update_item_display).twice
       ac2sd.add_crez_info_to_solr_doc("8707706")
     end
     

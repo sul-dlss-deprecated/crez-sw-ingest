@@ -69,7 +69,7 @@ class AddCrezToSolrDoc
           else
             item_display_vals_array = java.util.ArrayList.new(item_display_vals)
             ix = item_display_vals_array.indexOf(orig_item_disp_val)
-            new_item_disp_val = append_crez_info_to_item_disp(orig_item_disp_val, crez_row)
+            new_item_disp_val = update_item_display(orig_item_disp_val, crez_row)
             item_display_vals_array.set(ix, new_item_disp_val)
             @solrj_wrapper.replace_field_values(solr_input_doc, "item_display", item_display_vals_array)
           end
@@ -125,7 +125,7 @@ class AddCrezToSolrDoc
   # @param orig_item_display_val - the original value of the item_display field
   # @param crez_row - the CSV::Row object containing the information to be appended to the item_display value
   # @return an item_display value string with course reserve values appended
-  def append_crez_info_to_item_disp(orig_item_display_val, crez_row)
+  def update_item_display(orig_item_display_val, crez_row)
     sep = " -|- "
     rez_building = REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]]
     rez_building ||= ""
@@ -221,7 +221,7 @@ protected  #-------------------------- protected -------------------------------
       idv_array = item_display_val.split("-|-").map{|w| w.strip }
       { 
         :barcode => idv_array[0],
-        :building => idv_array[1]
+        :building => idv_array[1],
         # :home_location => idv_array[2],
         # :current_location => idv_array[3],
         # :callnum_type => idv_array[4],
