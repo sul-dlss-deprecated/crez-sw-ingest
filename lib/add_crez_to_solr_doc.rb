@@ -124,7 +124,7 @@ class AddCrezToSolrDoc
   # Note: there is no checking here to ensure the crez_row barcode matches the item_display barcode
   # @param orig_item_display_val - the original value of the item_display field
   # @param crez_row - the CSV::Row object containing the information to be appended to the item_display value
-  # @return an item_display value string with course reserve values appended
+  # @return an item_display value string with course reserve values appended, and current location set to the rez_desk if curr_loc is checked out
   def update_item_display(orig_item_display_val, crez_row)
     sep = " -|- "
     rez_building = REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]]
@@ -134,6 +134,10 @@ class AddCrezToSolrDoc
     course_id = crez_row[:course_id]
     course_id ||= ""
     suffix = course_id + sep + rez_building + sep + loan_period
+    # if current location in existing item_display field is "CHECKEDOUT", then change it to the rez_desk
+    if orig_item_display_val.split("-|-")[3].strip == "CHECKEDOUT"
+      orig_item_display_val.sub!("CHECKEDOUT", crez_row[:rez_desk])
+    end
     orig_item_display_val + " -|- " + suffix
   end
 

@@ -240,6 +240,18 @@ describe AddCrezToSolrDoc do
     it "should translate the loan period to a user friendly string" do
       @new_val.split("-|-")[12].strip.should == "2-hour loan"
     end
+    
+    it "should not change the current location if the item is not checked out" do
+      @new_val.split("-|-")[3].strip.should_not == "PHYS-RESV"
+    end
+    
+    it "should replace the current location with the rez_desk if the item is checked out in the solr doc" do
+      old_val = "36105217655393 -|- SAL3 -|- STACKS -|- CHECKEDOUT -|- STKS-MONO -|- PQ8550.413 .E64 A615 2011 -|- lc pq  8550.413000 e0.640000 a0.615000 002011 -|- en~a9~~ruuz}vywzzz~lz}tvzzzz~pz}tyuzzz~zzxzyy~~~~~ -|- PQ8550.413 .E64 A615 2011 -|- lc pq  8550.413000 e0.640000 a0.615000 002011"
+      old_val.split("-|-")[3].strip.should == "CHECKEDOUT"
+      new_val = @a.update_item_display(old_val, @crez8834492_row0)
+      new_val.split("-|-")[3].strip.should == "PHYS-RESV"
+    end
+    
   end
   
   context "add_crez_info_to_solr_doc" do
