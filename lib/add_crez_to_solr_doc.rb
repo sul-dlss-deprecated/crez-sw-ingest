@@ -127,16 +127,16 @@ class AddCrezToSolrDoc
   # @return an item_display value string with course reserve values appended, and current location set to the rez_desk if curr_loc is checked out
   def update_item_display(orig_item_display_val, crez_row)
     sep = " -|- "
-    rez_building = REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]]
-    rez_building ||= ""
+    rez_desk = crez_row[:rez_desk]
+    rez_desk ||= ""
     loan_period = LOAN_CODE_2_USER_STR[crez_row[:loan_period]]
     loan_period ||= ""
     course_id = crez_row[:course_id]
     course_id ||= ""
-    suffix = course_id + sep + rez_building + sep + loan_period
+    suffix = course_id + sep + rez_desk + sep + loan_period
     # if current location in existing item_display field is "CHECKEDOUT", then change it to the rez_desk
     if orig_item_display_val.split("-|-")[3].strip == "CHECKEDOUT"
-      orig_item_display_val.sub!("CHECKEDOUT", crez_row[:rez_desk])
+      orig_item_display_val.sub!("CHECKEDOUT", rez_desk)
     end
     orig_item_display_val + " -|- " + suffix
   end
