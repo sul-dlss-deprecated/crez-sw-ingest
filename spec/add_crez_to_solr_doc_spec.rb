@@ -209,13 +209,6 @@ describe AddCrezToSolrDoc do
   end # context update_building_facet
 
 
-  it "should add the Course Reserve value to the Access facet" do
-    sid = @a.solr_input_doc("666")
-    sid["access_facet"].getValues.contains("Course Reserve").should be_false
-    @a.add_crez_val_to_access_facet(sid)
-    sid["access_facet"].getValues.contains("Course Reserve").should be_true
-  end
-  
   context "update_item_display" do
     before(:each) do
       @p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
@@ -285,9 +278,9 @@ describe AddCrezToSolrDoc do
       @newSid555["crez_course_info"].getValues.should  == java.util.ArrayList.new(["HISTORY-41S -|-  -|- Harris, Bradford Cole", "HISTORY-211C -|- Saints in the Middle Ages -|- Kreiner, Jamie K"])
     end
     
-    it "should call add_crez_val_to_access_facet once, always" do
+    it "should not call add_crez_val_to_access_facet once, always" do
       ac2sd = AddCrezToSolrDoc.new(@p.ckey_2_crez_info, @solrmarc_wrapper, @solrj_wrapper)
-      ac2sd.should_receive(:add_crez_val_to_access_facet).twice
+      ac2sd.should_not_receive(:add_crez_val_to_access_facet)
       ac2sd.add_crez_info_to_solr_doc("8707706")
       ac2sd.add_crez_info_to_solr_doc("666")
     end

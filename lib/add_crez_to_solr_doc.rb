@@ -76,7 +76,6 @@ class AddCrezToSolrDoc
         }
         update_building_facet(solr_input_doc, crez_rows) # could work this logic in here if performance is an issue
       end
-      add_crez_val_to_access_facet(solr_input_doc)
     end
     solr_input_doc
   end
@@ -94,6 +93,7 @@ class AddCrezToSolrDoc
     @ckey_2_crez_info[ckey]
   end
   
+  # No longer used -- 2011-04-04
   # add a value "Course Reserve" to the access_facet field of the solr_input_doc
   # @param solr_input_doc - the SolrInputDocument to be changed
   def add_crez_val_to_access_facet(solr_input_doc)
