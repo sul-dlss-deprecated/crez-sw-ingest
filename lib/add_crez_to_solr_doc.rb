@@ -135,10 +135,10 @@ class AddCrezToSolrDoc
     course_id ||= ""
     suffix = course_id + sep + rez_desk + sep + loan_period
     # if current location in existing item_display field is "CHECKEDOUT", then change it to the rez_desk
-    if orig_item_display_val.split("-|-")[3].strip == "CHECKEDOUT"
-      orig_item_display_val.sub!("CHECKEDOUT", rez_desk)
-    end
-    orig_item_display_val + " -|- " + suffix
+    old_val_array = orig_item_display_val.split(' -|- ')
+    old_val_array[3] = rez_desk
+    new_val = old_val_array.join(' -|- ')
+    new_val + " -|- " + suffix
   end
 
 # ---------------- FIXME:  probably should be protected ---------------------------
