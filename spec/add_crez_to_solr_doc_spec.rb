@@ -277,7 +277,7 @@ describe AddCrezToSolrDoc do
       @newSid555["crez_course_info"].getValues.should  == java.util.ArrayList.new(["HISTORY-41S -|-  -|- Harris, Bradford Cole", "HISTORY-211C -|- Saints in the Middle Ages -|- Kreiner, Jamie K"])
     end
     
-    it "should not call add_crez_val_to_access_facet once, always" do
+    it "should not call add_crez_val_to_access_facet" do
       ac2sd = AddCrezToSolrDoc.new(@p.ckey_2_crez_info, @solrmarc_wrapper, @solrj_wrapper)
       ac2sd.should_not_receive(:add_crez_val_to_access_facet)
       ac2sd.add_crez_info_to_solr_doc("8707706")
