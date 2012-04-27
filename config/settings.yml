@@ -1,3 +1,6 @@
+# if using crez-sw-ingest script, add   -s test   or whatever to command line
+# otherwise, add SETTINGS='ci'  or whatever to command like of rake task
+
 # settings for production
 prod:
   solrmarc_dist_dir: /home/blacklight/solrmarc-sw/dist
