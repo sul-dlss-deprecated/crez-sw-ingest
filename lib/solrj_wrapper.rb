@@ -1,6 +1,6 @@
 include Java
 
-# Methods required to interact with SolrJ objects
+# Methods required to interact with SolrJ objects, such as org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer
 class SolrjWrapper
   
   attr_reader :streaming_update_server, :query_server
