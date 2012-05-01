@@ -21,4 +21,4 @@ LOG_FILE=$LOCAL_DATA_DIR/logs/$FILE.log
 #echo $LOG_FILE
 
 $($CODE_DIR/bin/crez-sw-ingest $@ $LOCAL_DATA_DIR/$FILE &>$LOG_FILE)
-$(mail -s '$FILE update' sulcirchelp@stanford.edu, dlrueda@stanford.edu, searchworks-ops@lists.stanford.edu < $LOG_FILE)
+$(mail -s "$FILE update" sulcirchelp@stanford.edu, dlrueda@stanford.edu, searchworks-ops@lists.stanford.edu < $LOG_FILE)
