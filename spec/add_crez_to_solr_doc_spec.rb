@@ -230,6 +230,18 @@ describe AddCrezToSolrDoc do
       new_val.split("-|-")[3].strip.should == "PHYS-RESV"
     end
     
+    it "should keep the right number of pieces in the original field, if they are empty" do
+      old_val = "5761709-3001 -|- SUL -|- INSTRUCTOR -|- PHYS-RESV -|- NH-RESERVS -|-  -|-  -|-  -|-  -|- "
+      new_val = @a.update_item_display(old_val, @crez8834492_row0)
+      new_val.start_with?(old_val).should be_true
+      old_val2 = "5761709-3001 -|- SUL -|- INSTRUCTOR -|-  -|- NH-RESERVS -|-  -|-  -|-  -|-  -|- "
+      new_val = @a.update_item_display(old_val2, @crez8834492_row0)
+      new_val.start_with?(old_val).should be_true
+      old_val3 = "5761709-3001 -|-  -|-  -|-  -|- NH-RESERVS -|-  -|-  -|-  -|-  -|- "
+      new_val = @a.update_item_display(old_val3, @crez8834492_row0)
+      new_val.start_with?("5761709-3001 -|-  -|-  -|- PHYS-RESV -|- NH-RESERVS -|-  -|-  -|-  -|-  -|- ").should be_true
+    end
+    
     it "should append course id, rez_desk and loan period to the item_display value" do
       idv = @item_display_val.split(' -|- ')
       idv[3] = "PHYS-RESV"

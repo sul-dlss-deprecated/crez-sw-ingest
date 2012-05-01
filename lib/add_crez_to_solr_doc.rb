@@ -134,8 +134,8 @@ class AddCrezToSolrDoc
     course_id = crez_row[:course_id]
     course_id ||= ""
     suffix = course_id + sep + rez_desk + sep + loan_period
-    # if current location in existing item_display field is "CHECKEDOUT", then change it to the rez_desk
-    old_val_array = orig_item_display_val.split(' -|- ')
+    # replace current location in existing item_display field with rez_desk
+    old_val_array = orig_item_display_val.split(' -|- ', -1)
     old_val_array[3] = rez_desk
     new_val = old_val_array.join(' -|- ')
     new_val + " -|- " + suffix
