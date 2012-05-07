@@ -10,6 +10,7 @@ CODE_DIR="/home/blacklight/crez-sw-ingest"
 
 # move to code directory to get correct rvm dir
 cd $CODE_DIR
+source /usr/local/rvm/scripts/rvm
 source $CODE_DIR/.rvmrc
 
 LOCAL_DATA_DIR="/data/sirsi/crez"
