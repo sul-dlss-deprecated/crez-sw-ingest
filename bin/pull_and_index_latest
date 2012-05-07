@@ -7,7 +7,7 @@
 
 code_dir = "/home/blacklight/crez-sw-ingest"
 
-# not working!!
+# not working!! -- see index_latest
 # move to code directory to get correct rvm dir
 #command = "cd #{code_dir}"
 #`#{command}`
