@@ -29,6 +29,6 @@ else
   `#{command}`
   command = "#{code_dir}/bin/crez-sw-ingest #{ARGV.join(' ')} #{local_dir}/#{file} &>#{log_file}"
   `#{command}`
-  command = "mail -s '#{file} update' sulcirchelp@stanford.edu, dlrueda@stanford.edu, searchworks-ops@lists.stanford.edu < #{log_file}"
+  command = "mail -s '#{file} update' sulcirchelp@stanford.edu, dlrueda@stanford.edu, searchworks-reports@lists.stanford.edu < #{log_file}"
   `#{command}`
 end
