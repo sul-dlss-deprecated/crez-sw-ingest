@@ -93,13 +93,6 @@ class AddCrezToSolrDoc
     @ckey_2_crez_info[ckey]
   end
   
-  # No longer used -- 2011-04-04
-  # add a value "Course Reserve" to the access_facet field of the solr_input_doc
-  # @param solr_input_doc - the SolrInputDocument to be changed
-  def add_crez_val_to_access_facet(solr_input_doc)
-    @solrj_wrapper.add_val_to_fld(solr_input_doc, "access_facet", "Course Reserve")
-  end
-
 # FIXME:  maybe move this into add_crez_info_to_solr_doc method?
   # Recompute the building_facet values but ONLY *if needed* -- when there is a rez_desk value
   #  that warrants it (by differing from the home library of an item)
