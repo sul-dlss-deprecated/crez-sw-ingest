@@ -47,7 +47,7 @@ class CrezIndexer
   # @return an array containing ids of Solr documents that have crez info
   def get_crez_ckeys_from_index(num_to_return=4500)
     q = org.apache.solr.client.solrj.SolrQuery.new
-    q.setQuery("access_facet:Course*")
+    q.setQuery("crez_course_id_search:[* TO *]")
     q.setParam("qt","search_local_params")
     q.setParam("fl", "id")
     q.setRows(num_to_return)
