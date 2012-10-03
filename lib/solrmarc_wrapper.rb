@@ -50,7 +50,7 @@ protected
   # @param config_props_fname  the name of the xx_config.properties file relative to the solr_marc_dir used in initialize method
   def setup_solr_reindexer(solr_url, config_props_fname)
     solr_core_loader = org.solrmarc.solr.SolrCoreLoader.loadRemoteSolrServer(solr_url, false, true)
-    @solrmarc_reindexer = org.solrmarc.marc.SolrReIndexer.new(solr_core_loader)
+    @solrmarc_reindexer = org.solrmarc.marc.SolrReIndexer.new(solr_core_loader, "search_local_params")
     @solrmarc_reindexer.init([config_props_fname])
   end
   
