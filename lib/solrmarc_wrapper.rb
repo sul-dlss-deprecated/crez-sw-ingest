@@ -5,17 +5,19 @@ require 'logger'
 #  such as using SolrReIndexer to get a SolrInputDocument from a marc record stored in the Solr index.
 class SolrmarcWrapper
   
-  attr_accessor :logger
+  attr_accessor :logger, :req_handler
   
   # @param solrmarc_dist_dir  distribution directory of SolrMarc build 
   # @param solrmarc_conf_props_fname  the name of the xx_config.properties file for SolrMarc, relative to solrmarc_dist_dir
   # @param solr_url  base url of the solr instance
-  def initialize(solrmarc_dist_dir, config_props_fname, solr_url, log_level=Logger::INFO, log_file=STDERR)
+  # @param lucene_req_handler  name of Solr requestHandler with defType=lucene for fielded searching
+  def initialize(solrmarc_dist_dir, config_props_fname, solr_url, lucene_req_handler="standard", log_level=Logger::INFO, log_file=STDERR)
     if not defined? JRUBY_VERSION
       raise "SolrmarcWrapper only runs under jruby"
     end
     load_solrmarc(solrmarc_dist_dir)
-    setup_solr_reindexer(solr_url, config_props_fname)
+    @req_handler = lucene_req_handler
+    setup_solr_reindexer(solr_url, @req_handler, config_props_fname)
     @logger = Logger.new(log_file)
     @logger.level = log_level
   end
@@ -27,7 +29,7 @@ class SolrmarcWrapper
   # @return a SolrInputDocument for the doc_id, populated via marcxml and SolrMarc
   def get_solr_input_doc_from_marcxml(doc_id)
     begin
-      @solr_input_doc = @solrmarc_reindexer.getSolrInputDoc("id", doc_id, "marcxml")
+      @solr_input_doc = @solrmarc_reindexer.getSolrInputDoc("id", doc_id, "marcxml", @req_handler)
     rescue java.lang.NullPointerException
       @logger.error("Can't find single SearchWorks Solr document with id #{doc_id}")
       return nil
@@ -47,10 +49,11 @@ protected
 
   # initialize the @solrmarc_reindexer object
   # @param solr_url the url of the Solr server
+  # @param lucene_req_handler  name of Solr requestHandler with defType=lucene for fielded searching
   # @param config_props_fname  the name of the xx_config.properties file relative to the solr_marc_dir used in initialize method
-  def setup_solr_reindexer(solr_url, config_props_fname)
+  def setup_solr_reindexer(solr_url, lucene_req_handler, config_props_fname)
     solr_core_loader = org.solrmarc.solr.SolrCoreLoader.loadRemoteSolrServer(solr_url, false, true)
-    @solrmarc_reindexer = org.solrmarc.marc.SolrReIndexer.new(solr_core_loader, "search_local_params")
+    @solrmarc_reindexer = org.solrmarc.marc.SolrReIndexer.new(solr_core_loader, lucene_req_handler)
     @solrmarc_reindexer.init([config_props_fname])
   end
   

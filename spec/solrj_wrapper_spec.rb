@@ -14,23 +14,27 @@ describe SolrjWrapper do
   context "get_query_result_docs" do
     it "should return a SolrDocumentList object" do
       q = org.apache.solr.client.solrj.SolrQuery.new
+      q.setParam("defType", "dismax")
       @solrj_wrapper.get_query_result_docs(q).should be_an_instance_of(Java::OrgApacheSolrCommon::SolrDocumentList)
     end
     
     it "should return an object of size 0 when there are no hits" do
       q = org.apache.solr.client.solrj.SolrQuery.new
+      q.setParam("defType", "dismax")
       q.setQuery("zzzzzznohitszzzzzzzz")
       @solrj_wrapper.get_query_result_docs(q).size.should == 0
     end
     
     it "should return an object of size 0 when rows = 0" do
       q = org.apache.solr.client.solrj.SolrQuery.new
+      q.setParam("defType", "dismax")
       q.setRows(0)
       @solrj_wrapper.get_query_result_docs(q).size.should == 0
     end
 
     it "should return an object of size > 1 when there are hits and rows is > 0" do
       q = org.apache.solr.client.solrj.SolrQuery.new
+      q.setParam("defType", "dismax")
       @solrj_wrapper.get_query_result_docs(q).size.should_not == 0
     end
   end
