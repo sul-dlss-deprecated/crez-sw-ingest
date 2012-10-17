@@ -5,6 +5,8 @@
 
 JRUBY_OPTS="--1.9"
 export JRUBY_OPTS
+LANG="en_US.UTF-8"
+export LANG
 
 CODE_DIR="/home/blacklight/crez-sw-ingest"
 
