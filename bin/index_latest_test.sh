@@ -6,6 +6,8 @@
 
 JRUBY_OPTS="--1.9"
 export JRUBY_OPTS
+LANG="en_US.UTF-8"
+export LANG
 
 CODE_DIR="/Users/ndushay/searchworks/course-rez/crez-sw-ingest"
 
