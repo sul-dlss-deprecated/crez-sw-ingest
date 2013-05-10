@@ -6,7 +6,7 @@ module LibraryCodeTranslations
   "ARS" => "Archive of Recorded Sound",
   "ART" => "Art & Architecture",
   "BIOLOGY" => "Biology (Falconer)",
-  "BUSINESS" => "Business"
+  "BUSINESS" => "Business",
   "CHEMCHMENG" => "Chemistry & ChemEng (Swain)",
   "CLASSICS" => "Classics",
   #CPM => Obsolete
