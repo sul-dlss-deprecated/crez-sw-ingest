@@ -4,30 +4,32 @@ module RezDeskTranslations
   # from reserve desk value to building_facet value
   REZ_DESK_2_BLDG_FACET = {
     "ART-RESV" => "Art & Architecture",
-    "BIO-RESV" => "Falconer (Biology)",
-    "CHEM-RESV" => "Swain (Chemistry & Chem. Engineering)",
+    "BIO-RESV" => "Biology (Falconer)",
+    "BUS-RESV" => "Business",
+    "CHEM-RESV" => "Chemistry & ChemEng (Swain)",
     "E-RESV" => nil,   # no change?
-    "EARTH-RESV" => "Branner (Earth Sciences & Maps)",
+    "EARTH-RESV" => "Earth Sciences (Branner)",
     "EAS-RESV" => "East Asia",
-    "EDU-RESV" => "Cubberley (Education)",
-    "ENG-RESV" => "Engineering",
-    "GREEN-RESV" => "Green (Humanities & Social Sciences)",
-    "HOOV-RESV" => "Hoover Library",
-    "HOP-RESV" => "Miller (Hopkins Marine Station)",
+    "EDU-RESV" => "Education (Cubberley)",
+    "ENG-RESV" => "Engineering (Terman)",
+    "GREEN-RESV" => "Green",
+    "HOOV-RESV" => "Hoover",
+    "HOP-RESV" => "Marine Biology (Miller)",
     "LANG-RESV" => nil,  # Sarah Seestone says this is obsolete
-    "LAW-RESV" => "Crown (Law)",
-    "MATH-RESV" => "Mathematics & Statistics",
-    "MEDIA-RESV" => "Green (Humanities & Social Sciences)",
+    "LAW-RESV" => "Law (Crown)",
+    "MATH-RESV" => "Math & Statistics",
+    "MEDIA-RESV" => "Green",
     "MEYER-RESV" => "Meyer",
     "MUSIC-RESV" => "Music",
     "PHYS-RESV" => "Physics",
-    "TANN-RESV" => "Tanner (Philosophy Dept.)"
+    "TANN-RESV" => "Philosophy (Tanner)"
   }
 
   # from reserve desk value to rez_location_facet value
   REZ_DESK_2_REZ_LOC_FACET = {
     "ART-RESV" => "Art Reserves",
     "BIO-RESV" => "Falconer Reserves",
+    "BUS-RESV" => "Business Reserves",
     "CHEM-RESV" => "Swain Reserves",
     "E-RESV" => nil,   # no change?  "E-Reserves"
     "EARTH-RESV" => "Branner Reserves",
