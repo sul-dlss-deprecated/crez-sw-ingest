@@ -48,7 +48,7 @@ class CrezIndexer
   def get_crez_ckeys_from_index(num_to_return=4500)
     q = org.apache.solr.client.solrj.SolrQuery.new
     q.setQuery("crez_course_id_search:[* TO *]")
-    q.setParam(@solrmarc_wrapper.req_handler)
+    q.setParam("qt", @solrmarc_wrapper.req_handler)
     q.setParam("fl", "id")
     q.setRows(num_to_return)
     q.setFacet(false)
