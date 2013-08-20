@@ -15,9 +15,13 @@ class SolrjWrapper
       raise "SolrjWrapper only runs under jruby"
     end
     load_solrj(solrj_jar_dir)
-    @query_server = org.apache.solr.client.solrj.impl.CommonsHttpSolrServer.new(solr_url)
-    @streaming_update_server = org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer.new(solr_url, queue_size, num_threads)
-    useJavabin!
+# old way: Solr 3.6
+#    @query_server = org.apache.solr.client.solrj.impl.CommonsHttpSolrServer.new(solr_url)
+#    @streaming_update_server = org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer.new(solr_url, queue_size, num_threads)
+#    useJavabin!
+# new way:  Solr 4.4
+    @query_server = org.apache.solr.client.solrj.impl.HttpSolrServer.new(solr_url)
+    @streaming_update_server = @query_server
   end
 
   # send the query to Solr and get the SolrDocumentList from the response
@@ -28,12 +32,14 @@ class SolrjWrapper
     response.getResults
   end
   
+=begin  
   # Send requests using the Javabin binary format instead of serializing to XML
   # Requires /update/javabin to be defined in solrconfig.xml as
   # <requestHandler name="/update/javabin" class="solr.BinaryUpdateRequestHandler" />
   def useJavabin!
     @streaming_update_server.setRequestWriter Java::org.apache.solr.client.solrj.impl.BinaryRequestWriter.new
   end
+=end
 
   # given a SolrInputDocument, add the field and/or the values.  This will not add empty values, and it will not add duplicate values
   # @param solr_input_doc - the SolrInputDocument object receiving a new field value
