@@ -15,11 +15,6 @@ class SolrjWrapper
       raise "SolrjWrapper only runs under jruby"
     end
     load_solrj(solrj_jar_dir)
-# old way: Solr 3.6
-#    @query_server = org.apache.solr.client.solrj.impl.CommonsHttpSolrServer.new(solr_url)
-#    @streaming_update_server = org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer.new(solr_url, queue_size, num_threads)
-#    useJavabin!
-# new way:  Solr 4.4
     @query_server = org.apache.solr.client.solrj.impl.HttpSolrServer.new(solr_url)
     @streaming_update_server = @query_server
   end
