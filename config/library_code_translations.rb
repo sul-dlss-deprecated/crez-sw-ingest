@@ -17,7 +17,7 @@ module LibraryCodeTranslations
   "GOV-DOCS" => "Green",
   "GREEN" => "Green",
   #GRN-REF => Obsolete
-  "HOOVER" => "Hoover",
+  "HOOVER" => "Hoover Library",
   "HOPKINS" => "Marine Biology (Miller)",
   "HV-ARCHIVE" => "Hoover Archives",
   #ILB => Ignore

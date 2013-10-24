@@ -13,7 +13,7 @@ module RezDeskTranslations
     "EDU-RESV" => "Education (Cubberley)",
     "ENG-RESV" => "Engineering (Terman)",
     "GREEN-RESV" => "Green",
-    "HOOV-RESV" => "Hoover",
+    "HOOV-RESV" => "Hoover Library",
     "HOP-RESV" => "Marine Biology (Miller)",
     "LANG-RESV" => nil,  # Sarah Seestone says this is obsolete
     "LAW-RESV" => "Law (Crown)",
