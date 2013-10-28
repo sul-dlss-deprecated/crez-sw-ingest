@@ -15,6 +15,7 @@ class CrezIndexer
     @solrmarc_wrapper = solrmarc_wrapper
     @solrj_wrapper = solrj_wrapper
     @sus = solrj_wrapper.streaming_update_server
+    @solr =  RSolr.connect :url => @@settings.solr_url
   end
   
   # Given the full path to a file containing course reserve data, 
@@ -114,7 +115,7 @@ protected
   def add_solr_doc_to_ix(solr_input_doc, id)
     unless solr_input_doc.nil?
       begin
-        @sus.add(solr_input_doc)
+        @solr.add(solr_input_doc)
         @logger.info("updating Solr document #{id}")        
       rescue org.apache.solr.common.SolrException => e 
         @logger.error("SolrException while indexing document #{id}")
@@ -127,7 +128,7 @@ protected
   # send a commit to the Solrj StreamingUpdateServer object
   def send_ix_commit
     begin
-      update_response = @sus.commit
+      update_response = @solr.commit
     rescue org.apache.solr.common.SolrException => e
       @logger.error("SolrException while committing updates")
       @logger.error("#{e.message}")

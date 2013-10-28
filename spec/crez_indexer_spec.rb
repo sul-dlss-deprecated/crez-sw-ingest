@@ -5,10 +5,11 @@ require 'rsolr'
 
 describe CrezIndexer do
   before(:all) do
-    @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_url, @@settings.lucene_req_handler)
-    @solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
+    #solrmarc points to a solr with the marc docs needed for testing, @solr points to a local solr to recieve the stub documents for merging.
+    @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_source_url, @@settings.lucene_req_handler)
+    @solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_source_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
     @sus = @solrj_wrapper.streaming_update_server
-    @solr ||=  RSolr.connect :url => @@settings.solr_url
+    @solr ||=  RSolr.connect :url => @@settings.solr_url, :read_timeout => 3600, :open_timeout => 3600
     @crez_indexer = CrezIndexer.new(@solrmarc_wrapper, @solrj_wrapper)
   end
   
@@ -79,6 +80,7 @@ describe CrezIndexer do
   context "index_crez_data" do
     before(:all) do
       @rezdeskbldg_data_file = File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__))
+      @nonrezlast = File.expand_path('test_data/nonrezlast.csv', File.dirname(__FILE__))
     end
     
     it "should call remove_stale_crez_data once" do
@@ -110,14 +112,25 @@ describe CrezIndexer do
       # ensure plain doc
       sid_8707706_b4 = get_solr_doc("8707706")
       if !sid_8707706_b4["crez_course_info"].nil?
+        #need to create a stub doc from the marc so it has no crez fields, and send it to the destination solr.
         p = ParseCrezData.new
         p.read(@rezdeskbldg_data_file)
         a = AddCrezToSolrDoc.new(p.ckey_2_crez_info, @solrmarc_wrapper, @solrj_wrapper)
         sid_8707706_marcxml_only = a.solr_input_doc("8707706")
-        @sus.add(sid_8707706_marcxml_only)
-        @sus.commit
+        to_add={}
+        sid_8707706_marcxml_only.keys.each do |key|
+          to_add[key]=sid_8707706_marcxml_only[key].getValues.to_a
+        end
+        @solr.add(to_add)
+        @solr.commit
         sid_8707706_b4 = get_solr_doc("8707706")
       end
+      response = @solr.get 'select', :params => {
+        :q=>'id:8707706',
+        :start=>0,
+        :rows=>10
+      }
+      sid_8707706_b4 = response["response"]["docs"].first
       sid_8707706_b4["crez_course_info"].should be_nil
       sid_8707706_b4["item_display"].each { |val|  
           val.split("-|-").size.should == 10
@@ -126,11 +139,15 @@ describe CrezIndexer do
       # add crez data to index
       @crez_indexer.stub(:remove_stale_crez_data)
       @crez_indexer.index_crez_data(@rezdeskbldg_data_file)
-      sid_8707706_after = get_solr_doc("8707706")
+      response = @solr.get 'select', :params => {
+        :q=>'id:8707706',
+        :start=>0,
+        :rows=>10
+      }
+      sid_8707706_after = response["response"]["docs"].first
       sid_8707706_after["crez_course_info"].should_not be_nil
-      sid_8707706_after["last_updated"].should_not == sid_8707706_b4["last_updated"]
       sid_8707706_after["item_display"].each { |val|
-        if val.match(/36105215224689|36105215166732/)
+        if val.match(/36105215166732/)
           val.split("-|-").size.should == 13
         else
           val.split("-|-").size.should == 10

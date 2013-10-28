@@ -6,7 +6,7 @@ require 'logger'
 describe AddCrezToSolrDoc do
   
   before(:all) do
-    @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_url, @@settings.lucene_req_handler)
+    @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, 'http://sw-solr-gdor-stage:8983/solr/clash', @@settings.lucene_req_handler)
     @solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
     @p = ParseCrezData.new
     @p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
@@ -96,56 +96,56 @@ describe AddCrezToSolrDoc do
     before(:all) do
       @p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))
       @ac2sd = AddCrezToSolrDoc.new(@ckey_2_crez_info, @solrmarc_wrapper, @solrj_wrapper)
+      @doc_hash={}
     end
 
     it "should use the Course Reserve rez_desk value instead of the item_display library value" do
       sid9262146 = @ac2sd.solr_input_doc("9262146")
       orig_vals = sid9262146["building_facet"].getValues
       orig_vals.size.should == 2
-      orig_vals.contains("Green (Humanities & Social Sciences)").should be_true
+      orig_vals.contains("Green").should be_true
       orig_vals.contains("Art & Architecture").should be_true
-      @ac2sd.redo_building_facet(sid9262146, @ac2sd.crez_info("9262146"))
-      new_vals = sid9262146["building_facet"].getValues
+      @ac2sd.redo_building_facet(sid9262146, @ac2sd.crez_info("9262146"),@doc_hash)
+      new_vals = @doc_hash["building_facet"]
       new_vals.size.should == 2
-      new_vals.contains("Physics").should be_true
-      new_vals.contains("Art & Architecture").should be_true
-      
+      new_vals.include?("Physics").should be_true
+      new_vals.include?("Art & Architecture").should be_true
       sid8707706 = @ac2sd.solr_input_doc("8707706")
       orig_vals = sid8707706["building_facet"].getValues
-      orig_vals.size.should == 3
-      orig_vals.contains("Green (Humanities & Social Sciences)").should be_true
-      orig_vals.contains("Art & Architecture").should be_true
-      orig_vals.contains("Cubberley (Education)").should be_true
-      @ac2sd.redo_building_facet(sid8707706, @ac2sd.crez_info("8707706"))
-      new_vals = sid8707706["building_facet"].getValues
-      new_vals.size.should == 2
-      new_vals.contains("Green (Humanities & Social Sciences)").should be_true
-      new_vals.contains("Physics").should be_true
+      orig_vals.size.should == 4
+      orig_vals.include?("Green").should be_true
+      orig_vals.include?("Art & Architecture").should be_true
+      orig_vals.include?("Education (Cubberley)").should be_true
+      @ac2sd.redo_building_facet(sid8707706, @ac2sd.crez_info("8707706"),@doc_hash)
+      new_vals = @doc_hash["building_facet"]
+      new_vals.size.should == 3
+      new_vals.include?("Green").should be_true
+      new_vals.include?("Physics").should be_true
     end
 
     it "should retain the library loc if only some items with that loc are overridden" do
       sid8834492 = @ac2sd.solr_input_doc("8834492")
       orig_vals = sid8834492["building_facet"].getValues
       orig_vals.size.should == 2
-      orig_vals.contains("Green (Humanities & Social Sciences)").should be_true
-      orig_vals.contains("SAL3 (Off-campus)").should be_true
-      @ac2sd.redo_building_facet(sid8834492, @ac2sd.crez_info("8834492"))
-      new_vals = sid8834492["building_facet"].getValues
+      orig_vals.contains("Green").should be_true
+      orig_vals.contains("SAL3 (off-campus storage)").should be_true
+      @ac2sd.redo_building_facet(sid8834492, @ac2sd.crez_info("8834492"),@doc_hash)
+      new_vals = @doc_hash["building_facet"]
       new_vals.size.should == 3
-      orig_vals.contains("Green (Humanities & Social Sciences)").should be_true
-      orig_vals.contains("SAL3 (Off-campus)").should be_true
-      new_vals.contains("Physics").should be_true
+      orig_vals.contains("Green").should be_true
+      orig_vals.contains("SAL3 (off-campus storage)").should be_true
+      new_vals.include?("Physics").should be_true
     end
     
     it "should retain the library if the crez location is for the same library" do
       sid9423045 = @ac2sd.solr_input_doc("9423045")
       orig_vals = sid9423045["building_facet"].getValues
       orig_vals.size.should == 1
-      orig_vals[0].should == "Green (Humanities & Social Sciences)"
-      @ac2sd.redo_building_facet(sid9423045, @ac2sd.crez_info("9423045"))
-      new_vals = sid9423045["building_facet"].getValues
+      orig_vals[0].should == "Green"
+      @ac2sd.redo_building_facet(sid9423045, @ac2sd.crez_info("9423045"),@doc_hash)
+      new_vals = @doc_hash["building_facet"]
       new_vals.size.should == 1
-      new_vals[0].should == "Green (Humanities & Social Sciences)"
+      new_vals[0].should == "Green"
     end
 
     it "should ignore a crez loc with no translation (use the library from item_display)" do
@@ -153,22 +153,23 @@ describe AddCrezToSolrDoc do
       orig_vals = sid888["building_facet"].getValues
       orig_vals.size.should == 1
       orig_vals[0].should == "Music"
-      @ac2sd.redo_building_facet(sid888, @ac2sd.crez_info("888"))
-      new_vals = sid888["building_facet"].getValues
+      @ac2sd.redo_building_facet(sid888, @ac2sd.crez_info("888"), @doc_hash)
+      new_vals = @doc_hash["building_facet"]
       new_vals.size.should == 1
       new_vals[0].should == "Music"
       # no translation for library in item_display either
       sid9434391 = @ac2sd.solr_input_doc("9434391")
+      @doc_hash={}
       sid9434391["building_facet"].should be_nil
-      @ac2sd.redo_building_facet(sid9434391, @ac2sd.crez_info("9434391"))
-      sid9434391["building_facet"].should be_nil
+      @ac2sd.redo_building_facet(sid9434391, @ac2sd.crez_info("9434391"), @doc_hash)
+      @doc_hash["building_facet"].should be_nil
     end
     
     it "should create a building_facet value from the crez loc when there was no original value from item_display" do
       sid9518589 = @ac2sd.solr_input_doc("9518589")
       sid9518589["building_facet"].should be_nil
-      @ac2sd.redo_building_facet(sid9518589, @ac2sd.crez_info("9518589"))
-      new_vals = sid9518589["building_facet"].getValues
+      @ac2sd.redo_building_facet(sid9518589, @ac2sd.crez_info("9518589"), @doc_hash)
+      new_vals = @doc_hash["building_facet"]
       new_vals.size.should == 1
       new_vals[0].should == "Physics"
     end
@@ -186,25 +187,25 @@ describe AddCrezToSolrDoc do
     it "should only call redo_building_facet once" do
       @a.should_receive(:redo_building_facet).once
       sid8707706 = @a.solr_input_doc("8707706")
-      @a.update_building_facet(sid8707706, @a.crez_info("8707706"))
+      @a.update_building_facet(sid8707706, @a.crez_info("8707706"),{})
     end
 
     it "should call redo_building_facet if there is a rez desk and there was no building_facet value" do
       @a.should_receive(:redo_building_facet).once
       sid9518589 = @a.solr_input_doc("9518589")
-      @a.update_building_facet(sid9518589, @a.crez_info("9518589"))
+      @a.update_building_facet(sid9518589, @a.crez_info("9518589"),{})
     end
     
     it "should not call redo_building_facet if no crez rez-desk differs from library in item_display field" do
       @a.should_not_receive(:redo_building_facet)
       sid4286782 = @a.solr_input_doc("4286782")
-      @a.update_building_facet(sid4286782, @a.crez_info("4286782"))
+      @a.update_building_facet(sid4286782, @a.crez_info("4286782"), {})
     end
     
     it "should not call redo_building_facet if the only rez_desk values don't map to anything" do
       @a.should_not_receive(:redo_building_facet)
       sid9434391 = @a.solr_input_doc("9434391")
-      @a.update_building_facet(sid9434391, @a.crez_info("9434391"))
+      @a.update_building_facet(sid9434391, @a.crez_info("9434391"),{})
     end
   end # context update_building_facet
 
@@ -274,19 +275,19 @@ describe AddCrezToSolrDoc do
     end
     
     it "should add all the crez specific fields to the solr_input_doc for the ckey" do
-      @newSid666["crez_instructor_search"].getValues.should == java.util.ArrayList.new(["Saldivar, Jose David"])   
-      @newSid666["crez_course_name_search"].getValues.should == java.util.ArrayList.new(["What is Literature?"])
-      @newSid666["crez_course_id_search"].getValues.should == java.util.ArrayList.new(["COMPLIT-101"])
-      @newSid666["crez_desk_facet"].getValues.should == java.util.ArrayList.new(["Green Reserves"])
-      @newSid666["crez_dept_facet"].getValues.should == java.util.ArrayList.new(["Comparative Literature"])
-      @newSid666["crez_course_info"].getValues.should == java.util.ArrayList.new(["COMPLIT-101 -|- What is Literature? -|- Saldivar, Jose David"])
+      @newSid666["crez_instructor_search"].should == ["Saldivar, Jose David"]
+      @newSid666["crez_course_name_search"].should == ["What is Literature?"]
+      @newSid666["crez_course_id_search"].should == ["COMPLIT-101"]
+      @newSid666["crez_desk_facet"].should == ["Green Reserves"]
+      @newSid666["crez_dept_facet"].should == ["Comparative Literature"]
+      @newSid666["crez_course_info"].should == ["COMPLIT-101 -|- What is Literature? -|- Saldivar, Jose David"]
       
-      @newSid555["crez_instructor_search"].getValues.should == java.util.ArrayList.new(["Harris, Bradford Cole", "Kreiner, Jamie K"])
-      @newSid555["crez_course_name_search"].getValues.should  == java.util.ArrayList.new(["Saints in the Middle Ages"])
-      @newSid555["crez_course_id_search"].getValues.should == java.util.ArrayList.new(["HISTORY-41S", "HISTORY-211C"])
-      @newSid555["crez_desk_facet"].getValues.should == java.util.ArrayList.new(["Green Reserves"])
-      @newSid555["crez_dept_facet"].getValues.should  == java.util.ArrayList.new(["History"])
-      @newSid555["crez_course_info"].getValues.should  == java.util.ArrayList.new(["HISTORY-41S -|-  -|- Harris, Bradford Cole", "HISTORY-211C -|- Saints in the Middle Ages -|- Kreiner, Jamie K"])
+      @newSid555["crez_instructor_search"].should == ["Harris, Bradford Cole", "Kreiner, Jamie K"]
+      @newSid555["crez_course_name_search"].should  == ["Saints in the Middle Ages"]
+      @newSid555["crez_course_id_search"].should == ["HISTORY-41S", "HISTORY-211C"]
+      @newSid555["crez_desk_facet"].should == ["Green Reserves"]
+      @newSid555["crez_dept_facet"].should  == ["History"]
+      @newSid555["crez_course_info"].should  == ["HISTORY-41S -|-  -|- Harris, Bradford Cole", "HISTORY-211C -|- Saints in the Middle Ages -|- Kreiner, Jamie K"]
     end
     
     it "should not call add_crez_val_to_access_facet" do
@@ -310,8 +311,8 @@ describe AddCrezToSolrDoc do
       @sid666["item_display"].getValues.size.should == 1
       ac2sd = AddCrezToSolrDoc.new(@p.ckey_2_crez_info, @solrmarc_wrapper, @solrj_wrapper)
       @oldSid8707706 = ac2sd.solr_input_doc("8707706")
-      @newSid8707706 = ac2sd.add_crez_info_to_solr_doc("8707706")
-      @newSid8707706["item_display"].getValues.size.should == @oldSid8707706["item_display"].getValues.size
+      @doc_hash = ac2sd.add_crez_info_to_solr_doc("8707706")
+      @doc_hash["item_display"].size.should == @oldSid8707706["item_display"].getValues.size
     end
     
     it "should call update_item_display for every csv row with a matching item" do
@@ -322,8 +323,8 @@ describe AddCrezToSolrDoc do
       ac2sd.add_crez_info_to_solr_doc("8707706")
     end
     
-    it "should leave other fields alone" do
-      @oldSid8707706["title_245_search"].getValues.should == @newSid8707706["title_245_search"].getValues
+    it "should not include fields that arent being added, like title" do
+      @oldSid8707706["title_245_search"].getValues.to_a.should_not == @newSid8707706["title_245_search"]
     end
     
   end # context add_crez_info_to_solr_doc

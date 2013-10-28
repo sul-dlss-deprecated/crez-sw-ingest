@@ -8,7 +8,7 @@ describe SolrjWrapper do
   end
   
   it "should initialize a query_server object" do
-    @solrj_wrapper.query_server.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::CommonsHttpSolrServer)
+    @solrj_wrapper.query_server.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::HttpSolrServer)
   end
 
   context "get_query_result_docs" do
@@ -34,10 +34,7 @@ describe SolrjWrapper do
       @solrj_wrapper.get_query_result_docs(q).size.should_not == 0
     end
   end
-  
-  it "should initialize a streaming_update_server object" do
-    @solrj_wrapper.streaming_update_server.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::StreamingUpdateSolrServer)
-  end
+
   
   context "add_vals_to_fld" do
     it "should do nothing if the field name or value is nil or of size 0" do

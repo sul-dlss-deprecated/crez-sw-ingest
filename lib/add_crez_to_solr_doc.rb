@@ -37,6 +37,11 @@ class AddCrezToSolrDoc
     @logger.level = log_level
   end
 
+
+  def add_solr_val(solr_doc,field, val)
+    solr_doc[field] << val if val and not solr_doc[field].include? val
+  end
+
 # FIXME:  do we have the crez_rows already?  b/c aren't we going to step through the crez data file by ckey?  
 # Or through a list of ids to delete crez data, then list of ids to add crez data, derived from a parse through csv file and comparison to database table?
   # given a ckey, 
@@ -46,6 +51,8 @@ class AddCrezToSolrDoc
   # @param ckey the id of the existing Document in the Solr index
   def add_crez_info_to_solr_doc(ckey)
     solr_input_doc = solr_input_doc(ckey)
+    #this will cause any newly created key to have an empty array in it.
+    solr_doc = Hash.new{|h, k| h[k] = []}
     unless solr_input_doc.nil?  # if solr_input_doc was nil, then error has already been logged by solrmarc_wrapper
       crez_rows = crez_info(ckey)
       if crez_rows.nil?
@@ -54,30 +61,32 @@ class AddCrezToSolrDoc
       else
         crez_rows.each { |crez_row|
           # add new fields
-          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_instructor_search", crez_row[:instructor_name])
-          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_name_search", crez_row[:course_name])
-          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_id_search", crez_row[:course_id])
+          solr_doc["id"] = ckey
+          add_solr_val solr_doc,"crez_instructor_search", crez_row[:instructor_name]
+          add_solr_val solr_doc,"crez_course_name_search", crez_row[:course_name]
+          add_solr_val solr_doc,"crez_course_id_search", crez_row[:course_id]
           # note that instructor and course are copy fields
-          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_desk_facet", REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]])
-          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_dept_facet", get_dept(crez_row[:course_id]))
-          @solrj_wrapper.add_val_to_fld(solr_input_doc, "crez_course_info", get_compound_value_from_row(crez_row, [:course_id, :course_name, :instructor_name], " -|- "))
+          add_solr_val solr_doc,"crez_desk_facet", REZ_DESK_2_REZ_LOC_FACET[crez_row[:rez_desk]]
+          add_solr_val solr_doc,"crez_dept_facet", get_dept(crez_row[:course_id])
+          add_solr_val solr_doc,"crez_course_info", get_compound_value_from_row(crez_row, [:course_id, :course_name, :instructor_name], " -|- ")
           # update item_display value with crez data
           item_display_vals = solr_input_doc["item_display"].getValues
           orig_item_disp_val = get_matching_item_from_values(crez_row[:barcode], item_display_vals)
           if orig_item_disp_val.nil?
             @logger.error "Solr Document for #{ckey} has no item with barcode #{crez_row[:barcode].strip}"
           else
-            item_display_vals_array = java.util.ArrayList.new(item_display_vals)
-            ix = item_display_vals_array.indexOf(orig_item_disp_val)
+            item_display_vals_array = item_display_vals.to_a
+            solr_doc["item_display"] = item_display_vals_array if solr_doc["item_display"] == []
+            idx = solr_doc["item_display"].index(orig_item_disp_val)
             new_item_disp_val = update_item_display(orig_item_disp_val, crez_row)
-            item_display_vals_array.set(ix, new_item_disp_val)
-            @solrj_wrapper.replace_field_values(solr_input_doc, "item_display", item_display_vals_array)
+            item_display_vals_array[idx]=new_item_disp_val
+            solr_doc["item_display"] = item_display_vals_array
           end
         }
-        update_building_facet(solr_input_doc, crez_rows) # could work this logic in here if performance is an issue
+        update_building_facet(solr_input_doc, crez_rows, solr_doc) # could work this logic in here if performance is an issue
       end
     end
-    solr_input_doc
+    solr_doc
   end
 
   # retrieves the full marc record stored in the Solr index, runs it through SolrMarc indexing to get a SolrInputDocument that contains no course reserve information
@@ -98,7 +107,8 @@ class AddCrezToSolrDoc
   #  that warrants it (by differing from the home library of an item)
   # @param solr_input_doc the SolrInputDocument object that will get new building_facet values
   # @param crez_info an Array of CSV::Row objects containing data for items in the SolrInputDocument
-  def update_building_facet(solr_input_doc, crez_info)
+  # @oaram solr_doc The solr doc with only modified fields in it that will be sent to the clash manager
+  def update_building_facet(solr_input_doc, crez_info, solr_doc)
     crez_info.each { |crez_row|
       #  do we need to recompute the building facet?
       rez_building = REZ_DESK_2_BLDG_FACET[crez_row[:rez_desk]]
@@ -107,7 +117,7 @@ class AddCrezToSolrDoc
         item_disp_hash = item_disp_val_hash(item_disp_val)
         if rez_building != LIB_2_BLDG_FACET[item_disp_hash[:building]]
             # the rez-desk is different from the existing building so we must redo the facet values
-            redo_building_facet(solr_input_doc, crez_info)
+            redo_building_facet(solr_input_doc, crez_info, solr_doc)
             return
         end
       end
@@ -147,16 +157,17 @@ class AddCrezToSolrDoc
   # @param desired_barcode the barcode of the desired item_display field
   # @param solr_input_doc the SolrInputDocument with item_display fields to be matched
   def get_matching_item_from_doc(desired_barcode, solr_input_doc)
-    item_display_vals = solr_input_doc["item_display"].getValues
+    item_display_vals = solr_input_doc["item_display"].getValues.to_a
     get_matching_item_from_values(desired_barcode, item_display_vals)
   end
 
   # NOTE:  use adjust_building_facet unless you are sure you need to recompute the values
   # recompute the values for the building_facet for a document based on crez data and item_display data
-  #  the passed solr_input_doc is changed by this method
+  #  the passed solr_doc is changed by this method
   # @param solr_input_doc the SolrInputDocument object that will get new building_facet values
   # @param crez_info an Array of CSV::Row objects containing data for items in the SolrInputDocument
-  def redo_building_facet(solr_input_doc, crez_info)
+  # @oaram solr_doc The solr doc with only modified fields in it that will be sent to the clash manager
+  def redo_building_facet(solr_input_doc, crez_info, solr_doc)
     new_building_facet_vals = []
     item_display_vals = solr_input_doc["item_display"].getValues
     item_display_vals.each { |idv|
@@ -178,7 +189,7 @@ class AddCrezToSolrDoc
       end
     }
     if new_building_facet_vals.uniq.size > 0 && new_building_facet_vals != [nil]
-      @solrj_wrapper.replace_field_values(solr_input_doc, "building_facet", new_building_facet_vals.uniq)
+      solr_doc["building_facet"] = new_building_facet_vals.uniq
     end
   end
 
