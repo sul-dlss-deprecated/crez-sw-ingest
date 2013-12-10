@@ -9,4 +9,5 @@ group :test do
 	gem 'simplecov', :require => false
 	gem 'simplecov-rcov', :require => false
 	gem 'rsolr'  # test that solr index updates are done correctly
+  gem 'jettywrapper'
 end
