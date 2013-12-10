@@ -17,8 +17,8 @@ test:
   solrmarc_dist_dir: /Users/jdeering/Documents/code/solrmarc-sw/dist
   solrmarc_conf_props_file: sw_config.properties
 # FIXME:  this should be a local jetty with solr spun up from within the app for testing  
-  solr_url: http://localhost:8983/solr
-  solr_source_url: http://sw-solr-g.stanford.edu:8983/solr/
+  solr_url: http://localhost:8983/solr/
+  solr_source_url: http://sw-solr-test-b.stanford.edu:8983/solr/
   lucene_req_handler: standard
   solrj_jar_dir: /Users/jdeering/Documents/code/solrmarc-sw/dist/lib
   solrj_queue_size: 20

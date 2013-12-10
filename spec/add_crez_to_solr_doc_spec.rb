@@ -6,8 +6,8 @@ require 'logger'
 describe AddCrezToSolrDoc do
   
   before(:all) do
-    @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, 'http://sw-solr-gdor-stage:8983/solr/clash', @@settings.lucene_req_handler)
-    @solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
+    @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_source_url, @@settings.lucene_req_handler)
+    @solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_source_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
     @p = ParseCrezData.new
     @p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
     @ckey_2_crez_info = @p.ckey_2_crez_info

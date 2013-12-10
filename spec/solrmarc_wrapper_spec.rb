@@ -5,7 +5,7 @@ require 'logger'
 describe SolrmarcWrapper do
   
   before(:all) do
-    @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_url, @@settings.lucene_req_handler)
+    @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_source_url, @@settings.lucene_req_handler)
   end
   
   it "should retrieve the SolrInputDoc generated from the marc record" do

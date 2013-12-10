@@ -111,7 +111,7 @@ describe CrezIndexer do
     it "should update the Solr Doc with crez info and write to index (integration test)" do
       # ensure plain doc
       sid_8707706_b4 = get_solr_doc("8707706")
-      if !sid_8707706_b4["crez_course_info"].nil?
+      if sid_8707706_b4 == nil or !sid_8707706_b4["crez_course_info"].nil?
         #need to create a stub doc from the marc so it has no crez fields, and send it to the destination solr.
         p = ParseCrezData.new
         p.read(@rezdeskbldg_data_file)
@@ -162,6 +162,10 @@ end
 def get_solr_doc(doc_id)
   solr_params = {:qt => "document", :id => doc_id}
   response = @solr.get 'select', :params => solr_params, :wt => "ruby"
+  if response["response"]["numFound"] !=1
+    p response
+  end
+  return nil if response["response"]["numFound"] == 0
   raise "Solr retrieved more than one document for id #{doc_id}" unless response["response"]["numFound"] == 1
   solr_doc = response["response"]["docs"].first
   raise "Solr retrieved document with 'id' #{solr_doc["id"]} but expected #{doc_id}" unless doc_id == solr_doc["id"]
