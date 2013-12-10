@@ -23,7 +23,15 @@ h2. Installation/Setup
 <pre>
   git clone /afs/ir/dev/dlss/git/searchworks/crez-sw-ingest.git
   cd crez-sw-ingest
-  rake -T   to show tasks
+  bundle install
+  rake clone_solrmarc
+  cd into solrmarc-sw:
+  ant dist_site
+  ant site_setup_test_jetty 
+  cd ..
+  cp solrmarc-sw/test/jetty/solr/conf/solrconfig-no-repl.xml solrmarc-sw/test/jetty/solr/conf/solrconfig.xmlrake run_jetty
+  rake run_jetty
+  rake ci
 </pre>
 
 h2.  How to Use
