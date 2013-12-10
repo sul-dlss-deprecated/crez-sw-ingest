@@ -2,7 +2,7 @@ require 'parse_crez_data'
 require 'solrj_wrapper'
 require 'add_crez_to_solr_doc'
 require 'logger'
-
+require 'rsolr'
 # Use this class to take a csv file containing course reserve data and add the appropriate information to the 
 # appropriate Solr Documents.
 class CrezIndexer
