@@ -8,21 +8,39 @@ end
 
 task :clone_solrmarc do
   `git clone corn:/afs/ir/dev/dlss/git/searchworks/solrmarc-sw.git`
-  `cd solrmarc-sw`
-  `ant dist_site`
-  `cd ..`
+# this doesn't work.  So sad.
+#  `cd solrmarc-sw`
+#  `git pull`
+#  `ant crez_setup`
+#  `cd ..`
   0
 end
 
-task :copy_configs do
+# this doesn't work.  so sad.
+task :setup do
  `cd solrmarc-sw`
- `ant site_setup_test_jetty`
- `cp test/jetty/solr/conf/solrconfig-no-repl.xml test/jetty/solr/conf/solrconfig.xml`
+ `git pull`
+ `ant crez_setup`
  `cd ..`
  File 
 end
 
+desc "start jetty for running tests"
 task :run_jetty do
-  jetty_params = Jettywrapper.load_config.merge({:jetty_home => File.expand_path(File.dirname(__FILE__) + '../../../solrmarc-sw/test/jetty'),:startup_wait => 10})
+  jetty_params = Jettywrapper.load_config.merge({:jetty_home => File.expand_path(File.dirname(__FILE__) + '../../../solrmarc-sw/test/jetty'),
+                                                :startup_wait => 10,
+                                                :java_opts => "-Dsolr.data.dir=" + File.expand_path(File.dirname(__FILE__) + "../../../solrmarc-sw/test/jetty/solr")
+                                                })
   error = Jettywrapper.start(jetty_params) 
 end
+task :jetty_start => :run_jetty
+task :start_jetty => :run_jetty
+
+desc  "stop jetty used for testing"
+task :stop_jetty do
+  jetty_params = Jettywrapper.load_config.merge({:jetty_home => File.expand_path(File.dirname(__FILE__) + '../../../solrmarc-sw/test/jetty'),:startup_wait => 10})
+  error = Jettywrapper.stop(jetty_params) 
+end
+
+task :jetty_stop => :stop_jetty
+
