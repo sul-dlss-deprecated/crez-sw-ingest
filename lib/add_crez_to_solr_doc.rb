@@ -107,7 +107,7 @@ class AddCrezToSolrDoc
   #  that warrants it (by differing from the home library of an item)
   # @param solr_input_doc the SolrInputDocument object that will get new building_facet values
   # @param crez_info an Array of CSV::Row objects containing data for items in the SolrInputDocument
-  # @oaram solr_doc The solr doc with only modified fields in it that will be sent to the clash manager
+  # @param solr_doc The solr doc with only modified fields in it that will be sent to the clash manager
   def update_building_facet(solr_input_doc, crez_info, solr_doc)
     crez_info.each { |crez_row|
       #  do we need to recompute the building facet?
@@ -166,7 +166,7 @@ class AddCrezToSolrDoc
   #  the passed solr_doc is changed by this method
   # @param solr_input_doc the SolrInputDocument object that will get new building_facet values
   # @param crez_info an Array of CSV::Row objects containing data for items in the SolrInputDocument
-  # @oaram solr_doc The solr doc with only modified fields in it that will be sent to the clash manager
+  # @param solr_doc The solr doc with only modified fields in it that will be sent to the clash manager
   def redo_building_facet(solr_input_doc, crez_info, solr_doc)
     new_building_facet_vals = []
     item_display_vals = solr_input_doc["item_display"].getValues
