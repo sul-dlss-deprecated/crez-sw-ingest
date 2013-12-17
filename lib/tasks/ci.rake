@@ -23,6 +23,7 @@ task :setup_test_solr => :setup_jetty
 
 desc "start jetty for running tests"
 task :run_jetty do
+  `rm -rf solrmarc-sw/test/jetty/solr/data/index`
   jetty_params = Jettywrapper.load_config.merge({:jetty_home => File.expand_path(File.dirname(__FILE__) + '../../../solrmarc-sw/test/jetty'),
                                                 :startup_wait => 15,
                                                 :java_opts => "-Dsolr.data.dir=" + File.expand_path(File.dirname(__FILE__) + "../../../solrmarc-sw/test/jetty/solr")
