@@ -25,11 +25,7 @@ h2. Installation/Setup
   cd crez-sw-ingest
   rvm use jruby-1.7
   bundle install
-  rake clone_solrmarc
-  cd solrmarc-sw
-    git pull
-    ant crez_setup
-    cd ..
+  rake setup_test_solr
 </pre>
 
 h2.  How to Use
@@ -40,10 +36,7 @@ h2.  How to Use
 
 <pre>
   rvm use jruby-1.7
-  cd solrmarc-sw
-    git pull
-    ant crez_setup
-    cd ..
+  rake setup_test_solr
 </pre>  
 
 (run script of choice in bin folder.)
@@ -56,10 +49,7 @@ h2.  How to Test
 
 <pre>
   rvm use jruby-1.7
-  cd solrmarc-sw
-    git pull
-    ant crez_setup
-    cd ..
+  rake setup_test_solr
 	rake run_jetty
   rake ci
   rake stop_jetty
