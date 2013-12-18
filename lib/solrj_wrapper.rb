@@ -20,7 +20,7 @@ class SolrjWrapper
   end
 
   # send the query to Solr and get the SolrDocumentList from the response
-  # @param org.apache.solr.client.solrj.SolrQuery object populated with query information to send to Solr
+  # @param [org.apache.solr.client.solrj.SolrQuery] query_obj populated with query information to send to Solr
   # @return Java::OrgApacheSolrCommon::SolrDocumentList per the query.  The list size will be the number of rows in the Solr response
   def get_query_result_docs(query_obj)
     response = @query_server.query(query_obj)
@@ -68,7 +68,7 @@ class SolrjWrapper
   #  If the field doesn't exist in the document, then it will be created (if the value array isn't empty)
   # @param solr_input_doc - the SolrInputDocument object receiving a new field value
   # @param fld_name - the name of the Solr field
-  # @param value - an array of values for the Solr field
+  # @param val_array - an array of values for the Solr field
   def replace_field_values(solr_input_doc, fld_name, val_array)
     solr_input_doc.removeField(fld_name)
     add_vals_to_fld(solr_input_doc, fld_name, val_array)

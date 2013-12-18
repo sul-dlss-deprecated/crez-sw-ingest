@@ -8,7 +8,7 @@ class SolrmarcWrapper
   attr_accessor :logger, :req_handler
   
   # @param solrmarc_dist_dir  distribution directory of SolrMarc build 
-  # @param solrmarc_conf_props_fname  the name of the xx_config.properties file for SolrMarc, relative to solrmarc_dist_dir
+  # @param config_props_fname  the name of the xx_config.properties file for SolrMarc, relative to solrmarc_dist_dir
   # @param solr_url  base url of the solr instance
   # @param lucene_req_handler  name of Solr requestHandler with defType=lucene for fielded searching
   def initialize(solrmarc_dist_dir, config_props_fname, solr_url, lucene_req_handler="standard", log_level=Logger::INFO, log_file=STDERR)
