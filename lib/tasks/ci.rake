@@ -16,7 +16,7 @@ task :setup_jetty => :clone_solrmarc do
     `git pull`
     # this is TEMPORARY until this code is merged to master!!!!
     `git checkout v2.5.0candidate`
-    `ant crez_setup`
+    `ant ext_setup`
   end
 end
 task :setup_test_solr => :setup_jetty
