@@ -1,21 +1,21 @@
 #!/usr/bin/env ruby
 # pull_and_ix_latest_w_passwd
-# Pull the latest course reserve data file from morison with password prompts
+# Pull the latest course reserve data file from bodoni with password prompts
 #  and index that file
-# If we already have the latest file on morison, do nothing.
+# If we already have the latest file on bodoni, do nothing.
 # Naomi Dushay 2012-03-28
 
 remote_dir = "/s/SUL/Dataload/SearchworksReserves/Data"
 local_dir = "../data"
 
-command = "ssh sirsi@morison ls -t #{remote_dir}/reserves-data.* | head -1"
+command = "ssh sirsi@bodoni ls -t #{remote_dir}/reserves-data.* | head -1"
 full_remote_file_name = `#{command}`.strip
 file = File.basename(full_remote_file_name)
 
 if File.exist?("#{local_dir}/#{file}")
   puts "already have latest data: #{file}"
 else
-  command = "scp -p sirsi@morison:#{full_remote_file_name} #{local_dir}"
+  command = "scp -p sirsi@bodoni:#{full_remote_file_name} #{local_dir}"
   `#{command}`
   command = "bin/crez-sw-ingest #{ARGV.join(' ')} #{local_dir}/#{file} \&\>#{local_dir}/logs/#{file}.log"
   `#{command}`
