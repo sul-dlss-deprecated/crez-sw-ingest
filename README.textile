@@ -16,19 +16,50 @@ It also removes stale course reserve data from the SearchWorks index.
 
 h2. Requirements
 
-JRuby 1.6, configured to use Ruby 1.9
+JRuby 1.7, configured to use Ruby 1.9 (which it is by default)
 
 h2. Installation/Setup
 
 <pre>
-  git clone /afs/ir/dev/dlss/git/searchworks/crez-sw-ingest.git
+  git clone https://github.com/sul-dlss/crez-sw-ingest.git
   cd crez-sw-ingest
-  rake -T   to show tasks
+  rvm use jruby-1.7
+  bundle install
+  rake setup_test_solr
 </pre>
 
 h2.  How to Use
 
-(put Usage output here)
+1. Adjust config/settings.yml.
+2. Make sure you are using jruby 1.7, configured to use Ruby 1.9
+3. Make sure you are using the latest solrmarc-sw code.
 
-(describe options more thoroughly)
+<pre>
+  rvm use jruby-1.7
+  rake setup_test_solr
+</pre>  
+
+(run script of choice in bin folder.)
+
+h2.  How to Test
+
+1. Adjust config/settings.yml.
+2. Make sure you are using jruby 1.7, configured to use Ruby 1.9
+3. Make sure you are using the latest solrmarc-sw code.
+
+<pre>
+  rvm use jruby-1.7
+  rake setup_test_solr
+	rake run_jetty
+  rake ci
+  rake stop_jetty
+</pre>  
+
+Note:  sometimes if you don't wait long enough after starting jetty, the Solr index gets locked.
+You can fix this by
+
+<pre>
+	rake stop_jetty
+	rm -rf solrmarc-sw/test/jetty/solr/data/index
+</pre>
 
