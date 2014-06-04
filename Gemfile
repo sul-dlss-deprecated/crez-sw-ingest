@@ -1,4 +1,4 @@
-source :rubygems
+source 'https://rubygems.org'
 
 gem 'yard' 				# for javadoc-y documentation tags
 gem 'RedCloth' 		# for textile formatting used in Readme
