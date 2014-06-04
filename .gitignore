@@ -6,6 +6,7 @@ doc
 *.lock
 solrmarc.log*
 solrmarc-sw
+tmp
 
 ## vim
 *.swp
