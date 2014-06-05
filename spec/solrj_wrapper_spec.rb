@@ -8,7 +8,7 @@ describe SolrjWrapper do
   end
   
   it "should initialize a query_server object" do
-    @solrj_wrapper.query_server.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::CommonsHttpSolrServer)
+    @solrj_wrapper.query_server.should be_an_instance_of(Java::OrgApacheSolrClientSolrjImpl::HttpSolrServer)
   end
 
   context "get_query_result_docs" do
@@ -43,13 +43,13 @@ describe SolrjWrapper do
     it "should do nothing if the field name or value is nil or of size 0" do
       sid = Java::OrgApacheSolrCommon::SolrInputDocument.new
       @solrj_wrapper.add_vals_to_fld(sid, nil, ["val"])
-      sid.isEmpty.should be_true
+      sid.isEmpty.should == true
       @solrj_wrapper.add_vals_to_fld(sid, "", ["val"])
-      sid.isEmpty.should be_true
+      sid.isEmpty.should == true
       @solrj_wrapper.add_vals_to_fld(sid, "fldname", nil)
-      sid.isEmpty.should be_true
+      sid.isEmpty.should == true
       @solrj_wrapper.add_vals_to_fld(sid, "fldname", [])
-      sid.isEmpty.should be_true
+      sid.isEmpty.should == true
     end
     
     it "should create a new field when none exists" do
@@ -98,13 +98,13 @@ describe SolrjWrapper do
     it "should do nothing if the field name or value is nil or of size 0" do
       sid = Java::OrgApacheSolrCommon::SolrInputDocument.new
       @solrj_wrapper.add_val_to_fld(sid, nil, "val")
-      sid.isEmpty.should be_true
+      sid.isEmpty.should == true
       @solrj_wrapper.add_val_to_fld(sid, "", "val")
-      sid.isEmpty.should be_true
+      sid.isEmpty.should == true
       @solrj_wrapper.add_val_to_fld(sid, "fldname", nil)
-      sid.isEmpty.should be_true
+      sid.isEmpty.should == true
       @solrj_wrapper.add_val_to_fld(sid, "fldname", [])
-      sid.isEmpty.should be_true
+      sid.isEmpty.should == true
     end
     
     it "should create a new field when none exists" do
@@ -145,11 +145,11 @@ describe SolrjWrapper do
       @solrj_wrapper.replace_field_values(sid, "fld", ["val4", "val5"])
       vals = sid["fld"].getValues
       vals.size.should == 2
-      vals.contains("val1").should be_false
-      vals.contains("val2").should be_false
-      vals.contains("val3").should be_false
-      vals.contains("val4").should be_true
-      vals.contains("val5").should be_true
+      vals.contains("val1").should == false
+      vals.contains("val2").should == false
+      vals.contains("val3").should == false
+      vals.contains("val4").should == true
+      vals.contains("val5").should == true
     end
 
     it "should retain unchanged values" do
@@ -158,9 +158,9 @@ describe SolrjWrapper do
       @solrj_wrapper.replace_field_values(sid, "fld", ["val2", "val3"])
       vals = sid["fld"].getValues
       vals.size.should == 2
-      vals.contains("val1").should be_false
-      vals.contains("val2").should be_true
-      vals.contains("val3").should be_true
+      vals.contains("val1").should == false
+      vals.contains("val2").should == true
+      vals.contains("val3").should == true
     end
     
     it "should create a field when none existed before" do
@@ -169,7 +169,7 @@ describe SolrjWrapper do
       @solrj_wrapper.replace_field_values(sid, "fld", ["val1"])
       vals = sid["fld"].getValues
       vals.size.should == 1
-      vals.contains("val1").should be_true
+      vals.contains("val1").should == true
     end
     
     it "should remove a field if there are no values to add" do
