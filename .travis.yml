@@ -3,8 +3,8 @@ rvm:
   - jruby-19mode # JRuby in 1.9 mode
   - jruby-head
 before_script:
-  rake setup_jetty
-  rake run_jetty
+  - rake setup_jetty
+  - rake run_jetty
 script: rake rspec
 after_script:
   rake stop_jetty
