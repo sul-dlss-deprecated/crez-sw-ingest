@@ -1,14 +1,13 @@
 require File.expand_path('../spec_helper', __FILE__)
 require 'crez_indexer'
-require 'parse_crez_data'
 require 'rsolr'
 
 describe CrezIndexer do
   before(:all) do
-    @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_url, @@settings.lucene_req_handler)
+    #solrmarc points to a solr with the marc docs needed for testing, @solr points to a local solr to receive the documents
+    @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_source_url, @@settings.lucene_req_handler)
     @solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
-    @sus = @solrj_wrapper.streaming_update_server
-    @solr ||=  RSolr.connect :url => @@settings.solr_url
+    @solr ||=  RSolr.connect :url => @@settings.solr_url, :read_timeout => 3600, :open_timeout => 3600
     @crez_indexer = CrezIndexer.new(@solrmarc_wrapper, @solrj_wrapper)
   end
   
@@ -29,17 +28,16 @@ describe CrezIndexer do
       }
     end
 
-    it "should return ALL the docs with crez data, up to num_to_return limit" do
-      pending "to be implemented once a standalone test index is used"
-    end
+#    it "should return ALL the docs with crez data, up to num_to_return limit" do
+#      pending "to be implemented once a standalone test index is used"
+#    end
   end
   
   context "remove_stale_crez_data" do
     it "should remove crez data when the ckey no longer has crez data" do
       i = crez_indexer_stub
-      i.should_receive(:add_solr_doc_to_ix).with do |sid_arg|
-        sid_arg["crez_course_info"].should be_nil
-      end.twice
+      i.should_receive(:add_solr_doc_to_ix).twice
+      i.should_not_receive(:add_solr_doc_to_ix).with(hash_including("crez_course_info"))
       ix_ckeys = ["1", "2"]
       data_ckeys = ["3", "4"]
       i.remove_stale_crez_data(ix_ckeys, data_ckeys)
@@ -99,7 +97,7 @@ describe CrezIndexer do
       i.index_crez_data(@rezdeskbldg_data_file)
     end
     
-    it "should send commit to sus at end of processing" do
+    it "should call send_ix_commit end of processing" do
       i = crez_indexer_stub
       i.stub(:add_solr_doc_to_ix).with(any_args)
       i.should_receive(:send_ix_commit).once
@@ -109,16 +107,20 @@ describe CrezIndexer do
     it "should update the Solr Doc with crez info and write to index (integration test)" do
       # ensure plain doc
       sid_8707706_b4 = get_solr_doc("8707706")
-      if !sid_8707706_b4["crez_course_info"].nil?
+      if sid_8707706_b4 == nil || !sid_8707706_b4["crez_course_info"].nil?
+        # need to create a stub doc from the marc so it has no crez fields, and send it to the destination solr.
         p = ParseCrezData.new
         p.read(@rezdeskbldg_data_file)
         a = AddCrezToSolrDoc.new(p.ckey_2_crez_info, @solrmarc_wrapper, @solrj_wrapper)
         sid_8707706_marcxml_only = a.solr_input_doc("8707706")
-        @sus.add(sid_8707706_marcxml_only)
-        @sus.commit
-        sid_8707706_b4 = get_solr_doc("8707706")
+        if sid_8707706_marcxml_only != nil
+          @solrj_wrapper.add_doc_to_ix(sid_8707706_marcxml_only, "8707706")
+          @solrj_wrapper.commit
+          sid_8707706_b4 = sid_8707706_marcxml_only
+        end
       end
-      sid_8707706_b4["crez_course_info"].should be_nil
+      sid_8707706_b4.should_not == nil
+      sid_8707706_b4["crez_course_info"].should == nil
       sid_8707706_b4["item_display"].each { |val|  
           val.split("-|-").size.should == 10
       }
@@ -127,9 +129,10 @@ describe CrezIndexer do
       @crez_indexer.stub(:remove_stale_crez_data)
       @crez_indexer.index_crez_data(@rezdeskbldg_data_file)
       sid_8707706_after = get_solr_doc("8707706")
-      sid_8707706_after["crez_course_info"].should_not be_nil
+      sid_8707706_after["crez_course_info"].should_not == nil
       sid_8707706_after["last_updated"].should_not == sid_8707706_b4["last_updated"]
       sid_8707706_after["item_display"].each { |val|
+#        if val.match(/36105215166732/)
         if val.match(/36105215224689|36105215166732/)
           val.split("-|-").size.should == 13
         else
@@ -141,11 +144,17 @@ describe CrezIndexer do
   end # index_crez_data context
 end
 
+
 # get the solr document object
 def get_solr_doc(doc_id)
   solr_params = {:qt => "document", :id => doc_id}
   response = @solr.get 'select', :params => solr_params, :wt => "ruby"
-  raise "Solr retrieved more than one document for id #{doc_id}" unless response["response"]["numFound"] == 1
+  num_found = response["response"]["numFound"]
+  if num_found == 0
+    return nil
+  elsif num_found > 1
+    raise "Solr retrieved more than one document for id #{doc_id}"
+  end
   solr_doc = response["response"]["docs"].first
   raise "Solr retrieved document with 'id' #{solr_doc["id"]} but expected #{doc_id}" unless doc_id == solr_doc["id"]
   solr_doc

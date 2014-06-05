@@ -14,9 +14,6 @@ class CrezIndexer
     @logger.level = log_level
     @solrmarc_wrapper = solrmarc_wrapper
     @solrj_wrapper = solrj_wrapper
-    # FIXME:  can we get away from @sus?   what about
-    # @solr =  RSolr.connect :url => @@settings.solr_url
-    @sus = solrj_wrapper.streaming_update_server
   end
   
   # Given the full path to a file containing course reserve data, 
@@ -116,9 +113,7 @@ protected
   def add_solr_doc_to_ix(solr_input_doc, id)
     unless solr_input_doc.nil?
       begin
-        # FIXME: get rid of sus
-        #  @solr.add(solr_input_doc)
-        @sus.add(solr_input_doc)
+        @solrj_wrapper.add_doc_to_ix(solr_input_doc, id)
         @logger.info("updating Solr document #{id}")        
       rescue org.apache.solr.common.SolrException => e 
         @logger.error("SolrException while indexing document #{id}")
@@ -131,9 +126,7 @@ protected
   # send a commit to the Solrj StreamingUpdateServer object
   def send_ix_commit
     begin
-      # FIXME: get rid of sus
-      #  update_response = @solr.commit
-      update_response = @sus.commit
+      update_response = @solrj_wrapper.commit
     rescue org.apache.solr.common.SolrException => e
       @logger.error("SolrException while committing updates")
       @logger.error("#{e.message}")
