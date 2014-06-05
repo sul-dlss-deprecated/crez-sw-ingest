@@ -132,7 +132,6 @@ describe CrezIndexer do
       sid_8707706_after["crez_course_info"].should_not == nil
       sid_8707706_after["last_updated"].should_not == sid_8707706_b4["last_updated"]
       sid_8707706_after["item_display"].each { |val|
-#        if val.match(/36105215166732/)
         if val.match(/36105215224689|36105215166732/)
           val.split("-|-").size.should == 13
         else
