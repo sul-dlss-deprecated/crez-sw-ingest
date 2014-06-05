@@ -1,7 +1,5 @@
 h1. crez-sw-ingest
 
-!https://travis-ci.org/sul-dlss/crez-sw-ingest.svg?branch=master!:https://travis-ci.org/sul-dlss/crez-sw-ingest
-badge for coveralls (coverage)
 !https://gemnasium.com/sul-dlss/crez-sw-ingest.svg(Dependency Status)!:https://gemnasium.com/sul-dlss/crez-sw-ingest
 
 Course Reserve (data from Sirsi) to SearchWorks (Solr) Ingest (Software).
