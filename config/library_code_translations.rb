@@ -22,13 +22,14 @@ module LibraryCodeTranslations
   "HV-ARCHIVE" => "Hoover Archives",
   #ILB => Ignore
   "LANE-MED" => "Medical (Lane)",
+  "LATHROP" => "Lathrop",
   "LAW" => "Law (Crown)",
   # Jackson will be removed sometime soon (May 2013)
   "JACKSON" => "Business",
   "MATH-CS" => "Math & Statistics",
   "MEYER" => "Meyer",
   "MUSIC" => "Music",
-  "PHYSICS" => "Physics",
+  #"PHYSICS" => "Physics", No longer a library
   "SAL" => "SAL1&2 (on-campus shelving)",
   "SAL3" => "SAL3 (off-campus storage)",
   'SAL-NEWARK' => "SAL Newark (off-campus storage)",
