@@ -21,7 +21,7 @@ module RezDeskTranslations
     "MEDIA-RESV" => "Green",
     "MEYER-RESV" => "Meyer",
     "MUSIC-RESV" => "Music",
-    "PHYS-RESV" => "Physics",
+#    "PHYS-RESV" => "Physics", No longer a Physics library
     "TANN-RESV" => "Philosophy (Tanner)"
   }
 
@@ -45,7 +45,7 @@ module RezDeskTranslations
     "MEDIA-RESV" => "Media-Microtext (Green) Reserves",
     "MEYER-RESV" => "Meyer Reserves",
     "MUSIC-RESV" => "Music Reserves",
-    "PHYS-RESV" => "Physics Reserves",
+    #"PHYS-RESV" => "Physics Reserves", No longer a Physics library
     "TANN-RESV" => "Tanner Reserves"
   }
 
