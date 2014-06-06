@@ -8,7 +8,7 @@ end
 
 desc 'clone solrmarc-sw from sul-dlss github'
 task :clone_solrmarc do
-  `git clone http://github.com/sul-dlss/solrmarc-sw.git` unless File.directory? 'solrmarc-sw'
+  `git clone https://github.com/sul-dlss/solrmarc-sw.git` unless File.directory? 'solrmarc-sw'
 end
 
 desc "set up Solr for testing in jetty"
