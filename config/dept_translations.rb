@@ -115,7 +115,7 @@ module DeptTranslations
     "MUSIC" => "Music",
     "NATIVEAM" => "Native American Studies",
     "PHIL" => "Philosophy",
-    "PHYSICS" => "Physics",
+    #"PHYSICS" => "Physics", no longer a physics library
     "POLISCI" => "Political Science",
     "PORTLANG" => "Portuguese Language",
     "PSYCH" => "Psychology",
