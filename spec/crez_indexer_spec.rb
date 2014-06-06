@@ -5,7 +5,7 @@ require 'rsolr'
 describe CrezIndexer do
   before(:all) do
     #solrmarc points to a solr with the marc docs needed for testing, @solr points to a local solr to receive the documents
-    @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_source_url, @@settings.lucene_req_handler)
+    @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_source_url)
     @solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
     @solr ||=  RSolr.connect :url => @@settings.solr_url, :read_timeout => 3600, :open_timeout => 3600
     @crez_indexer = CrezIndexer.new(@solrmarc_wrapper, @solrj_wrapper)

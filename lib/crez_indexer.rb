@@ -41,13 +41,13 @@ class CrezIndexer
   # Get an array containing ids of solr docs that have course reserve information
   #  uses the access_facet "Course Reserve" value to identify the Solr documents.
   #  Intended to default to getting ALL the docs with course reserve data
-  # @param num_to_return - the number of ids to get.  defaults to 4500, 
+  # @param num_to_return - the number of ids to get.  defaults to 5000, 
   #  which is more than all the docs with crez info for a given term (roughly 3800, in general)
   # @return an array containing ids of Solr documents that have crez info
-  def get_crez_ckeys_from_index(num_to_return=4500)
+  def get_crez_ckeys_from_index(num_to_return=5000)
     q = org.apache.solr.client.solrj.SolrQuery.new
     q.setQuery("crez_course_id_search:[* TO *]")
-    q.setParam("qt", @solrmarc_wrapper.req_handler)
+    q.setParam("qt", "standard")
     q.setParam("fl", "id")
     q.setRows(num_to_return)
     q.setFacet(false)
