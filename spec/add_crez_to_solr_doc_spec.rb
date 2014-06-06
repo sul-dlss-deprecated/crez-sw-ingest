@@ -107,7 +107,7 @@ describe AddCrezToSolrDoc do
       @ac2sd.redo_building_facet(sid9262146, @ac2sd.crez_info("9262146"))
       new_vals = sid9262146["building_facet"].getValues
       new_vals.size.should == 2
-      new_vals.should include("Physics")
+      new_vals.should include("Engineering (Terman)")
       new_vals.should include("Art & Architecture")
       
       sid8707706 = @ac2sd.solr_input_doc("8707706")
@@ -120,7 +120,7 @@ describe AddCrezToSolrDoc do
       new_vals = sid8707706["building_facet"].getValues
       new_vals.size.should == 3
       new_vals.should include("Green")
-      new_vals.should include("Physics")
+      new_vals.should include("Engineering (Terman)")
     end
 
     it "should retain the library loc if only some items with that loc are overridden" do
@@ -134,7 +134,7 @@ describe AddCrezToSolrDoc do
       new_vals.size.should == 3
       orig_vals.should include("Green")
       orig_vals.should include("SAL3 (off-campus storage)")
-      new_vals.should include("Physics")
+      new_vals.should include("Engineering (Terman)")
     end
     
     it "should retain the library if the crez location is for the same library" do
@@ -170,7 +170,7 @@ describe AddCrezToSolrDoc do
       @ac2sd.redo_building_facet(sid9518589, @ac2sd.crez_info("9518589"))
       new_vals = sid9518589["building_facet"].getValues
       new_vals.size.should == 1
-      new_vals[0].should == "Physics"
+      new_vals[0].should == "Engineering (Terman)"
     end
 
 #    it "should ignore a (un-overridden) library value missing from the library translation table" do
@@ -223,15 +223,15 @@ describe AddCrezToSolrDoc do
     end
     
     it "should change the current location to the rez desk" do
-      @new_val.split("-|-")[3].strip.should == "PHYS-RESV"
+      @new_val.split("-|-")[3].strip.should == "ENG-RESV"
       old_val = "36105217655393 -|- SAL3 -|- STACKS -|- CHECKEDOUT -|- STKS-MONO -|- PQ8550.413 .E64 A615 2011 -|- lc pq  8550.413000 e0.640000 a0.615000 002011 -|- en~a9~~ruuz}vywzzz~lz}tvzzzz~pz}tyuzzz~zzxzyy~~~~~ -|- PQ8550.413 .E64 A615 2011 -|- lc pq  8550.413000 e0.640000 a0.615000 002011"
       old_val.split("-|-")[3].strip.should == "CHECKEDOUT"
       new_val = @a.update_item_display(old_val, @crez8834492_row0)
-      new_val.split("-|-")[3].strip.should == "PHYS-RESV"
+      new_val.split("-|-")[3].strip.should == "ENG-RESV"
     end
     
     it "should keep the right number of pieces in the original field, if they are empty" do
-      old_val = "5761709-3001 -|- SUL -|- INSTRUCTOR -|- PHYS-RESV -|- NH-RESERVS -|-  -|-  -|-  -|-  -|- "
+      old_val = "5761709-3001 -|- SUL -|- INSTRUCTOR -|- ENG-RESV -|- NH-RESERVS -|-  -|-  -|-  -|-  -|- "
       new_val = @a.update_item_display(old_val, @crez8834492_row0)
       new_val.should start_with(old_val)
       old_val2 = "5761709-3001 -|- SUL -|- INSTRUCTOR -|-  -|- NH-RESERVS -|-  -|-  -|-  -|-  -|- "
@@ -239,17 +239,17 @@ describe AddCrezToSolrDoc do
       new_val.should start_with(old_val)
       old_val3 = "5761709-3001 -|-  -|-  -|-  -|- NH-RESERVS -|-  -|-  -|-  -|-  -|- "
       new_val = @a.update_item_display(old_val3, @crez8834492_row0)
-      new_val.should start_with("5761709-3001 -|-  -|-  -|- PHYS-RESV -|- NH-RESERVS -|-  -|-  -|-  -|-  -|- ")
+      new_val.should start_with("5761709-3001 -|-  -|-  -|- ENG-RESV -|- NH-RESERVS -|-  -|-  -|-  -|-  -|- ")
     end
     
     it "should append course id, rez_desk and loan period to the item_display value" do
       idv = @item_display_val.split(' -|- ')
-      idv[3] = "PHYS-RESV"
-      @new_val.should == idv.join(' -|- ') + " -|- COMPLIT-101 -|- PHYS-RESV -|- 2-hour loan"
+      idv[3] = "ENG-RESV"
+      @new_val.should == idv.join(' -|- ') + " -|- COMPLIT-101 -|- ENG-RESV -|- 2-hour loan"
     end
 
     it "should not translate the rez desk to a user friendly string" do
-      @new_val.split("-|-")[11].strip.should == "PHYS-RESV"
+      @new_val.split("-|-")[11].strip.should == "ENG-RESV"
     end
     
     it "should translate the loan period to a user friendly string" do
