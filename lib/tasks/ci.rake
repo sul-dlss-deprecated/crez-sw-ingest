@@ -23,9 +23,10 @@ task :setup_test_solr => :setup_jetty
 desc "start jetty for running tests"
 task :run_jetty do
   `rm -rf solrmarc-sw/test/jetty/solr/data/index`
-  jetty_params = Jettywrapper.load_config.merge({:jetty_home => File.expand_path(File.dirname(__FILE__) + '../../../solrmarc-sw/test/jetty'),
+  jetty_dir = File.expand_path(File.dirname(__FILE__) + '../../../solrmarc-sw/test/jetty')
+  jetty_params = Jettywrapper.load_config.merge({:jetty_home => jetty_dir,
+                                                :java_opts => "-Dsolr.data.dir=" + jetty_dir + "/solr",
                                                 :startup_wait => 15,
-                                                :java_opts => "-Dsolr.data.dir=" + File.expand_path(File.dirname(__FILE__) + "../../../solrmarc-sw/test/jetty/solr")
                                                 })
   error = Jettywrapper.start(jetty_params) 
 end
@@ -34,7 +35,8 @@ task :start_jetty => :run_jetty
 
 desc  "stop jetty used for testing"
 task :stop_jetty do
-  jetty_params = Jettywrapper.load_config.merge({:jetty_home => File.expand_path(File.dirname(__FILE__) + '../../../solrmarc-sw/test/jetty'),:startup_wait => 10})
+  jetty_params = Jettywrapper.load_config.merge({:jetty_home => File.expand_path(File.dirname(__FILE__) + '../../../solrmarc-sw/test/jetty'),
+                                                  :startup_wait => 10})
   error = Jettywrapper.stop(jetty_params) 
 end
 
