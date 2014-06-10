@@ -7,7 +7,7 @@ describe AddCrezToSolrDoc do
   
   before(:all) do
     @solrmarc_wrapper = SolrmarcWrapper.new(@@settings.solrmarc_dist_dir, @@settings.solrmarc_conf_props_file, @@settings.solr_source_url)
-    @solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_source_url, @@settings.solrj_queue_size, @@settings.solrj_num_threads)
+    @solrj_wrapper = SolrjWrapper.new(@@settings.solrj_jar_dir, @@settings.solr_source_url)
     @p = ParseCrezData.new
     @p.read(File.expand_path('test_data/multmult.csv', File.dirname(__FILE__)))
     @ckey_2_crez_info = @p.ckey_2_crez_info

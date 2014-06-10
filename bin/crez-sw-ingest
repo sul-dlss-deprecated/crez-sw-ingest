@@ -24,8 +24,7 @@ DEFAULT_OPTIONS = {
   :solrmarc_conf_props_file => "sw_config.properties",
   :solr_url => "http://127.0.0.1:8983/solr",
   :solrj_jar_dir => "solrmarc-sw/dist/lib",
-  :solrj_queue_size => 10,
-  :solrj_num_threads => 4,
+  :solrj_num_threads => 4, # future use w threach
   :settings_group => "test",
   :log_level => "warn"
 }
@@ -62,15 +61,11 @@ optparse = OptionParser.new do |opts|
     (cmdline_options[:solrmarc_conf_props_file] ||= "") << solrmarc_conf_props_file
   end
 
-  opts.on('-q', '--solrj-queue INT', "Queue size for SolrJ StreamingUpdateServer") do |num|
-    (cmdline_options[:solrj_queue_size] ||= "") << num.to_i
-  end
-
   opts.on('-s', '--settings-group STR', "the group to use in the settings.yml file [default: #{DEFAULT_OPTIONS[:settings_group]}]") do |str|
     (cmdline_options[:settings_group] ||= "") << str
   end
 
-  opts.on('-t', '--solrj-thread INT', "Number of threads for SolrJ StreamingUpdateServer") do |num|
+  opts.on('-t', '--solrj-thread INT', "(future) Number of threads for Solr updates") do |num|
     (cmdline_options[:solrj_num_threads] ||= "") << num.to_i
   end
 
@@ -120,6 +115,6 @@ end
 
   
 solrmarc_wrapper = SolrmarcWrapper.new(options[:solrmarc_dist_dir], options[:solrmarc_conf_props_file], options[:solr_url], logger_level)
-solrj_wrapper = SolrjWrapper.new(options[:solrj_jar_dir], options[:solr_url], options[:solrj_queue_size], options[:solrj_num_threads])
+solrj_wrapper = SolrjWrapper.new(options[:solrj_jar_dir], options[:solr_url])
 crez_indexer = CrezIndexer.new(solrmarc_wrapper, solrj_wrapper, logger_level)
 crez_indexer.index_crez_data(crez_file_path)
