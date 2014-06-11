@@ -17,8 +17,8 @@ describe CrezIndexer do
     end
 
     it "should return a list of Symphony ckeys" do
-      @crez_ckeys.should_not be_nil
-      @crez_ckeys[0].to_i.should be_an_instance_of(Fixnum)
+      expect(@crez_ckeys).not_to eq(nil)
+      expect(@crez_ckeys[0].to_i).to be_an_instance_of(Fixnum)
     end
     
     it "should only return docs with crez data" do
@@ -36,8 +36,8 @@ describe CrezIndexer do
   context "remove_stale_crez_data" do
     it "should remove crez data when the ckey no longer has crez data" do
       i = crez_indexer_stub
-      i.should_receive(:add_solr_doc_to_ix).twice
-      i.should_not_receive(:add_solr_doc_to_ix).with(hash_including("crez_course_info"))
+      expect(i).to receive(:add_solr_doc_to_ix).twice
+      expect(i).not_to receive(:add_solr_doc_to_ix).with(hash_including("crez_course_info"))
       ix_ckeys = ["1", "2"]
       data_ckeys = ["3", "4"]
       i.remove_stale_crez_data(ix_ckeys, data_ckeys)
@@ -45,9 +45,9 @@ describe CrezIndexer do
     
     it "should leave solr doc alone if ckey is in current crez data" do
       i = crez_indexer_stub
-      i.should_receive(:add_solr_doc_to_ix).with do |sid_arg|
-        sid_arg["id"].getValue.should == "1"
-      end.once
+      expect(i).to receive(:add_solr_doc_to_ix) do |arg|
+        expect(arg["id"].getValue).to eq("1")
+      end
       ix_ckeys = ["1", "2"]
       data_ckeys = ["2", "4"]
       i.remove_stale_crez_data(ix_ckeys, data_ckeys)
@@ -62,14 +62,14 @@ describe CrezIndexer do
     end
 
     it "should call add_crez_info_to_solr_doc for each ckey in the crez data" do
-      AddCrezToSolrDoc.any_instance.should_receive(:add_crez_info_to_solr_doc).with(any_args).exactly(@ckey_2_crez_info.keys.size).times
+      expect_any_instance_of(AddCrezToSolrDoc).to receive(:add_crez_info_to_solr_doc).with(any_args).exactly(@ckey_2_crez_info.keys.size).times
       i = crez_indexer_stub
       i.add_crez_data(@ckey_2_crez_info)
     end
 
     it "should call add_solr_doc_to_ix for each ckey in the crez data" do
       i = crez_indexer_stub
-      i.should_receive(:add_solr_doc_to_ix).exactly(@ckey_2_crez_info.keys.size).times
+      expect(i).to receive(:add_solr_doc_to_ix).exactly(@ckey_2_crez_info.keys.size).times
       i.add_crez_data(@ckey_2_crez_info)
     end
   end
@@ -81,26 +81,26 @@ describe CrezIndexer do
     
     it "should call remove_stale_crez_data once" do
       i = crez_indexer_stub
-      i.should_receive(:remove_stale_crez_data).once
+      expect(i).to receive(:remove_stale_crez_data).once
       i.index_crez_data(@rezdeskbldg_data_file)
     end
     
     it "should call add_crez_data once" do
       i = crez_indexer_stub
-      i.should_receive(:add_crez_data).once
+      expect(i).to receive(:add_crez_data).once
       i.index_crez_data(@rezdeskbldg_data_file)
     end
     
     it "should call add_solr_doc_to_ix for each doc being updated" do
       i = crez_indexer_stub
-      i.should_receive(:add_solr_doc_to_ix).exactly(10).times
+      expect(i).to receive(:add_solr_doc_to_ix).exactly(10).times
       i.index_crez_data(@rezdeskbldg_data_file)
     end
     
     it "should call send_ix_commit end of processing" do
       i = crez_indexer_stub
-      i.stub(:add_solr_doc_to_ix).with(any_args)
-      i.should_receive(:send_ix_commit).once
+      allow(i).to receive(:add_solr_doc_to_ix).with(any_args)
+      expect(i).to receive(:send_ix_commit).once
       i.index_crez_data(@rezdeskbldg_data_file)
     end
     
@@ -119,23 +119,23 @@ describe CrezIndexer do
           sid_8707706_b4 = sid_8707706_marcxml_only
         end
       end
-      sid_8707706_b4.should_not == nil
-      sid_8707706_b4["crez_course_info"].should == nil
+      expect(sid_8707706_b4).not_to eq(nil)
+      expect(sid_8707706_b4["crez_course_info"]).to eq(nil)
       sid_8707706_b4["item_display"].each { |val|  
-          val.split("-|-").size.should == 10
+          expect(val.split("-|-").size).to eq(10)
       }
 
       # add crez data to index
-      @crez_indexer.stub(:remove_stale_crez_data)
+      allow(@crez_indexer).to receive(:remove_stale_crez_data)
       @crez_indexer.index_crez_data(@rezdeskbldg_data_file)
       sid_8707706_after = get_solr_doc("8707706")
-      sid_8707706_after["crez_course_info"].should_not == nil
-      sid_8707706_after["last_updated"].should_not == sid_8707706_b4["last_updated"]
+      expect(sid_8707706_after["crez_course_info"]).not_to eq(nil)
+      expect(sid_8707706_after["last_updated"]).not_to eq(sid_8707706_b4["last_updated"])
       sid_8707706_after["item_display"].each { |val|
         if val.match(/36105215224689|36105215166732/)
-          val.split("-|-").size.should == 13
+          expect(val.split("-|-").size).to eq(13)
         else
-          val.split("-|-").size.should == 10
+          expect(val.split("-|-").size).to eq(10)
         end
       }
     end
@@ -167,14 +167,14 @@ def ensure_solr_doc_has_crez_info(doc_id)
   q.setParam("fl", "crez_course_info")
   q.setFacet(false)
   doc_list = @solrj_wrapper.get_query_result_docs(q)
-  doc_list[0]["crez_course_info"].should_not be_nil
-end  
+  expect(doc_list[0]["crez_course_info"]).not_to eq(nil)
+end
 
 # return an CrezIndexer object with the Solr update methods stubbed
 def crez_indexer_stub
   i = CrezIndexer.new(@solrmarc_wrapper, @solrj_wrapper)
-  i.stub(:get_crez_ckeys_from_index).with(any_args).and_return(["1", "2"])
-  i.stub(:add_solr_doc_to_ix).with(any_args)
-  i.stub(:send_ix_commit)
+  allow(i).to receive(:get_crez_ckeys_from_index).with(any_args).and_return(["1", "2"])
+  allow(i).to receive(:add_solr_doc_to_ix).with(any_args)
+  allow(i).to receive(:send_ix_commit)
   return i
 end
