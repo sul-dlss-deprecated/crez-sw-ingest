@@ -4,8 +4,6 @@
 # Index the latest course reserve data file (already pulled) 
 # Naomi Dushay 2012-04-26
 
-JRUBY_OPTS="--1.9"
-export JRUBY_OPTS
 LANG="en_US.UTF-8"
 export LANG
 
@@ -13,8 +11,6 @@ CODE_DIR="/Users/ndushay/searchworks/course-rez/crez-sw-ingest"
 
 # move to code directory to get correct rvm dir
 cd $CODE_DIR
-source $CODE_DIR/.rvmrc; ruby -v
-#pwd
 ruby -v
 
 LOCAL_DATA_DIR="/Users/ndushay/searchworks/course-rez/data"

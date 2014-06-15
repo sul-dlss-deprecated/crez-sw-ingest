@@ -11,8 +11,6 @@ code_dir = "/home/blacklight/crez-sw-ingest"
 # move to code directory to get correct rvm dir
 #command = "cd #{code_dir}"
 #`#{command}`
-#command = "source .rvmrc"
-#`#{command}`
 
 remote_dir = "/s/SUL/Dataload/SearchworksReserves/Data"
 local_dir = "/data/sirsi/crez"
