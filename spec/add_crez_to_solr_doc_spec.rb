@@ -152,11 +152,11 @@ describe AddCrezToSolrDoc do
       sid888 = @ac2sd.solr_input_doc("888")
       orig_vals = sid888["building_facet"].getValues
       expect(orig_vals.size).to be(1)
-      expect(orig_vals[0]).to eq("Music")
+      expect(orig_vals[0]).to eq("SAL3 (off-campus storage)")
       @ac2sd.redo_building_facet(sid888, @ac2sd.crez_info("888"))
       new_vals = sid888["building_facet"].getValues
       expect(new_vals.size).to be(1)
-      expect(new_vals[0]).to eq("Music")
+      expect(new_vals[0]).to eq("SAL3 (off-campus storage)")
       # no translation for library in item_display either
       sid9434391 = @ac2sd.solr_input_doc("9434391")
       expect(sid9434391["building_facet"]).to be(nil)
