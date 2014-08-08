@@ -80,14 +80,14 @@ describe AddCrezToSolrDoc do
 
     it "should find an item_display field with matching barcode" do
       matching_val = @a.get_matching_item_from_doc("36105041846424", @sid666)
-      expect(matching_val.split("-|-").size).to be(10)
+      expect(matching_val.split("-|-").size).to be(12)
       expect(matching_val.split("-|-")[0].strip).to eq("36105041846424")
       sid = @a.solr_input_doc("9340596")
       matching_val = @a.get_matching_item_from_doc("36105217077085", sid)
-      expect(matching_val.split("-|-").size).to be(10)
+      expect(matching_val.split("-|-").size).to be(12)
       expect(matching_val.split("-|-")[0].strip).to eq("36105217077085")
       matching_val = @a.get_matching_item_from_doc("36105217629935", sid)
-      expect(matching_val.split("-|-").size).to be(10)
+      expect(matching_val.split("-|-").size).to be(12)
       expect(matching_val.split("-|-")[0].strip).to eq("36105217629935")
     end
   end
@@ -218,8 +218,8 @@ describe AddCrezToSolrDoc do
     end
     
     it "should add the right number of separators to the item_display value" do
-      expect(@item_display_val.split("-|-").size).to be(10)
-      expect(@new_val.split("-|-").size).to be(13)
+      expect(@item_display_val.split("-|-").size).to be(12)
+      expect(@new_val.split("-|-").size).to be(15)
     end
     
     it "should change the current location to the rez desk" do
@@ -249,11 +249,11 @@ describe AddCrezToSolrDoc do
     end
 
     it "should not translate the rez desk to a user friendly string" do
-      expect(@new_val.split("-|-")[11].strip).to eq("ENG-RESV")
+      expect(@new_val.split("-|-")[13].strip).to eq("ENG-RESV")
     end
     
     it "should translate the loan period to a user friendly string" do
-      expect(@new_val.split("-|-")[12].strip).to eq("2-hour loan")
+      expect(@new_val.split("-|-")[14].strip).to eq("2-hour loan")
     end
     
   end
