@@ -108,10 +108,13 @@ describe AddCrezToSolrDoc do
       new_vals = sid9262146["building_facet"].getValues
       expect(new_vals.size).to be(2)
       expect(new_vals).to include("Engineering (Terman)")
-      expect(new_vals).to include("Art & Architecture")
+      expect(new_vals).to include("Art & Architecture (Bowes)")
 
       sid8707706 = @ac2sd.solr_input_doc("8707706")
       orig_vals = sid8707706["building_facet"].getValues
+      puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+      puts orig_vals
+      puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
       expect(orig_vals.size).to be(4)
       expect(orig_vals).to include("Green")
       expect(orig_vals).to include("Art & Architecture")

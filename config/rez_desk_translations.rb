@@ -3,7 +3,7 @@ module RezDeskTranslations
 
   # from reserve desk value to building_facet value
   REZ_DESK_2_BLDG_FACET = {
-    "ART-RESV" => "Art & Architecture",
+    "ART-RESV" => "Art & Architecture (Bowes)",
     "BIO-RESV" => "Biology (Falconer)",
     "BUS-RESV" => "Business",
     "CHEM-RESV" => "Chemistry & ChemEng (Swain)",
