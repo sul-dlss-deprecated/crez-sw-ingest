@@ -18,7 +18,7 @@ module RezDeskTranslations
     "LANG-RESV" => nil,  # Sarah Seestone says this is obsolete
     "LAW-RESV" => "Law (Crown)",
     "MATH-RESV" => "Math & Statistics",
-    "MEDIA-RESV" => "Green",
+    "MEDIA-RESV" => "Media & Microtext Center",
     "MEYER-RESV" => "Meyer",
     "MUSIC-RESV" => "Music",
 #    "PHYS-RESV" => "Physics", No longer a Physics library
@@ -42,7 +42,7 @@ module RezDeskTranslations
     "LANG-RESV" => nil,  # Sarah Seestone says this is obsolete
     "LAW-RESV" => "Law Reserves",
     "MATH-RESV" => "Math & Statistics Reserves",
-    "MEDIA-RESV" => "Media-Microtext (Green) Reserves",
+    "MEDIA-RESV" => "Media Reserves",
     "MEYER-RESV" => "Meyer Reserves",
     "MUSIC-RESV" => "Music Reserves",
     #"PHYS-RESV" => "Physics Reserves", No longer a Physics library
