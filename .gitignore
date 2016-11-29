@@ -3,7 +3,6 @@
 rdoc
 doc
 .yardoc
-*.lock
 solrmarc.log*
 solrmarc-sw
 tmp

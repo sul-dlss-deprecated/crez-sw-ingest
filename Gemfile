@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ruby '1.9.3'
+
 gem 'yard' 				# for javadoc-y documentation tags
 gem 'RedCloth' 		# for textile formatting used in Readme
 gem 'rake'
