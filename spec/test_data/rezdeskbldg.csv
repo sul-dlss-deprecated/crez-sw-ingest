@@ -1,12 +1,12 @@
-# orig:  green, art 
+# orig:  green, art
 # engineering rez desk overrides green
 ENG-RESV|20111216|CURRENT|9262146|36105217614580  |STACKS|GREEN|ON_RESERVE|2H|20111216|ACTIVE|COMPLIT-101|course name|FALL|Saldivar, Jose David|
 
 # orig:  education, art, green
 #  was education - now engineering rez
 ENG-RESV|20111216|CURRENT|8707706|36105215224689  |STACKS|ENG-RESV|ON_RESERVE|2H|20111216|ACTIVE|COMPLIT-101|course name|FALL|Saldivar, Jose David|
-#  was art - now green rez
-GREEN-RESV|20111216|CURRENT|8707706|36105215166732  |STACKS|ENG-RESV|ON_RESERVE|2H|20111216|ACTIVE|COMPLIT-101|course name|FALL|Saldivar, Jose David|
+#  was art - now media rez
+MEDIA-RESV|20111216|CURRENT|8707706|36105215166732  |STACKS|ENG-RESV|ON_RESERVE|2H|20111216|ACTIVE|COMPLIT-101|course name|FALL|Saldivar, Jose David|
 
 # overriding building with same crez building
 GREEN-RESV|20111216|CURRENT|9423045|36105213280089  |STACKS|ENG-RESV|ON_RESERVE|2H|20111216|ACTIVE|COMPLIT-101|course name|FALL|Yoda|
