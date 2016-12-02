@@ -33,6 +33,7 @@ module LibraryCodeTranslations
   "SAL" => "SAL1&2 (on-campus shelving)",
   "SAL3" => "SAL3 (off-campus storage)",
   'SAL-NEWARK' => "SAL Newark (off-campus storage)",
+  "SCIENCE" => "Science (Li and Ma)",
   "SPEC-COLL" => "Special Collections",
   #SPEC-DESK => "(In-transit location for SAL paged items)",
   "TANNER" => "Philosophy (Tanner)"
