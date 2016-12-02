@@ -1,10 +1,10 @@
 # Map Library Codes to User Friendly Description - Long Version for Facet Values
 module LibraryCodeTranslations
-  
-  LIB_2_BLDG_FACET = {  
+
+  LIB_2_BLDG_FACET = {
   #APPLIEDPHY => "Applied Physics Department",
   "ARS" => "Archive of Recorded Sound",
-  "ART" => "Art & Architecture",
+  "ART" => "Art & Architecture (Bowes)",
   "BIOLOGY" => "Biology (Falconer)",
   "BUSINESS" => "Business",
   "CHEMCHMENG" => "Chemistry & ChemEng (Swain)",
@@ -38,5 +38,5 @@ module LibraryCodeTranslations
   "TANNER" => "Philosophy (Tanner)"
   #SUL => "Stanford University Libraries"
   }
-  
+
 end

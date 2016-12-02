@@ -115,6 +115,6 @@ end
 
   
 solrmarc_wrapper = SolrmarcWrapper.new(options[:solrmarc_dist_dir], options[:solrmarc_conf_props_file], options[:solr_url], logger_level)
-solrj_wrapper = SolrjWrapper.new(options[:solrj_jar_dir], options[:solr_url])
+solrj_wrapper = SolrjWrapper.new(options[:solrj_jar_dir], options[:solr_url], logger_level)
 crez_indexer = CrezIndexer.new(solrmarc_wrapper, solrj_wrapper, logger_level)
 crez_indexer.index_crez_data(crez_file_path)

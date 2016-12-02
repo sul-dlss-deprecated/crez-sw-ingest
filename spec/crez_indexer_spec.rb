@@ -122,7 +122,7 @@ describe CrezIndexer do
       expect(sid_8707706_b4).not_to eq(nil)
       expect(sid_8707706_b4["crez_course_info"]).to eq(nil)
       sid_8707706_b4["item_display"].each { |val|  
-          expect(val.split("-|-").size).to eq(10)
+          expect(val.split("-|-").size).to eq(12)
       }
 
       # add crez data to index
@@ -133,9 +133,9 @@ describe CrezIndexer do
       expect(sid_8707706_after["last_updated"]).not_to eq(sid_8707706_b4["last_updated"])
       sid_8707706_after["item_display"].each { |val|
         if val.match(/36105215224689|36105215166732/)
-          expect(val.split("-|-").size).to eq(13)
+          expect(val.split("-|-").size).to eq(15)
         else
-          expect(val.split("-|-").size).to eq(10)
+          expect(val.split("-|-").size).to eq(12)
         end
       }
     end
