@@ -64,9 +64,3 @@ DEPENDENCIES
   solrj_wrapper
   solrmarc_wrapper
   yard
-
-RUBY VERSION
-   ruby 1.9.3p392 (jruby 1.7.9)
-
-BUNDLED WITH
-   1.13.6
