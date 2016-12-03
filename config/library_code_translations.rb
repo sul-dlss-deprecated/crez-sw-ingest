@@ -28,6 +28,7 @@ module LibraryCodeTranslations
   "JACKSON" => "Business",
   "MATH-CS" => "Math & Statistics",
   "MEYER" => "Meyer",
+  "MEDIA-MTXT" => "Media & Microtext Center",
   "MUSIC" => "Music",
   #"PHYSICS" => "Physics", No longer a library
   "SAL" => "SAL1&2 (on-campus shelving)",
