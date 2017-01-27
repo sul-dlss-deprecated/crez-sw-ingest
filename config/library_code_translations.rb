@@ -5,9 +5,9 @@ module LibraryCodeTranslations
   #APPLIEDPHY => "Applied Physics Department",
   "ARS" => "Archive of Recorded Sound",
   "ART" => "Art & Architecture (Bowes)",
-  "BIOLOGY" => "Biology (Falconer)",
+  # "BIOLOGY" => "Biology (Falconer)", closed 12/2016
   "BUSINESS" => "Business",
-  "CHEMCHMENG" => "Chemistry & ChemEng (Swain)",
+  # "CHEMCHMENG" => "Chemistry & ChemEng (Swain)", closed 12/2016
   "CLASSICS" => "Classics",
   #CPM => Obsolete
   "EARTH-SCI" => "Earth Sciences (Branner)",
@@ -26,7 +26,7 @@ module LibraryCodeTranslations
   "LAW" => "Law (Crown)",
   # Jackson will be removed sometime soon (May 2013)
   "JACKSON" => "Business",
-  "MATH-CS" => "Math & Statistics",
+  # "MATH-CS" => "Math & Statistics", closed 12/2016
   "MEYER" => "Meyer",
   "MEDIA-MTXT" => "Media & Microtext Center",
   "MUSIC" => "Music",
