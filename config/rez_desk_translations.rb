@@ -4,9 +4,9 @@ module RezDeskTranslations
   # from reserve desk value to building_facet value
   REZ_DESK_2_BLDG_FACET = {
     "ART-RESV" => "Art & Architecture (Bowes)",
-    "BIO-RESV" => "Biology (Falconer)",
+    # "BIO-RESV" => "Biology (Falconer)", closed 12/2016
     "BUS-RESV" => "Business",
-    "CHEM-RESV" => "Chemistry & ChemEng (Swain)",
+    # "CHEM-RESV" => "Chemistry & ChemEng (Swain)", closed 12/2016
     "E-RESV" => nil,   # no change?
     "EARTH-RESV" => "Earth Sciences (Branner)",
     "EAS-RESV" => "East Asia",
@@ -17,7 +17,7 @@ module RezDeskTranslations
     "HOP-RESV" => "Marine Biology (Miller)",
     "LANG-RESV" => nil,  # Sarah Seestone says this is obsolete
     "LAW-RESV" => "Law (Crown)",
-    "MATH-RESV" => "Math & Statistics",
+    # "MATH-RESV" => "Math & Statistics", closed 12/2016
     "MEDIA-RESV" => "Media & Microtext Center",
     "MEYER-RESV" => "Meyer",
     "MUSIC-RESV" => "Music",
@@ -29,9 +29,9 @@ module RezDeskTranslations
   # from reserve desk value to rez_location_facet value
   REZ_DESK_2_REZ_LOC_FACET = {
     "ART-RESV" => "Art Reserves",
-    "BIO-RESV" => "Falconer Reserves",
+    # "BIO-RESV" => "Falconer Reserves", closed 12/2016
     "BUS-RESV" => "Business Reserves",
-    "CHEM-RESV" => "Swain Reserves",
+    # "CHEM-RESV" => "Swain Reserves", closed 12/2016
     "E-RESV" => nil,   # no change?  "E-Reserves"
     "EARTH-RESV" => "Branner Reserves",
     "EAS-RESV" => "East Asia Reserves",
@@ -42,7 +42,7 @@ module RezDeskTranslations
     "HOP-RESV" => "Miller Reserves",
     "LANG-RESV" => nil,  # Sarah Seestone says this is obsolete
     "LAW-RESV" => "Law Reserves",
-    "MATH-RESV" => "Math & Statistics Reserves",
+    # "MATH-RESV" => "Math & Statistics Reserves", closed 12/2016
     "MEDIA-RESV" => "Media Reserves",
     "MEYER-RESV" => "Meyer Reserves",
     "MUSIC-RESV" => "Music Reserves",
