@@ -1,4 +1,4 @@
-require File.expand_path('../spec_helper', __FILE__)
+require 'spec_helper'
 require 'parse_crez_data.rb'
 
 describe ParseCrezData do
@@ -14,7 +14,7 @@ describe ParseCrezData do
     p.read(File.expand_path('test_data/nonrezlast.csv', File.dirname(__FILE__)))
     expect(p.ckey_2_crez_info.keys.size).to eq(2)
   end
-    
+
   it "should result in a Hash where key is ckey and value is an array of item crez info as field=>value hashes" do
     p = ParseCrezData.new
     p.read(File.expand_path('test_data/crez1line.csv', File.dirname(__FILE__)))
@@ -46,7 +46,7 @@ describe ParseCrezData do
     expect(crez_item_info[:instructor_univ_id]).to eq(nil)
     expect(crez_item_info[:instructor_name]).to eq("Kreiner, Jamie K")
   end
-  
+
   it "should create an array value for each line of data with the same ckey" do
     p = ParseCrezData.new
     p.read(File.expand_path('test_data/multfirst.csv', File.dirname(__FILE__)))
@@ -78,7 +78,7 @@ describe ParseCrezData do
     expect(result_hash["555"].size).to eq(2)
     expect(result_hash["666"].size).to eq(3)
   end
-  
+
   it "should set nil value to missing fields" do
     p = ParseCrezData.new
     p.read(File.expand_path('test_data/multlast.csv', File.dirname(__FILE__)))
@@ -87,5 +87,5 @@ describe ParseCrezData do
     expect(result_hash["333"].size).to eq(2)
     expect(p.ckey_2_crez_info["111"].first[:course_name]).to eq(nil)
   end
-  
+
 end

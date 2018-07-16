@@ -1,4 +1,4 @@
-require File.expand_path('../spec_helper', __FILE__)
+require 'spec_helper'
 require 'add_crez_to_solr_doc'
 require 'parse_crez_data'
 require 'logger'
