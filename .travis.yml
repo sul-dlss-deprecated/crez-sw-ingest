@@ -1,0 +1,10 @@
+language: ruby
+rvm: jruby
+
+before_script:
+  - rmdir solrmarc-sw >/dev/null 2>&1; true # possibly created by the cache directive below
+  - rake clone_solrmarc
+script: bundle exec rake
+cache:
+  directories:
+  - solrmarc-sw
