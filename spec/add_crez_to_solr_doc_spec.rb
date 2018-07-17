@@ -289,13 +289,6 @@ describe AddCrezToSolrDoc do
       expect(@newSid555["crez_course_info"].getValues).to eq(java.util.ArrayList.new(["HISTORY-41S -|-  -|- Harris, Bradford Cole", "HISTORY-211C -|- Saints in the Middle Ages -|- Kreiner, Jamie K"]))
     end
 
-    it "should not call add_crez_val_to_access_facet" do
-      ac2sd = AddCrezToSolrDoc.new(@p.ckey_2_crez_info, @solrmarc_wrapper, @solrj_wrapper)
-      expect(ac2sd).not_to receive(:add_crez_val_to_access_facet)
-      ac2sd.add_crez_info_to_solr_doc("8707706")
-      ac2sd.add_crez_info_to_solr_doc("666")
-    end
-
     it "should call update_building_facet once, always" do
       p = ParseCrezData.new
       p.read(File.expand_path('test_data/rezdeskbldg.csv', File.dirname(__FILE__)))

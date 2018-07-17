@@ -32,17 +32,17 @@ describe CrezIndexer do
 #      pending "to be implemented once a standalone test index is used"
 #    end
   end
-  
+
   context "remove_stale_crez_data" do
     it "should remove crez data when the ckey no longer has crez data" do
       i = crez_indexer_stub
       expect(i).to receive(:add_solr_doc_to_ix).twice
-      expect(i).not_to receive(:add_solr_doc_to_ix).with(hash_including("crez_course_info"))
+      expect(i).not_to receive(:add_solr_doc_to_ix).with(hash_including("crez_course_info"), anything)
       ix_ckeys = ["1", "2"]
       data_ckeys = ["3", "4"]
       i.remove_stale_crez_data(ix_ckeys, data_ckeys)
     end
-    
+
     it "should leave solr doc alone if ckey is in current crez data" do
       i = crez_indexer_stub
       expect(i).to receive(:add_solr_doc_to_ix) do |arg|
