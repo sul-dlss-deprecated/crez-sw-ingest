@@ -11,3 +11,9 @@ group :test do
 	gem 'rsolr'  # test that solr index updates are done correctly
 	gem 'jettywrapper' # use jetty for Solr for integration tests
 end
+
+group :deploy do
+  gem 'capistrano'
+  gem 'capistrano-bundler'
+  gem 'dlss-capistrano'
+end
