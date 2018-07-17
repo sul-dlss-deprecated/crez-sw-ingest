@@ -14,8 +14,26 @@ task :rspec_wrapped => ['setup_jetty'] do
     :java_opts => "-Dsolr.data.dir=" + jetty_dir + "/solr/data",
     :startup_wait => 45
   })
-  error = Jettywrapper.wrap(jetty_params) do 
+  error = Jettywrapper.wrap(jetty_params) do
+    Rake::Task['index_sample_data'].invoke
     Rake::Task['rspec'].invoke
   end
   raise "TEST FAILURES: #{error}" if error
+end
+
+
+task :index_sample_data do
+  require File.expand_path('../../lib/settings',  File.dirname(__FILE__))
+  require 'rsolr'
+
+  settings_env = ENV["SETTINGS"] ||= 'test'
+  settings = Settings.new(settings_env)
+  client = RSolr.connect(url: settings.solr_url, update_format: :xml)
+  docs = JSON.parse(File.read(File.expand_path('../../spec/test_data/sample_solr_docs.json', File.dirname(__FILE__))))
+
+  docs.each do |d|
+    client.add d
+  end
+
+  client.commit
 end
