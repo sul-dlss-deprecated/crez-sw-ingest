@@ -49,7 +49,9 @@ RSpec.configure do |config|
   # order dependency and want to debug it, you can fix the order by providing
   # the seed, which is printed after each run.
   #     --seed 1234
-  config.order = :random
+  # That said, this test suite has to be run in the defined order because the
+  # tests are not isolated or independent of each other.
+  config.order = :defined
 
   # Seed global randomization in this process using the `--seed` CLI option.
   # Setting this allows you to use `--seed` to deterministically reproduce
