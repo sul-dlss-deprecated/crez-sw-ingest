@@ -80,8 +80,8 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
-    solrj_wrapper (1.0.2)
-    solrmarc_wrapper (0.0.6)
+    solrj_wrapper (1.1.0)
+    solrmarc_wrapper (1.0.0)
     sshkit (1.17.0)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
@@ -106,7 +106,7 @@ DEPENDENCIES
   rspec (~> 3)
   simplecov
   solrj_wrapper
-  solrmarc_wrapper
+  solrmarc_wrapper (~> 1.0)
   yard
 
 BUNDLED WITH

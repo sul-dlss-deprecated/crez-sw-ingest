@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gem 'yard' 				# for javadoc-y documentation tags
 gem 'rake'
 gem 'solrj_wrapper'
-gem 'solrmarc_wrapper'
+gem 'solrmarc_wrapper', '~> 1.0'
 
 group :test do
 	gem 'rspec', '~> 3'
