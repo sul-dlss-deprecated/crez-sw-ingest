@@ -15,7 +15,7 @@ test:
   solrmarc_dist_dir: solrmarc-sw/dist
   solrmarc_conf_props_file: sw_config.properties
   solr_url: http://localhost:8983/solr/
-  solr_source_url: http://searchworks-solr-lb.stanford.edu:8983/solr/
+  solr_source_url: http://sul-solr.stanford.edu/solr/searchworks-prod
   solrj_jar_dir: solrmarc-sw/dist/lib
   solrj_num_threads: 1
   log_level: info
